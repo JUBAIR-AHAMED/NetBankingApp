@@ -18,6 +18,7 @@
         	background-size: cover; 
 			background-position: center; 
 			background-repeat: no-repeat;
+			border-radius: 16px;
         }
         .right {
 	        margin: 0;

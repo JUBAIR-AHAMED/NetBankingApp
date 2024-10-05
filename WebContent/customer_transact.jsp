@@ -202,8 +202,8 @@
     }
     
     .trans {
-        width: 50%;
-        height: 50%;
+        width: 40%;
+        height: 45%;
         margin: 15px;
         background-color: white;
         border-radius: 15px;
@@ -227,6 +227,7 @@
         padding: 10px;
         font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
         display: flex;
+        color: #004A90;
     }
 
     .transinput {
@@ -235,9 +236,22 @@
     }
 
     .transbutton {
-        width: 150px;
-        height: 30px;
+        width: 180px;
+        height: 40px;
         align-self: center;
+        border: none;
+        font-size: larger;
+        color: white;
+        background-color: #004A90;
+        margin-top: 20px;
+        border-radius: 15px;
+        transition: transform 0.3s ease;
+    }
+
+    .transbutton:hover{
+        transform: scale(1.06);
+        background-color: #080a0a;
+        color: white;
     }
 </style>
 </head>
@@ -251,17 +265,17 @@
             <hr>
             <div class="options">
                 <span>
-                    <a href="http://localhost:8080/NetBanking/customer_myaccount.jsp">
+                    <a href="http://localhost:8080/NetBankingApp/customer_myaccount.jsp">
                         Account
                     </a>
                 </span>
                 <span>
-                    <a href="http://localhost:8080/NetBanking/customer_transact.jsp">
+                    <a href="http://localhost:8080/NetBankingApp/customer_transact.jsp">
                         Transact
                     </a>
                 </span>
                 <span>
-                    <a href="http://localhost:8080/NetBanking/statement.jsp">
+                    <a href="http://localhost:8080/NetBankingApp/customer_statement.jsp">
                         Statement
                     </a>
                 </span>
@@ -282,14 +296,14 @@
                 <span class="transhead">
                     Send Money
                 </span>
-                <span class="transinhead">
+                <span class="transinhead" >
                     Account Number
                 </span>
-                <input class="transinput" type="text">
+                <input class="transinput" type="number">
                 <span class="transinhead">
                     Amount
                 </span>
-                <input class="transinput" type="text">
+                <input class="transinput" type="number">
                 <span class="transinhead">
                     Remarks
                 </span>
