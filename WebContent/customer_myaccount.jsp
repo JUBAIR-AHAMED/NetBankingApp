@@ -126,7 +126,7 @@
         transform: scale(1.2);
     }
 
-    .header {
+	.header {
         height: 100px;
         display: flex;
         flex-direction: row;
@@ -134,6 +134,8 @@
         align-items: center;
         border-bottom: 2px solid transparent;
         border-color: #62a3a8;
+        background-color: white;
+        border-radius: 16px;
     }
 
     .header img {
@@ -234,17 +236,17 @@
             <hr>
             <div class="options">
                 <span>
-                    <a href="http://localhost:8080/NetBankingApp/customer_myaccount.jsp">
+                    <a href="customer_myaccount.jsp">
                         Account
                     </a>
                 </span>
                 <span>
-                    <a href="http://localhost:8080/NetBankingApp/customer_transact.jsp">
+                    <a href="customer_transact.jsp">
                         Transact
                     </a>
                 </span>
                 <span>
-                    <a href="http://localhost:8080/NetBankingApp/customer_statement.jsp">
+                    <a href="statement.jsp">
                         Statement
                     </a>
                 </span>

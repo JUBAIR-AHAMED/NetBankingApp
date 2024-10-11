@@ -297,17 +297,17 @@ tr:nth-child(even) {
             <hr>
             <div class="options">
                 <span>
-                    <a href="http://localhost:8080/NetBankingApp/customer_myaccount.jsp">
+                    <a href="customer_myaccount.jsp">
                         Account
                     </a>
                 </span>
                 <span>
-                    <a href="http://localhost:8080/NetBankingApp/customer_transact.jsp">
+                    <a href="customer_transact.jsp">
                         Transact
                     </a>
                 </span>
                 <span>
-                    <a href="http://localhost:8080/NetBankingApp/customer_statement.jsp">
+                    <a href="statement.jsp">
                         Statement
                     </a>
                 </span>

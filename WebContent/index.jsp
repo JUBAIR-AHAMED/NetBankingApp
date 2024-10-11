@@ -93,7 +93,7 @@
 			<span>BANK OF UTOPIA</span>
 		</div>
 		<div class="navbarright">
-			<a href="http://localhost:8080/NetBanking/signin.jsp">Sign In</a>
+			<a href="signin.jsp">Sign In</a>
 		</div>
 	</nav>
 	<div class="we">

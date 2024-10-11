@@ -98,7 +98,7 @@
         <span>BANK OF UTOPIA</span>
 	</div>
     <div class="container">
-        <form>
+        <form action="userlogin" method="post">
         	<span>Sign In</span>
             <div class="input-group">
                 <label for="username">Username</label>
@@ -108,7 +108,7 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <button type="submit" class="btn">Sign In</button>
+            <button type="submit" class="btn" value="Login">Sign In</button>
         </form>
     </div>
 	</div>
