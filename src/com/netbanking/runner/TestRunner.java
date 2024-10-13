@@ -36,9 +36,9 @@ public class TestRunner {
 //		}
         
         Customer customer = new Customer(
-        		10000010L,          // customer_id
+        		10000011L,          // customer_id
                 123456789019L,  // aadhar_number
-                "ABCDE12340"    // pan_number
+                "ABCDE12343"    // pan_number
             );
 //            try {
 //				dao.insert(customer);

@@ -123,6 +123,7 @@ import java.sql.Statement;
 import java.util.Map;
 import com.netbanking.mapper.GenericMapper;
 import com.netbanking.mapper.ReflectionMapper;
+import com.netbanking.mapper.YamlMapper;
 import com.netbanking.util.DBConnection;
 
 public class Dao {
@@ -138,12 +139,10 @@ public class Dao {
 	    String query = "SELECT * FROM " + tableName + " LIMIT 1";
 	    Statement metaStmt = connection.createStatement();
 	    ResultSet rs = metaStmt.executeQuery(query);
-	    ResultSetMetaData metaData = rs.getMetaData();
-	    
-	    
+
 	    // Map fields from entity
-	    Map<String, Object> fields = mapper.toMap(entity, metaData);
-	    	    
+	    Map<String, Object> fields = mapper.toMap(entity, rs);
+	    	    System.out.println(fields);
 	    // Check if fields map is empty
 	    if (fields.isEmpty()) {
 	        throw new SQLException("No fields found to insert for entity: " + entity);
@@ -153,7 +152,7 @@ public class Dao {
 	    StringBuilder sql = new StringBuilder("INSERT INTO ");
 	    sql.append(tableName).append(" (");
 	    
-	    // Add columns
+	    // Add columns	
 	    int index = 0;
 	    for (String column : fields.keySet()) {
 	        sql.append(column);
@@ -189,8 +188,8 @@ public class Dao {
 	        System.out.println("Insert successful for table: " + tableName);
 	    }
 	    
-	    rs.close();
 	    metaStmt.close();
+	    rs.close();
 	    connection.close();
 	}
 
@@ -200,10 +199,6 @@ public class Dao {
         GenericMapper<T> mapper = new ReflectionMapper<T>();
         
         String tableName = entity.getClass().getSimpleName().toLowerCase();
-        String query = "SELECT * FROM " + tableName + " LIMIT 1"; // Use a simple query to get the metadata
-        Statement metaStmt = connection.createStatement();
-        ResultSet rs = metaStmt.executeQuery(query);
-        ResultSetMetaData metaData = rs.getMetaData();
         
         //To get the primary key
         String primaryKey = null;
@@ -224,13 +219,12 @@ public class Dao {
         	} catch (SQLException e) {
         	    e.printStackTrace();
         	}
-
-
-        
-        rs.close();
+        String query = "SELECT * FROM " + tableName + " where " + primaryKey + " = "+YamlMapper.getFieldName(tableName, primaryKey); // Use a simple query to get the metadata
+        Statement metaStmt = connection.createStatement();
+        ResultSet rs = metaStmt.executeQuery(query);
         metaStmt.close();
         
-        Map<String, Object> fields = mapper.toMap(entity, metaData); // Pass ResultSetMetaData
+        Map<String, Object> fields = mapper.toMap(entity, rs); // Pass ResultSetMetaData
         
         StringBuilder sql = new StringBuilder("UPDATE ");
         sql.append(tableName).append(" SET ");

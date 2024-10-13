@@ -6,9 +6,9 @@ import java.util.Map;
 import org.yaml.snakeyaml.Yaml;
 
 public class YamlMapper {
-	private Map<String, Map<String, String>> map;
+	private static Map<String, Map<String, String>> map;
 	
-	public YamlMapper()
+	private YamlMapper()
 	{
 		Yaml yaml = new Yaml();
 		try(InputStream inputStream = getClass().getClassLoader().getResourceAsStream("mapping.yml"))
@@ -26,8 +26,12 @@ public class YamlMapper {
 		}
 	}
 	
-	public String getFieldName(String tableName, String columnName)
+	public static String getFieldName(String tableName, String columnName)
 	{
+		if(map == null)
+		{
+			new YamlMapper();
+		}
 		return map.get(tableName).get(columnName);
 	}
 }

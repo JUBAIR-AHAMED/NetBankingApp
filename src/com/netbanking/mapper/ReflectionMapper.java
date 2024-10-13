@@ -1,14 +1,16 @@
 package com.netbanking.mapper;
 
 import java.lang.reflect.Field;
+import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ReflectionMapper<T> implements GenericMapper<T> {
 
 	@Override
-	public Map<String, Object> toMap(T entity, ResultSetMetaData metaData) {
+	public Map<String, Object> toMap(T entity, ResultSet rs) {
 	    Map<String, Object> fieldMap = new HashMap<>();
 	    
 	    // Get the class of the entity
@@ -16,14 +18,25 @@ public class ReflectionMapper<T> implements GenericMapper<T> {
 	    
 	    // Iterate through all fields in the class
 	    Field[] fields = clazz.getDeclaredFields();
-	    YamlMapper ymap = new YamlMapper();
+//	    YamlMapper ymap = new YamlMapper();
+	    ResultSetMetaData metaData=null;
+	    Boolean rsState = true;
 	    
+		try {
+			metaData = rs.getMetaData();
+			if(!rs.next())
+			{
+				rsState = false;
+			}
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		
 	    try {
 	        for (int i = 1; i <= metaData.getColumnCount(); i++) {
 	            String columnName = metaData.getColumnName(i);
 	            String tableName = clazz.getSimpleName().toLowerCase();
-	            String dbColName = ymap.getFieldName(tableName, columnName);
-	            
+	            String dbColName = YamlMapper.getFieldName(tableName, columnName);
 	            
 	            // Try to match with class fields
 	            for (Field field : fields) {
@@ -35,13 +48,18 @@ public class ReflectionMapper<T> implements GenericMapper<T> {
 	                    Object value = field.get(entity);
 	                    
 	                    // Check if the field is an Enum and convert to String if necessary
-	                    if (value != null && field.getType().isEnum()) {
-	                        value = ((Enum<?>) value).name(); // Convert enum to its name
+	                    if (value != null) {
+	                    	if(field.getType().isEnum())
+	                    	{
+	                    		value = ((Enum<?>) value).name(); // Convert enum to its name
+	                    	}
+	                    	if(!rsState||!value.equals(rs.getObject(columnName)))
+	                    	{
+	                    		fieldMap.put(columnName, value);
+	                    	}
 	                    }
-	                    fieldMap.put(columnName, value);
 	                }
 	            }
-	            System.out.println("values: "+fieldMap);
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace(); // Handle exceptions as needed
