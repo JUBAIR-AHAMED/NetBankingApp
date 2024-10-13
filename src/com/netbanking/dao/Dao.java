@@ -124,6 +124,7 @@ import java.util.Map;
 import com.netbanking.mapper.GenericMapper;
 import com.netbanking.mapper.ReflectionMapper;
 import com.netbanking.mapper.YamlMapper;
+import com.netbanking.model.Model;
 import com.netbanking.util.DBConnection;
 
 public class Dao {
@@ -194,7 +195,7 @@ public class Dao {
 	}
 
     
-    public <T> void update(T entity) throws SQLException {
+    public <T extends Model> void update(T entity) throws SQLException {
         Connection connection = DBConnection.getConnection();
         GenericMapper<T> mapper = new ReflectionMapper<T>();
         
@@ -219,13 +220,13 @@ public class Dao {
         	} catch (SQLException e) {
         	    e.printStackTrace();
         	}
-        String query = "SELECT * FROM " + tableName + " where " + primaryKey + " = "+YamlMapper.getFieldName(tableName, primaryKey); // Use a simple query to get the metadata
+        
+        String query = "SELECT * FROM " + tableName + " where " + primaryKey + " = " + entity.getId(); // Use a simple query to get the metadata
         Statement metaStmt = connection.createStatement();
         ResultSet rs = metaStmt.executeQuery(query);
-        metaStmt.close();
         
         Map<String, Object> fields = mapper.toMap(entity, rs); // Pass ResultSetMetaData
-        
+        System.out.println("fields"+fields);
         StringBuilder sql = new StringBuilder("UPDATE ");
         sql.append(tableName).append(" SET ");
 
@@ -241,7 +242,7 @@ public class Dao {
             index++;
         }
         sql.append(" WHERE ").append(primaryKey).append(" = ?"); // Adjust this line as needed for the ID field
-
+        System.out.println("Update query: "+sql.toString());
         try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
             index = 0;
             
@@ -249,17 +250,19 @@ public class Dao {
             {
             	
             	System.out.println(entry.getKey()+" "+entry.getValue());
-            	if(!primaryKey.contentEquals(entry.getKey()))
+            	if(!primaryKey.equals(entry.getKey()))
             	{
             		stmt.setObject(index+1, entry.getValue());
             		index++;
             	}
             }
         	
-            stmt.setObject(index, fields.get(primaryKey)); // Use your ID getter method
+            stmt.setObject(index+1, entity.getId()); // Use your ID getter method
             stmt.executeUpdate();
         }
         
+        metaStmt.close();
+        rs.close();
         connection.close();
     }
 }
