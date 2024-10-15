@@ -2,7 +2,9 @@ package com.netbanking.object;
 
 import java.util.Date;
 
-public class User {
+import com.netbanking.model.Model;
+
+public class User implements Model{
     private Long userId;
     private String password;
     private Role role;
@@ -130,6 +132,11 @@ public class User {
 
     public void setModifiedBy(long modifiedBy) {
         this.modifiedBy = modifiedBy;
-    }    
+    }
+
+	@Override
+	public String getIdField() {
+		return "user_id";
+	}    
 }
 

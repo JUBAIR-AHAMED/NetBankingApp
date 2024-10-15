@@ -44,16 +44,6 @@ public class Customer implements Model {
     public Long getId() {
         return customerId;
     }
-
-    @Override
-    public String getTableName() {
-        return "customer";
-    }
-
-    @Override
-    public List<Object> getFields() {
-        return Arrays.asList(customerId, aadharNumber, panNumber);
-    }
     
     @Override
     public String getIdField() {
