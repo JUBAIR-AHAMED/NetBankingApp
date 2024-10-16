@@ -17,23 +17,23 @@ import com.netbanking.object.User;
 public class TestRunner {
 
     public static void main(String[] args) {
-        Dao dao = new Dao();
+//        Dao dao = new Dao();
         
 
 //         Testing User insertion
-        User user = new User(
-            10000012L,
-            "password123",
-            Role.CUSTOMER,
-            "Jubair Ahamed",
-            "jubair@example.cox",
-            "9876543290",
-            new Date(103, 9, 23),
-            Status.ACTIVE,
-            System.currentTimeMillis(),
-            System.currentTimeMillis(),
-            0L
-        );
+//        User user = new User(
+//            10000012L,
+//            "password123",
+//            Role.CUSTOMER,
+//            "Jubair Ahamed",
+//            "jubair@example.cox",
+//            "9876543290",
+//            new Date(103, 9, 23),
+//            Status.ACTIVE,
+//            System.currentTimeMillis(),
+//            System.currentTimeMillis(),
+//            0L
+//        );
         
 //        Map<String, Object> updateValues = new HashMap<>();
 //        updateValues.put("password", "newSecurePassword123");
@@ -51,11 +51,11 @@ public class TestRunner {
 //        List<String> conditions = Arrays.asList("AND");
 
         
-//        Customer customer = new Customer(
-//        		10000012L,          // customer_id
-//                123456789018L,  // aadhar_number
-//                "ABCDE12343"    // pan_number
-//            );
+        Customer customer = new Customer(
+        		10000012L,          // customer_id
+                123456789018L,  // aadhar_number
+                "ABCDE12343"    // pan_number
+            );
 //        
 //        Employee employee = new Employee();
 //        employee.setBranchId(001L);
@@ -90,6 +90,12 @@ public class TestRunner {
 //				e.printStackTrace();
 //			}
         
+        try {
+			runTest();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 //        try {
 //			dao.insert(employee);
 //		} catch (SQLException e) {
@@ -134,24 +140,44 @@ public class TestRunner {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-        
-        List<String> selectFields = Arrays.asList("user_id", "name", "email");
+    }
+    
+    public static void runTest() throws SQLException {
+        String tableName = "user";
+        Map<String, Object> updateValues = new HashMap<>();
+        updateValues.put("status", "INACTIVE");
 
         Map<String, Object> updateConditionValues = new HashMap<>();
-        updateConditionValues.put("status", Status.ACTIVE);
-        updateConditionValues.put("role", Role.CUSTOMER);
-        updateConditionValues.put("user_id", 10000012L);
+        updateConditionValues.put("user_id", 10000012L); // Condition to match specific user_id
 
-        List<String> operators = Arrays.asList("=", "=", "=");
+        String joinTableName = "customer";
+        Map<String, Object> joinTableUpdateValues = new HashMap<>();
+        joinTableUpdateValues.put("aadhar_number", "218139471381");
 
+        Map<String, Object> joinTableUpdateConditionValues = new HashMap<>();
+        joinTableUpdateConditionValues.put("customer_id", 10000012L); // Condition to match specific customer_id
+
+        // ON condition for JOIN clause
+        Map<String, String> onCondition = new HashMap<>();
+        onCondition.put("user_id", "customer_id"); // user.user_id = customer.user_id
+
+        // Operators for conditions (assuming equality for simplicity)
+        // The first is for the ON condition, the remaining for WHERE conditions.
+        // Adjust the number of operators according to the number of conditions.
+        String equals = "=";
+        List<String> operators = Arrays.asList(equals, equals, equals);
+
+        // Logical conditions (AND/OR)
+        // Adjust the number of conditions according to the number of WHERE conditions.
         List<String> conditions = Arrays.asList("AND", "AND");
 
-        Dao instance = new Dao();
+        // Call the update method (assumes an instance of your class with the method exists)
+        // Replace YourDAOClass with the class where your update method is defined.
+//        Dao dao = new Dao();
+//        dao.update(tableName, updateValues, updateConditionValues, 
+//                   joinTableName, joinTableUpdateValues, 
+//                   joinTableUpdateConditionValues, onCondition, operators, conditions);
 
-        try {
-			System.out.println(instance.select("user", selectFields, updateConditionValues, operators, conditions));
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+        System.out.println("Update operation completed.");
     }
 }

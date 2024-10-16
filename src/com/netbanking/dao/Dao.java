@@ -7,330 +7,231 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.netbanking.exception.CustomException;
 import com.netbanking.mapper.GenericMapper;
 import com.netbanking.mapper.ReflectionMapper;
 import com.netbanking.model.Model;
+import com.netbanking.object.QueryRequest;
 import com.netbanking.util.DBConnection;
 import com.netbanking.util.TableHelper;
 
 public interface Dao {
+	//Insert operation
+	default void insert(String tableName, Map<String, Object> insertValues) throws SQLException {
+	    StringBuilder sql = new StringBuilder("INSERT INTO ");
+	    sql.append(tableName).append(" (");
 
-	default <T extends Model> void insert(T entity) throws SQLException {
-		String tableName = TableHelper.getTableName(entity);
-		GenericMapper<T> mapper = new ReflectionMapper<T>();
+	    int fieldCount = insertValues.size();
 
-		try(Connection connection = DBConnection.getConnection();)
-		{
-		    // Map fields from entity
-		    Map<String, Object> fields = mapper.toMap(entity);
+	    int index = 0;
+	    for (String field : insertValues.keySet()) {
+	        sql.append(field);
+	        if (index < fieldCount - 1) {
+	            sql.append(", ");
+	        }
+	        index++;
+	    }
 
-		    // Check if fields map is empty
-		    if (fields.isEmpty()) {
-		        throw new SQLException("No fields found to insert for entity: " + entity);
-		    }
-		    
-		    // Dynamically construct the SQL query
-		    StringBuilder sql = new StringBuilder("INSERT INTO ");
-		    sql.append(tableName).append(" (");
-		    
-		    // Add columns	
-		    int index = 0;
-		    int fieldSize = fields.size();
-		    for (String column : fields.keySet()) {
-		        sql.append(column);
-		        if (index < fieldSize - 1) {
-		            sql.append(", ");
-		        }
-		        index++;
-		    }
-		    sql.append(") VALUES (");
-		    
-		    // Add placeholders
-		    index = 0;
-		    for (int i = 0; i < fieldSize; i++) {
-		        sql.append("?");
-		        if (i < fieldSize - 1) {
-		            sql.append(", ");
-		        }
-		    }
-		    sql.append(")");
-	
-		    // Prepare the statement
-		    try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
-		        index = 0;
-		        for (Object value : fields.values()) {
-		            stmt.setObject(index + 1, value);
-		            index++;
-		        }
-	
-		        // Execute the insert
-		        stmt.executeUpdate();
-		        System.out.println("Insert successful for table: " + tableName);
-		    }
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-    
-//	public <T extends Model> void update(T entity) throws SQLException {
-//	    String tableName = TableHelper.getTableName(entity);
-//
-//	    try (Connection connection = DBConnection.getConnection()) {
-//	        GenericMapper<T> mapper = new ReflectionMapper<>();
-//	        Map<String, Object> fields = mapper.toMap(entity);
-//
-//	        StringBuilder sql = new StringBuilder("UPDATE ");
-//	        sql.append(tableName).append(" SET ");
-//
-//	        int index = 0;
-//	        int fieldSize = fields.size();
-//	        for (String column : fields.keySet()) {
-//	            if (!column.equals(entity.getIdField())) {
-//	                sql.append(column).append(" = ?");
-//	                if (index < fieldSize - 1) {
-//	                    sql.append(", ");
-//	                }
-//	                index++;
-//	            }
-//	        }
-//	        // Move the WHERE clause outside of the loop
-//	        sql.append(" WHERE ").append(entity.getIdField()).append(" = ?");
-//
-//	        System.out.println("Update query: " + sql.toString());
-//
-//	        try (PreparedStatement updateStmt = connection.prepareStatement(sql.toString())) {
-//	            index = 0;
-//
-//	            // Set the parameters for the columns being updated
-//	            for (Map.Entry<String, Object> entry : fields.entrySet()) {
-//	                if (!entity.getIdField().equals(entry.getKey())) {
-//	                    updateStmt.setObject(index + 1, entry.getValue());
-//	                    index++;
-//	                }
-//	            }
-//
-//	            // Set the parameter for the WHERE clause
-//	            updateStmt.setObject(index + 1, entity.getId()); // Use your ID getter method
-//	            updateStmt.executeUpdate();
-//	        }
-//	    }
-//	}
-//	
-	default void update(String tableName,
-					   Map<String, Object> updateValues, 
-					   Map<String, Object> updateConditionValues, 
-					   List<String> operators,
-					   List<String> conditions,
-					   String joinTableName,
-					   Map<String, Object> joinTableUpdateValues,
-					   Map<String, Object> joinTableUpdateConditionValues,
-					   Map<String, String> onCondition) throws SQLException {
+	    sql.append(") VALUES (");
 
-		StringBuilder sql = new StringBuilder("UPDATE ").append(tableName);
-		
-		int onMapSize = onCondition.size();
-		int index = 1;
-		
-		if(joinTableName != null)
-		{
-			sql.append(" JOIN ").append(joinTableName).append(" ON ");
-			for(Map.Entry<String, String> entry : onCondition.entrySet())
-			{
-				sql.append(tableName+"."+entry.getKey()).append(" = ").append(joinTableName+"."+entry.getKey());
-				if(index < onMapSize)
-				{
-					sql.append(", ");
-				}
-				index++;
-			}
-		}		
+	    for (int i = 0; i < fieldCount; i++) {
+	        sql.append("?");
+	        if (i < fieldCount - 1) {
+	            sql.append(", ");
+	        }
+	    }
 
-		sql.append(" SET ");
-		
-		int updateMapSize = updateValues.size();
-		int updateConditionMapSize = updateConditionValues.size();
-		index=1;
+	    sql.append(")");
+	    try (Connection connection = DBConnection.getConnection();
+	    	     PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
 
-		for(Map.Entry<String, Object> entry : updateValues.entrySet())
-		{
-			sql.append(entry.getKey()).append(" = ? ");
-			if(index < updateMapSize)
-			{
-				sql.append(", ");
-			}
-			index++;
-		}
-		
-		sql.append("WHERE ");
-		index=1;
-		
-		for(Map.Entry<String, Object> entry : updateConditionValues.entrySet())
-		{
-			Object value = entry.getValue();
-			if(value.getClass().isEnum())
-			{
-				value = ((Enum<?>) value).name();
-			}
-			sql.append(entry.getKey()).append(" ").append(operators.get(index-1)).append(" ? ");
-			if(index < updateConditionMapSize)
-			{
-				sql.append(conditions.get(index-1)).append(" ");
-			}
-			index++;
-		}
-		
-		System.out.println(sql);
-		index=1;
-		
-		try(Connection connection = DBConnection.getConnection();
-			PreparedStatement stmt = connection.prepareStatement(sql.toString()))
-		{
-			for(Map.Entry<String, Object> entry : updateValues.entrySet())
-			{
-				Object value = entry.getValue();
-				if(value.getClass().isEnum())
-				{
-					value = ((Enum<?>) value).name();
-				}
-				stmt.setObject(index, value);
-				index++;
-			}
-			
-			for(Map.Entry<String, Object> entry : updateConditionValues.entrySet())
-			{
-				Object value = entry.getValue();
-				if(value.getClass().isEnum())
-				{
-					value = ((Enum<?>) value).name();
-				}
-				System.out.println(value);
-				stmt.setObject(index, value);
-				index++;
-			}
-			stmt.executeUpdate();
-		}
+	    	    int parameterIndex = 1;
+	    	    for (Object value : insertValues.values()) {
+	    	        stmt.setObject(parameterIndex++, value);
+	    	    }
+
+	    	    stmt.executeUpdate();
+	    	} 
 	}
 	
-	default void delete(String tableName, Map<String, Object> deleteConditionValues, List<String> operators, List<String> conditions) throws SQLException
-	{
-		StringBuilder sql = new StringBuilder("DELETE FROM ").append(tableName);
-		
-		int updateConditionMapSize = deleteConditionValues.size();
-		int index=1;
-		
-		sql.append(" WHERE ");
-		index=1;
-		
-		for(Map.Entry<String, Object> entry : deleteConditionValues.entrySet())
-		{
-			Object value = entry.getValue();
-			if(value.getClass().isEnum())
-			{
-				value = ((Enum<?>) value).name();
-			}
-			sql.append(entry.getKey()).append(" ").append(operators.get(index-1)).append(" ? ");
-			if(index < updateConditionMapSize)
-			{
-				sql.append(conditions.get(index-1)).append(" ");
-			}
-			index++;
-		}
-		
-		System.out.println(sql);
-		index=1;
-		
-		try(Connection connection = DBConnection.getConnection();
-			PreparedStatement stmt = connection.prepareStatement(sql.toString()))
-		{			
-			for(Map.Entry<String, Object> entry : deleteConditionValues.entrySet())
-			{
-				Object value = entry.getValue();
-				if(value.getClass().isEnum())
-				{
-					value = ((Enum<?>) value).name();
-				}
-				System.out.println(value);
-				stmt.setObject(index, value);
-				index++;
-			}
-			System.out.println(stmt);
-			stmt.executeUpdate();
-			System.out.println("done");
-		}
+	//Delete operation
+	default void delete(String tableName, Map<String, Object> conditions) throws SQLException {
+	    StringBuilder sql = new StringBuilder("DELETE FROM ");
+	    sql.append(tableName);
+	    
+	    if (!conditions.isEmpty()) {
+	        sql.append(" WHERE ");
+	        int index = 0;
+	        for (String key : conditions.keySet()) {
+	            sql.append(key).append(" = ?");
+	            if (index < conditions.size() - 1) {
+	                sql.append(" AND "); // Change to OR if necessary
+	            }
+	            index++;
+	        }
+	    }
+	    try (Connection connection = DBConnection.getConnection();
+	    	     PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
+
+	    	    int parameterIndex = 1;
+	    	    for (Object value : conditions.values()) {
+	    	        stmt.setObject(parameterIndex++, value);
+	    	    }
+
+	    	    stmt.executeUpdate();
+	    	}
 	}
 	
-	public List<List<Object>> select(String tableName, List<String> selectFields, Map<String, Object> updateConditionValues, List<String> operators, List<String> conditions) throws SQLException
-	{
-		StringBuilder sql = new StringBuilder("SELECT ");
-		List<List<Object>> resultList = new ArrayList<>();
-		int selectFieldSize = selectFields.size();
-		int updateConditionMapSize = updateConditionValues.size();
-		int index=1;
+	//Update operation
+	default void update(QueryRequest request) throws SQLException {
+        StringBuilder sql = new StringBuilder("UPDATE ").append(request.getTableName());
+        
+        String joinTableName = request.getJoinTableName();
+        Map<String, Object> whereConditions = request.getWhereConditions();
+        Map<String, String> joinConditions = request.getJoinConditions();
+        Map<String, Object> updates = request.getUpdates();
+        
+        if (joinTableName != null) {
+            sql.append(" JOIN ").append(joinTableName).append(" ON ");
+            appendJoinConditions(sql, joinConditions, request.getJoinOperators(), request.getJoinLogicalOperators());
+        }
 
-		for(String fields : selectFields)
-		{
-			sql.append(fields);
-			if(index < selectFieldSize)
-			{
-				sql.append(", ");
-			}
-			index++;
+        sql.append(" SET ");
+        appendUpdateValues(sql, updates);
+
+        if (whereConditions != null && !whereConditions.isEmpty()) {
+            sql.append(" WHERE ");
+            appendConditions(sql, whereConditions, request.getWhereOperators(), request.getWhereLogicalOperators());
+        }
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
+            setParameters(stmt, updates, whereConditions);
+            stmt.executeUpdate();
+        }
+    }
+
+    //Select operation
+    default List<List<Object>> select(QueryRequest request) throws SQLException, Exception {
+        StringBuilder sql = new StringBuilder("SELECT ");
+        List<List<Object>> list = null;
+
+        appendSelectColumns(sql, request.getSelectColumns());
+        sql.append(" FROM ").append(request.getTableName());
+        
+        String joinTableName = request.getJoinTableName();
+        
+        if (joinTableName != null) {
+            sql.append(" JOIN ").append(joinTableName).append(" ON ");
+            appendJoinConditions(sql, request.getJoinConditions(), request.getJoinOperators(), request.getJoinLogicalOperators());
+        }
+
+        if (request.getWhereConditions() != null && !request.getWhereConditions().isEmpty()) {
+            sql.append(" WHERE ");
+            appendConditions(sql, request.getWhereConditions(), request.getWhereOperators(), request.getWhereLogicalOperators());
+        }
+
+        if (request.getOrderByColumns() != null && !request.getOrderByColumns().isEmpty()) {
+            sql.append(" ORDER BY ").append(String.join(", ", request.getOrderByColumns()));
+        }
+
+        if (request.getLimit() != null) {
+            sql.append(" LIMIT ").append(request.getLimit());
+        }
+
+        try (Connection connection = DBConnection.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
+            setParameters(stmt, null, request.getWhereConditions());
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next())
+            {
+            	if(list==null)
+            	{
+            		list = new ArrayList<>();
+            	}
+            	List<Object> tempList = new ArrayList<>();
+            	for(String columnName : request.getSelectColumns())
+            	{
+            		tempList.add(rs.getObject(columnName));
+            	}
+            	list.add(tempList);
+            }
+            return list;
+        }
+        catch (Exception e) {
+			throw new Exception("Failed getting the data.");
 		}
-		
-		sql.append(" from ")
-			.append(tableName)
-			.append(" WHERE ");
-		
-		index=1;
-		
-		for(Map.Entry<String, Object> entry : updateConditionValues.entrySet())
-		{
-			Object value = entry.getValue();
-			if(value.getClass().isEnum())
-			{
-				value = ((Enum<?>) value).name();
-			}
-			sql.append(entry.getKey()).append(" ").append(operators.get(index-1)).append(" ? ");
-			if(index < updateConditionMapSize)
-			{
-				sql.append(conditions.get(index-1)).append(" ");
-			}
-			index++;
-		}
-		
-		System.out.println(sql);
-		index=1;
-		
-		try(Connection connection = DBConnection.getConnection();
-			PreparedStatement stmt = connection.prepareStatement(sql.toString()))
-		{			
-			for(Map.Entry<String, Object> entry : updateConditionValues.entrySet())
-			{
-				Object value = entry.getValue();
-				if(value.getClass().isEnum())
-				{
-					value = ((Enum<?>) value).name();
-				}
-				stmt.setObject(index, value);
-				index++;
-			}
-			System.out.println(stmt);
-			ResultSet rs = stmt.executeQuery();
-			while(rs.next())
-			{
-				List<Object> tempList = new ArrayList<>();
-				for(String fields : selectFields)
-				{
-					tempList.add(rs.getObject(fields));
-				}
-				resultList.add(tempList);
-			}
-			return resultList;
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
-			throw new SQLException(e);
-		}
-	}
+        
+    }
+
+    // Helper methods for building the SQL query
+    default void appendJoinConditions(StringBuilder sql, 
+    								  Map<String, String> joinConditions, 
+    								  List<String> joinOperators, 
+    								  List<String> logicalOperators) {
+        int index = 0;
+        for (Map.Entry<String, String> entry : joinConditions.entrySet()) {
+            sql.append(entry.getKey())
+               .append(" ")
+               .append(joinOperators.get(index))
+               .append(" ")
+               .append(entry.getValue());
+
+            // Add logical operators (e.g., AND, OR) if it's not the last condition
+            if (index < joinConditions.size() - 1) {
+                sql.append(" ").append(logicalOperators.get(index)).append(" ");
+            }
+            index++;
+        }
+    }
+
+    default void appendUpdateValues(StringBuilder sql, Map<String, Object> updates) {
+        int index = 0;
+        for (String key : updates.keySet()) {
+            sql.append(key).append(" = ?");
+            if (index < updates.size() - 1) {
+                sql.append(", ");
+            }
+            index++;
+        }
+    }
+
+    default void appendSelectColumns(StringBuilder sql, List<String> selectColumns) {
+        if (selectColumns == null || selectColumns.isEmpty()) {
+            sql.append("*");
+        } else {
+            sql.append(String.join(", ", selectColumns));
+        }
+    }
+
+    default void appendConditions(StringBuilder sql, Map<String, Object> conditions, List<String> operators, List<String> logicOperators) {
+        int index = 0;
+        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+            sql.append(entry.getKey())
+               .append(" ")
+               .append(operators.get(index))
+               .append(" ?");
+
+            // Add AND or OR if it exists and is not the last condition
+            if (index < conditions.size() - 1 && index < logicOperators.size()) {
+                sql.append(" ").append(logicOperators.get(index)).append(" ");
+            }
+            index++;
+        }
+    }
+
+    default void setParameters(PreparedStatement stmt, Map<String, Object> updates, Map<String, Object> conditions) throws SQLException {
+        int index = 1;
+        if (updates != null) {
+            for (Object value : updates.values()) {
+                stmt.setObject(index++, value);
+            }
+        }
+        if (conditions != null) {
+            for (Object value : conditions.values()) {
+                stmt.setObject(index++, value);
+            }
+        }
+    }
 }

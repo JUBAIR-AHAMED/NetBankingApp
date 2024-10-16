@@ -6,24 +6,13 @@ import java.util.Map;
 
 import com.netbanking.object.QueryRequest;
 
-public class UserDao implements Dao {
-	
-	public void userInsert(Map<String, Object> insertValues) throws SQLException {
-		insert("users", insertValues);
+public class EmployeeDao implements Dao{
+	public void insert(Map<String, Object> insertValues) throws SQLException {
+		insert("employee", insertValues);
     }
-	
-	public void userCustomerInsert(Map<String, Object> userValues, Map<String, Object> customerValues) throws SQLException {
-		insert("users", userValues);
-		insert("customer", customerValues);
-    }
-	
-	public void userEmployeeInsert(Map<String, Object> userValues, Map<String, Object> employeeValues) throws SQLException {
-		insert("users", userValues);
-		insert("users", employeeValues);
-	}
 	
 	public void delete(Map<String, Object> conditions) throws SQLException {
-        delete("users", conditions);
+        delete("employee", conditions);
     }
 	
 	public List<List<Object>> select(List<String> selectColumns, 
@@ -37,7 +26,7 @@ public class UserDao implements Dao {
             List<String> joinLogicalOperators) throws SQLException, Exception {
 		
 			QueryRequest request = new QueryRequest();
-			request.setTableName("users"); // Corrected table name to "users"
+			request.setTableName("employee"); // Corrected table name to "users"
 			request.setSelectColumns(selectColumns);
 			request.setWhereConditions(whereConditions);
 			request.setWhereOperators(whereOperators);
@@ -60,7 +49,7 @@ public class UserDao implements Dao {
             List<String> joinOperators,
             List<String> joinLogicalOperators) throws SQLException {
 		QueryRequest request = new QueryRequest();
-		request.setTableName("users");
+		request.setTableName("employee");
 		request.setUpdates(updates);
 		request.setWhereConditions(whereConditions);
 		request.setJoinTableName(joinTableName);
@@ -72,5 +61,4 @@ public class UserDao implements Dao {
 		
 		update(request);
 	}
-
 }
