@@ -1,10 +1,8 @@
 package com.netbanking.object;
 
-import java.util.Arrays;
-import java.util.List;
 import com.netbanking.model.Model;
 
-public class Customer implements Model {
+public class Customer extends User implements Model {
     private Long customerId;
     private Long aadharNumber;
     private String panNumber;
@@ -24,6 +22,10 @@ public class Customer implements Model {
         this.customerId = customerId;
     }
 
+    public Long getCustomerId() {
+    	return customerId;
+    }
+
     public Long getAadharNumber() {
         return aadharNumber;
     }
@@ -38,15 +40,5 @@ public class Customer implements Model {
 
     public void setPanNumber(String panNumber) {
         this.panNumber = panNumber;
-    }
-    
-    @Override
-    public Long getId() {
-        return customerId;
-    }
-    
-    @Override
-    public String getIdField() {
-        return "customer_id";  // Return the actual column name for the primary key
-    }
+    }    
 }

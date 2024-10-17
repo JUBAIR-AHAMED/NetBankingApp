@@ -93,14 +93,4 @@ public class Transaction implements Model {
     public void setModifiedBy(Long modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
-
-    @Override
-    public Long getId() {
-        return referenceNumber; 
-    }
-
-    @Override
-    public String getIdField() {
-        return "reference_number"; // Return the actual column name for the primary key
-    }
 }

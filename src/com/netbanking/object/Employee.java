@@ -2,20 +2,9 @@ package com.netbanking.object;
 
 import com.netbanking.model.Model;
 
-public class Employee implements Model {
+public class Employee extends User implements Model {
     private Long employeeId;
     private Long branchId;
-    private Role role;
-
-    @Override
-    public Long getId() {
-        return employeeId;
-    }
-
-    @Override
-    public String getIdField() {
-        return "employee_id";
-    }
 
     // Getter for employeeId
     public Long getEmployeeId() {

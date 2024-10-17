@@ -1,12 +1,13 @@
 package com.netbanking.mapper;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
 
 public class YamlMapper {
-	private static Map<String, Map<String, String>> map;
+	private static Map<String, Object> map;
 	
 	private YamlMapper()
 	{
@@ -26,12 +27,35 @@ public class YamlMapper {
 		}
 	}
 	
-	public static String getFieldName(String tableName, String columnName)
+	public static String getTableName(String objectName) {
+        if (map == null) {
+            new YamlMapper();
+        }
+
+        @SuppressWarnings("unchecked")
+        String tableName = (String) ((Map<String, Object>) ((Map<String, Object>) map.get("relatedtable")).get(objectName)).get("table");
+
+        return tableName;  // Return null if no mapping is found
+    }
+	
+	public static List<String> getRelatedTableNames(String objectName) {
+        if (map == null) {
+            new YamlMapper();
+        }
+
+        @SuppressWarnings("unchecked")
+        List<String> tables = (List<String>) ((Map<String, Object>) ((Map<String, Object>) map.get("relatedtable")).get(objectName)).get("tables");
+
+        return tables;  // Return null if no mapping is found
+    }
+	
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> getTableField(String tableName)
 	{
-		if(map == null)
-		{
-			new YamlMapper();
-		}
-		return map.get(tableName).get(columnName);
+		if (map == null) {
+            new YamlMapper();
+        }
+		
+        return (Map<String, Object>) ((Map<String, Object>) map.get("table")).get(tableName) ;  
 	}
 }

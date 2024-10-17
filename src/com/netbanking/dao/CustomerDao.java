@@ -4,9 +4,11 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import com.netbanking.model.Model;
+import com.netbanking.object.Customer;
 import com.netbanking.object.QueryRequest;
 
-public class CustomerDao implements Dao{
+public class CustomerDao<T extends Model> implements Dao<T> {
 	public void insert(Map<String, Object> insertValues) throws SQLException {
 		insert("customer", insertValues);
     }
@@ -15,7 +17,7 @@ public class CustomerDao implements Dao{
         delete("customer", conditions);
     }
 	
-	public List<List<Object>> select(List<String> selectColumns, 
+	public List<Map<String, Object>> customerSelect(List<String> selectColumns, 
             Map<String, Object> whereConditions, 
             List<String> whereOperators, 
             List<String> orderByColumns, 
@@ -61,5 +63,4 @@ public class CustomerDao implements Dao{
 		
 		update(request);
 	}
-
 }

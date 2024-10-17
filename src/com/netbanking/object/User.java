@@ -4,53 +4,25 @@ import java.util.Date;
 
 import com.netbanking.model.Model;
 
-public class User implements Model{
-    private Long userId;
-    private String password;
-    private Role role;
-    private String name;
-    private String email;
-    private String mobile;
-    private Date dateOfBirth;
-    private Status status;
-    private Long creationTime;
-    private Long modifiedTime;
-    private Long modifiedBy;
+public abstract class User implements Model {
+    protected Long userId;
+    protected String password;
+    protected Role role;
+    protected String name;
+    protected String email;
+    protected String mobile;
+    protected Date dateOfBirth;
+    protected Status status;
+    protected Long creationTime;
+    protected Long modifiedTime;
+    protected Long modifiedBy;
     
-    public User() {
-    }
-
-    public User(Long userId, String password, Role role, String name, String email, String mobile, Date dateOfBirth, Status status, Long modifiedBy) {
-        this.userId = userId;
-        this.password = password;
-        this.role = role;
-        this.name = name;
-        this.email = email;
-        this.mobile = mobile;
-        this.dateOfBirth = dateOfBirth;
-        this.status = status;
-        this.modifiedBy = modifiedBy;
-    }
-    
-    public User(Long userId, String password, Role role, String name, String email, String mobile, Date dateOfBirth, Status status, Long creationTime, Long modifiedTime, Long modifiedBy) {
-        this.userId = userId;
-        this.password = password;
-        this.role = role;
-        this.name = name;
-        this.email = email;
-        this.mobile = mobile;
-        this.dateOfBirth = dateOfBirth;
-        this.status = status;
-        this.creationTime = creationTime;
-        this.modifiedTime = modifiedTime;
-        this.modifiedBy = modifiedBy;
-    }
-
+  //user getter and setters
     public void setUserId(long userId) {
         this.userId = userId;
     }
     
-    public Long getId() {
+    public Long getUserId() {
         return userId;
     }
     
@@ -134,9 +106,8 @@ public class User implements Model{
         this.modifiedBy = modifiedBy;
     }
 
-	@Override
 	public String getIdField() {
 		return "user_id";
-	}    
+	}
 }
 

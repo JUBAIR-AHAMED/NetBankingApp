@@ -1,78 +1,134 @@
-user:
-  user_id: "userId"
-  password: "password"
-  role: "role"
-  name: "name"
-  mobile: "mobile"
-  email: "email"
-  status: "status"
-  date_of_birth: "dateOfBirth"
-  creation_time: "creationTime"
-  modified_time: "modifiedTime"
-  userId: "user_id"
-  dateOfBirth: "date_of_birth"
-  creationTime: "creation_time"
-  modifiedTime: "modified_time"
-  modified_by: "modifiedBy"
-  modifiedBy: "modified_by"
-customer:
-  customer_id: "customerId"
-  aadhar_number: "aadharNumber"
-  pan_number: "panNumber"
-  customerId: "customer_id"
-  aadharNumber: "aadhar_number"
-  panNumber: "pan_number"
-employee:
-  employee_id: "employeeId"
-  branch_id: "branchId"
-  role: "role"
-  employeeId: "employee_id"
-  branchId: "branch_id"
-branch:
-  branch_id: "branchId"
-  ifsc: "ifsc"
-  name: "name"
-  employee_id: "employeeId"
-  address: "address"
-  creation_time: "creationTime"
-  modified_time: "modifiedTime"
-  modified_by: "modifiedBy"
-  branchId: "branch_id"
-  employeeId: "employee_id"
-  creationTime: "creation_time"
-  modifiedTime: "modified_time"
-  modifiedBy: "modified_by"
-account:
-  account_number: "accountNumber"
-  user_id: "userId"
-  branch_id: "branchId"
-  account_type: "accountType"
-  date_of_opening: "dateOfOpening"
-  balance: "balance"
-  status: "status"
-  creation_time: "creationTime"
-  modified_time: "modifiedTime"
-  modified_by: "modifiedBy"
-  accountNumber: "account_number"
-  userId: "user_id"
-  branchId: "branch_id"
-  accountType: "account_type"
-  dateOfOpening: "date_of_opening"
-  creationTime: "creation_time"
-  modifiedTime: "modified_time"
-  modifiedBy: "modified_by"
-transaction:
-  reference_number: "referenceNumber"
-  transaction_amount: "transactionAmount"
-  timestamp: "timestamp"
-  balance: "balance"
-  account_number: "accountNumber"
-  user_id: "userId"
-  transaction_account: "transactionAccount"
-  modified_by: "modifiedBy"
-  referenceNumber: "reference_number"
-  transactionAmount: "transaction_amount"
-  accountNumber: "account_number"
-  userId: "user_id"
-  transactionAccount: "transaction_account"
-  modifiedBy: "modified_by"
+table:
+  user:
+    autoincrement_field: "user_id"
+    primaryKey: "user_id"
+    fields:
+      user_id: 
+        pojoname: "userId"
+      password: 
+        pojoname: "password"
+      role: 
+        pojoname: "role"
+      name: 
+        pojoname: "name"
+      mobile: 
+        pojoname: "mobile"
+      email: 
+        pojoname: "email"
+      status: 
+        pojoname: "status"
+      date_of_birth: 
+        pojoname: "dateOfBirth"
+      creation_time: 
+        pojoname: "creationTime"
+      modified_time: 
+        pojoname: "modifiedTime"
+      modified_by: 
+        pojoname: "modifiedBy"
+  
+  customer:
+    primaryKey: "customer_id"
+    refrenceingKey: "customer_id"
+    fields:
+      customer_id: 
+        pojoname: "customerId"
+      aadhar_number: 
+        pojoname: "aadharNumber"
+      pan_number: 
+        pojoname: "panNumber"
+  
+  employee:
+    primaryKey: "employee_id"
+    refrenceingKey: "employee_id"
+    fields:
+      employee_id: 
+        pojoname: "employeeId"
+      branch_id: 
+        pojoname: "branchId"
+      role: 
+        pojoname: "role"
+  
+  branch:
+    primaryKey: "branch_id"
+    autoincrement_field: "branch_id"
+    fields:
+      branch_id: 
+        pojoname: "branchId"
+      ifsc: 
+        pojoname: "ifsc"
+      name: 
+        pojoname: "name"
+      employee_id: 
+        pojoname: "employeeId"
+      address: 
+        pojoname: "address"
+      creation_time: 
+        pojoname: "creationTime"
+      modified_time: 
+        pojoname: "modifiedTime"
+      modified_by: 
+        pojoname: "modifiedBy"
+  
+  account:
+    primaryKey: "account_number"
+    autoincrement_field: "account_number"
+    fields:
+      account_number: 
+        pojoname: "accountNumber"
+      user_id: 
+        pojoname: "userId"
+      branch_id: 
+        pojoname: "branchId"
+      account_type: 
+        pojoname: "accountType"
+      date_of_opening: 
+        pojoname: "dateOfOpening"
+      balance: 
+        pojoname: "balance"
+      status: 
+        pojoname: "status"
+      creation_time: 
+        pojoname: "creationTime"
+      modified_time: 
+        pojoname: "modifiedTime"
+      modified_by: 
+        pojoname: "modifiedBy"
+  
+  transaction:
+    fields:
+      reference_number: 
+        pojoname: "referenceNumber"
+      transaction_amount: 
+        pojoname: "transactionAmount"
+      timestamp: 
+        pojoname: "timestamp"
+      balance: 
+        pojoname: "balance"
+      account_number: 
+        pojoname: "accountNumber"
+      user_id: 
+        pojoname: "userId"
+      transaction_account: 
+        pojoname: "transactionAccount"
+      modified_by: 
+        pojoname: "modifiedBy"
+
+relatedtable:
+  User:
+    table: "user"
+    tables: ["user"]
+  Customer: 
+    table: customer
+    tables: ["user", "customer"]
+  Employee:
+    table: user
+    tables: ["user", "employee"]
+  Account: 
+    table: "account"
+    tables: ["account"]
+  Transaction: 
+    table: "transaction"
+    tables: ["transaction"]
+  Branch: 
+    table: "branch"
+    tables: ["branch"]

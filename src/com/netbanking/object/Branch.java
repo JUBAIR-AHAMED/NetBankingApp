@@ -92,14 +92,4 @@ public class Branch implements Model {
     public void setModifiedBy(Long modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
-
-    @Override
-    public Long getId() {
-        return branchId;
-    }
-
-    @Override
-    public String getIdField() {
-        return "branch_id";  // Return the actual column name for the primary key
-    }
 }

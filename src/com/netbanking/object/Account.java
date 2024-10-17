@@ -114,14 +114,4 @@ public class Account implements Model {
     public void setModifiedBy(Long modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
-
-    @Override
-    public Long getId() {
-        return accountNumber;
-    }
-
-    @Override
-    public String getIdField() {
-        return "account_number";  // Return the actual column name for the primary key
-    }
 }
