@@ -184,13 +184,16 @@ package com.netbanking.runner;
 
 
 import com.netbanking.dao.DaoHandler;
+import com.netbanking.exception.CustomException;
 import com.netbanking.object.Customer;
 import com.netbanking.object.Role; // Assuming Role is an enum or class you have
 import com.netbanking.object.Status; // Assuming Status is an enum or class you have
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TestRunner {
@@ -213,26 +216,52 @@ public class TestRunner {
         // Set Customer fields
         customer.setAadharNumber(123456789012L); // Example Aadhar number
         customer.setPanNumber("ABCDE1234F"); // Example PAN number
-        
-        // Display the customer information
-        System.out.println("Customer Information:");
-        System.out.println("Name: " + customer.getName());
-        System.out.println("Email: " + customer.getEmail());
-        System.out.println("Mobile: " + customer.getMobile());
-        System.out.println("Aadhar Number: " + customer.getAadharNumber());
-        System.out.println("PAN Number: " + customer.getPanNumber());
-        System.out.println("Date of Birth: " + customer.getDateOfBirth());
-        System.out.println("Status: " + customer.getStatus());
-        System.out.println("Creation Time: " + customer.getCreationTime());
-        System.out.println("Modified Time: " + customer.getModifiedTime());
-        System.out.println("Modified By: " + customer.getModifiedBy());
-        
+
         DaoHandler<Customer> dao = new DaoHandler<>();
         dao.insertHandler(customer);
 //        Map<String, Object> values = new HashMap<>();
 //        values.put("customer_id", 20);
 //        try {
 //			dao.delete("customer", values);
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+        
+//        String tableName = "user";
+//        String joinTableName = "customer";
+//        Map<String, String> joinCondition = new HashMap<>();
+//        joinCondition.put("user.user_id", "customer.customer_id");
+//        Map<String, Object> whereCondition = new HashMap<>();
+//        whereCondition.put("user.user_id", 21);
+//        whereCondition.put("customer.customer_id", 21);
+//        Boolean selectAllColumns = true;
+//        List<String> joinOperators = new ArrayList<String>();
+//        joinOperators.add("=");
+//        List<String> whereOperators = new ArrayList<String>();
+//        whereOperators.add("=");
+//        whereOperators.add("=");
+//        List<String> whereLOperators = new ArrayList<String>();
+//        whereLOperators.add("AND");
+//        try {
+//			System.out.println(dao.selectHandler(tableName, joinTableName, joinCondition, whereCondition, selectAllColumns, null, null, joinOperators, whereOperators, null, whereLOperators,  null));
+//		} catch (CustomException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+        
+//        Map<String, Object> updates = new HashMap<String, Object>();
+////        updates.put("password", "passw0rd");
+//        updates.put("aadhar_number", 75456789876L);
+//        Map<String, Object> whereConditions = new HashMap<String, Object>();
+////        whereConditions.put("user_id", 1);
+//        whereConditions.put("customer_id", 1);
+//        List<String> whereOperators = new ArrayList<String>();
+////        whereOperators.add("=");
+//        whereOperators.add("=");
+//        List<String> whereLogicalOperators = null;
+//        try {
+//			dao.updateHandler(customer, updates, whereConditions, whereOperators, whereLogicalOperators);
 //		} catch (SQLException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();

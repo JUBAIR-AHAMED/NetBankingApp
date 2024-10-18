@@ -49,13 +49,12 @@ public class QueryHelper {
     public void appendConditions(StringBuilder sql, Map<String, Object> conditions, List<String> operators, List<String> logicOperators) {
         int index = 0;
         for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-            sql.append(entry.getKey())
+        	System.out.println(entry);
+        	sql.append(entry.getKey())
                .append(" ")
                .append(operators.get(index))
                .append(" ?");
-
-            // Add AND or OR if it exists and is not the last condition
-            if (index < conditions.size() - 1 && index < logicOperators.size()) {
+            if (index < conditions.size() - 1 && logicOperators != null && index < logicOperators.size()) {
                 sql.append(" ").append(logicOperators.get(index)).append(" ");
             }
             index++;

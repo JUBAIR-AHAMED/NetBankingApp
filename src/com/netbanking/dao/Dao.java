@@ -3,6 +3,7 @@ package com.netbanking.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,15 +96,8 @@ public interface Dao<T extends Model> {
         StringBuilder sql = new StringBuilder("UPDATE ").append(request.getTableName());
         QueryHelper helper = new QueryHelper();
         
-        String joinTableName = request.getJoinTableName();
         Map<String, Object> whereConditions = request.getWhereConditions();
-        Map<String, String> joinConditions = request.getJoinConditions();
         Map<String, Object> updates = request.getUpdates();
-        
-        if (joinTableName != null) {
-            sql.append(" JOIN ").append(joinTableName).append(" ON ");
-            helper.appendJoinConditions(sql, joinConditions, request.getJoinOperators(), request.getJoinLogicalOperators());
-        }
 
         sql.append(" SET ");
         helper.appendUpdateValues(sql, updates);
@@ -126,10 +120,17 @@ public interface Dao<T extends Model> {
         List<Map<String, Object>> list = null;
         QueryHelper helper = new QueryHelper();
         
-        helper.appendSelectColumns(sql, request.getSelectColumns());
+        if(request.getSelectAllColumns() == true) {
+        	sql.append(" * ");
+        }
+        else {
+        	helper.appendSelectColumns(sql, request.getSelectColumns());
+        }
+        
         sql.append(" FROM ").append(request.getTableName());
         
         String joinTableName = request.getJoinTableName();
+        
         
         if (joinTableName != null) {
             sql.append(" JOIN ").append(joinTableName).append(" ON ");
@@ -152,7 +153,8 @@ public interface Dao<T extends Model> {
         try (Connection connection = DBConnection.getConnection();
             PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
         	helper.setParameters(stmt, null, request.getWhereConditions());
-            ResultSet rs = stmt.executeQuery();
+            System.out.println(stmt);
+        	ResultSet rs = stmt.executeQuery();
             while(rs.next())
             {
             	if(list==null)
@@ -162,15 +164,27 @@ public interface Dao<T extends Model> {
             	
             	Map<String, Object> map = new HashMap<>();
             	
-            	for(String columnName : request.getSelectColumns())
-            	{
-            		map.put(columnName, rs.getObject(columnName));
+            	if(request.getSelectColumns()!=null) {
+            		for(String columnName : request.getSelectColumns())
+            		{
+            			map.put(columnName, rs.getObject(columnName));
+            		}
+            		list.add(map);
             	}
-            	list.add(map);
+            	else {
+            		ResultSetMetaData metaData = rs.getMetaData();
+            	    int columnCount = metaData.getColumnCount();
+            	    for (int i = 1; i <= columnCount; i++) {
+            	        String columnName = metaData.getColumnName(i);
+            	        map.put(columnName, rs.getObject(columnName));
+            	    }
+            	    list.add(map);
+            	}
             }
             return list;
         }
         catch (Exception e) {
+        	e.printStackTrace();
 			throw new Exception("Failed getting the data.");
 		}
         

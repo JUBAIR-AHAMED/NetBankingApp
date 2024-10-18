@@ -6,16 +6,17 @@ import java.util.Map;
 public class QueryRequest {
     private String tableName;
     private String joinTableName;
-    private Map<String, String> joinConditions; // Key: column in primary table, Value: column in joined table
-    private Map<String, Object> whereConditions; // Key: column, Value: condition value
-    private Map<String, Object> updates; // Only for UPDATE queries
-    private List<String> selectColumns; // Only for SELECT queries
-    private List<String> orderByColumns; // Optional: for SELECT queries
+    private Map<String, String> joinConditions; 
+    private Map<String, Object> whereConditions;
+    private Map<String, Object> updates; 
+    private Boolean selectAllColumns;
+    private List<String> selectColumns; 
+    private List<String> orderByColumns;
     private List<String> joinOperators;
     private List<String> whereOperators;
     private List<String> joinLogicalOperators;
     private List<String> whereLogicalOperators;
-    private Integer limit; // Optional: for SELECT queries
+    private Integer limit;
 
     // Constructors
     public QueryRequest() {}
@@ -80,6 +81,14 @@ public class QueryRequest {
         this.updates = updates;
     }
 
+    public Boolean getSelectAllColumns() {
+        return selectAllColumns;
+    }
+
+    public void setSelectAllColumns(Boolean selectAllColumns) {
+        this.selectAllColumns = selectAllColumns;
+    }
+    
     public List<String> getSelectColumns() {
         return selectColumns;
     }
