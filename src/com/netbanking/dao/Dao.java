@@ -20,10 +20,7 @@ public interface Dao<T extends Model> {
 	default Long  insert(String tableName, Map<String, Object> insertValues) throws SQLException {
 	    StringBuilder sql = new StringBuilder("INSERT INTO ");
 	    sql.append(tableName).append(" (");
-
-	    int fieldCount = insertValues.size();
-
-	    int index = 0;
+	    int fieldCount = insertValues.size(), index = 0;
 	    for (String field : insertValues.keySet()) {
 	        sql.append(field);
 	        if (index < fieldCount - 1) {

@@ -15,7 +15,6 @@ import com.netbanking.object.QueryRequest;
 
 public class DaoHandler<T extends Model> implements Dao<T>{
 	public void insertHandler(T object) {
-		
 		String objectName = object.getClass().getSimpleName();
 		List<String> tableNames = YamlMapper.getRelatedTableNames(objectName);
 		Map<String, Object> pojoValuesMap = null;
@@ -104,10 +103,10 @@ public class DaoHandler<T extends Model> implements Dao<T>{
 		Map<String, Object> updateValues = new HashMap<>();
 		
 		// Extract the autoincrement field, if any
-		String autoinc = null;
-		if (tableData.containsKey("autoincrement_field")) {
-		autoinc = (String) tableData.get("autoincrement_field");
-		}
+//		String autoinc = null;
+//		if (tableData.containsKey("autoincrement_field")) {
+//		autoinc = (String) tableData.get("autoincrement_field");
+//		}
 		
 		// Iterate through the update fields provided and collect the relevant ones for this table
 		Iterator<Map.Entry<String, Object>> iterator = updates.entrySet().iterator();
@@ -167,31 +166,7 @@ public class DaoHandler<T extends Model> implements Dao<T>{
 
 
 	
-	public List<Map<String, Object>> selectHandler(  String tableName,
-							    String joinTableName,
-							    Map<String, String> joinConditions,
-							    Map<String, Object> whereConditions,
-							    Boolean selectAllColumns,
-							    List<String> selectColumns,
-							    List<String> orderByColumns,
-							    List<String> joinOperators,
-							    List<String> whereOperators,
-							    List<String> joinLogicalOperators,
-							    List<String> whereLogicalOperators,
-							    Integer limit) throws CustomException {
-		QueryRequest request = new QueryRequest();
-		request.setTableName(tableName);
-		request.setSelectAllColumns(selectAllColumns);
-		request.setSelectColumns(selectColumns);
-		request.setWhereConditions(whereConditions);
-		request.setWhereOperators(whereOperators);
-		request.setWhereLogicalOperators(whereLogicalOperators);
-		request.setOrderByColumns(orderByColumns);
-		request.setLimit(limit);
-		request.setJoinTableName(joinTableName);
-		request.setJoinConditions(joinConditions);
-		request.setJoinOperators(joinOperators);
-		request.setJoinLogicalOperators(joinLogicalOperators);
+	public List<Map<String, Object>> selectHandler(QueryRequest request) throws CustomException {
 		try {
 			return select(request);
 		} catch (SQLException e) {
