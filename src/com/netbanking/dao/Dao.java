@@ -14,7 +14,7 @@ import com.netbanking.object.QueryRequest;
 import com.netbanking.util.DBConnection;
 import com.netbanking.util.QueryHelper;
 
-public interface Dao<T extends Model> {
+public interface Dao<T> {
 	
 	//Insert operation
 	default Long  insert(String tableName, Map<String, Object> insertValues) throws SQLException {
@@ -46,6 +46,7 @@ public interface Dao<T extends Model> {
 	    	    for (Object value : insertValues.values()) {
 	    	        stmt.setObject(parameterIndex++, value);
 	    	    }
+	    	    System.out.println(stmt);
 	    	    int affectedRows = stmt.executeUpdate();
 
 	    	    Long generatedKeysList = null;
@@ -93,7 +94,7 @@ public interface Dao<T extends Model> {
         StringBuilder sql = new StringBuilder("UPDATE ").append(request.getTableName());
         QueryHelper helper = new QueryHelper();
         
-        Map<String, Object> whereConditions = request.getWhereConditions();
+        List<String> whereConditions = request.getWhereConditions();
         Map<String, Object> updates = request.getUpdates();
 
         sql.append(" SET ");
@@ -101,13 +102,15 @@ public interface Dao<T extends Model> {
 
         if (whereConditions != null && !whereConditions.isEmpty()) {
             sql.append(" WHERE ");
-            helper.appendConditions(sql, whereConditions, request.getWhereOperators(), request.getWhereLogicalOperators());
+            helper.appendConditions(sql, whereConditions, request.getWhereConditionsValues(),request.getWhereOperators(), request.getWhereLogicalOperators());
         }
+        
 
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
-        	helper.setParameters(stmt, updates, whereConditions);
-            stmt.executeUpdate();
+        	helper.setParameters(stmt, updates, request.getWhereConditionsValues());
+            System.out.println(stmt);
+        	stmt.executeUpdate();
         }
     }
 
@@ -135,8 +138,9 @@ public interface Dao<T extends Model> {
         }
 
         if (request.getWhereConditions() != null && !request.getWhereConditions().isEmpty()) {
-            sql.append(" WHERE ");
-            helper.appendConditions(sql, request.getWhereConditions(), request.getWhereOperators(), request.getWhereLogicalOperators());
+            System.out.println(request.getWhereConditions() );
+        	sql.append(" WHERE ");
+            helper.appendConditions(sql, request.getWhereConditions(), request.getWhereConditionsValues(),request.getWhereOperators(), request.getWhereLogicalOperators());
         }
 
         if (request.getOrderByColumns() != null && !request.getOrderByColumns().isEmpty()) {
@@ -149,7 +153,7 @@ public interface Dao<T extends Model> {
 
         try (Connection connection = DBConnection.getConnection();
             PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
-        	helper.setParameters(stmt, null, request.getWhereConditions());
+        	helper.setParameters(stmt, null, request.getWhereConditionsValues());
             System.out.println(stmt);
         	ResultSet rs = stmt.executeQuery();
             while(rs.next())

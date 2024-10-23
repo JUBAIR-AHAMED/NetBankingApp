@@ -45,8 +45,6 @@ table:
         pojoname: "employeeId"
       branch_id: 
         pojoname: "branchId"
-      role: 
-        pojoname: "role"
   
   branch:
     primaryKey: "branch_id"
@@ -112,6 +110,72 @@ table:
         pojoname: "transactionAccount"
       modified_by: 
         pojoname: "modifiedBy"
+pojo:
+  User:
+    tablename: "user"
+    table_field_name:
+      userId: "user_id"
+      password: "password"
+      role: "role"
+      name: "name"
+      mobile: "mobile"
+      email: "email"
+      status: "status"
+      dateOfBirth: "date_of_birth"
+      creationTime: "creation_time"
+      modifiedTime: "modified_time"
+      modifiedBy: "modified_by"
+
+  Customer:
+    tablename: "customer"
+    table_field_name:
+      customerId: "customer_id"
+      aadharNumber: "aadhar_number"
+      panNumber: "pan_number"
+
+  Employee:
+    tablename: "employee"
+    table_field_name:
+      employeeId: "employee_id"
+      branchId: "branch_id"
+
+  Branch:
+    tablename: "branch"
+    table_field_name:
+      branchId: "branch_id"
+      ifsc: "ifsc"
+      name: "name"
+      employeeId: "employee_id"
+      address: "address"
+      creationTime: "creation_time"
+      modifiedTime: "modified_time"
+      modifiedBy: "modified_by"
+
+  Account:
+    tablename: "account"
+    table_field_name:
+      accountNumber: "account_number"
+      userId: "user_id"
+      branchId: "branch_id"
+      accountType: "account_type"
+      dateOfOpening: "date_of_opening"
+      balance: "balance"
+      status: "status"
+      creationTime: "creation_time"
+      modifiedTime: "modified_time"
+      modifiedBy: "modified_by"
+
+  Transaction:
+    tablename: "transaction"
+    table_field_name:
+      referenceNumber: "reference_number"
+      transactionAmount: "transaction_amount"
+      timestamp: "timestamp"
+      balance: "balance"
+      accountNumber: "account_number"
+      userId: "user_id"
+      transactionAccount: "transaction_account"
+      modifiedBy: "modified_by"
 
 relatedtable:
   User:

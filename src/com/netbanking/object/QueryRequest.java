@@ -7,7 +7,8 @@ public class QueryRequest {
     private String tableName;
     private String joinTableName;
     private Map<String, String> joinConditions; 
-    private Map<String, Object> whereConditions;
+    private List<String> whereConditions;
+    private List<Object> whereConditionsValues;
     private Map<String, Object> updates; 
     private Boolean selectAllColumns;
     private List<String> selectColumns; 
@@ -20,25 +21,6 @@ public class QueryRequest {
 
     // Constructors
     public QueryRequest() {}
-
-    public QueryRequest(String tableName, 
-                        String joinTableName, 
-                        Map<String, String> joinConditions, 
-                        Map<String, Object> whereConditions, 
-                        Map<String, Object> updates, 
-                        List<String> selectColumns, 
-                        List<String> orderByColumns, 
-                        List<String> joinOperators,
-                        Integer limit) {
-        this.tableName = tableName;
-        this.joinTableName = joinTableName;
-        this.joinConditions = joinConditions;
-        this.whereConditions = whereConditions;
-        this.updates = updates;
-        this.selectColumns = selectColumns;
-        this.orderByColumns = orderByColumns;
-        this.limit = limit;
-    }
 
     // Getters and Setters
     public String getTableName() {
@@ -65,14 +47,22 @@ public class QueryRequest {
         this.joinConditions = joinConditions;
     }
 
-    public Map<String, Object> getWhereConditions() {
+    public List<String> getWhereConditions() {
         return whereConditions;
     }
 
-    public void setWhereConditions(Map<String, Object> whereConditions) {
+    public void setWhereConditions(List<String> whereConditions) {
         this.whereConditions = whereConditions;
     }
 
+    public List<Object> getWhereConditionsValues() {
+        return whereConditionsValues;
+    }
+
+    public void setWhereConditionsValues(List<Object> whereConditionsValues) {
+        this.whereConditionsValues = whereConditionsValues;
+    }
+    
     public Map<String, Object> getUpdates() {
         return updates;
     }

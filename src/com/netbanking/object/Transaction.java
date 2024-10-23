@@ -4,7 +4,7 @@ import com.netbanking.model.Model;
 
 public class Transaction implements Model {
     private Long referenceNumber;  // Use Integer if you want to allow nulls, otherwise use int
-    private Integer transactionAmount;
+    private Long transactionAmount;
     private Long timestamp;  // Consider using java.time.Instant for better time handling
     private Long balance;
     private Long accountNumber;
@@ -16,19 +16,6 @@ public class Transaction implements Model {
     public Transaction() {
     }
 
-    // Constructor with parameters
-    public Transaction(Long referenceNumber, Integer transactionAmount, Long timestamp, Long balance,
-                      Long accountNumber, Long userId, Long transactionAccount, Long modifiedBy) {
-        this.referenceNumber = referenceNumber;
-        this.transactionAmount = transactionAmount;
-        this.timestamp = timestamp;
-        this.balance = balance;
-        this.accountNumber = accountNumber;
-        this.userId = userId;
-        this.transactionAccount = transactionAccount;
-        this.modifiedBy = modifiedBy;
-    }
-
     // Getters and Setters
     public Long getReferenceNumber() {
         return referenceNumber;
@@ -38,11 +25,11 @@ public class Transaction implements Model {
         this.referenceNumber = referenceNumber;
     }
 
-    public Integer getTransactionAmount() {
+    public Long getTransactionAmount() {
         return transactionAmount;
     }
 
-    public void setTransactionAmount(Integer transactionAmount) {
+    public void setTransactionAmount(Long transactionAmount) {
         this.transactionAmount = transactionAmount;
     }
 

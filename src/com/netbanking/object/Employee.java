@@ -25,14 +25,4 @@ public class Employee extends User implements Model {
     public void setBranchId(Long branchId) {
         this.branchId = branchId;
     }
-
-    // Getter for role
-    public Role getRole() {
-        return role;
-    }
-
-    // Setter for role
-    public void setRole(Role role) {
-        this.role = role;
-    }
 }

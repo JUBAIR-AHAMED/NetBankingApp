@@ -1,8 +1,6 @@
 package com.netbanking.object;
 
-import com.netbanking.model.Model;
-
-public class Customer extends User implements Model {
+public class Customer extends User {
     private Long customerId;
     private Long aadharNumber;
     private String panNumber;

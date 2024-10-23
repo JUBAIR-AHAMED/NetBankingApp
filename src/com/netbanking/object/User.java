@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.netbanking.model.Model;
 
-public abstract class User implements Model {
+public class User implements Model {
     protected Long userId;
     protected String password;
     protected Role role;

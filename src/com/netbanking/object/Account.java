@@ -8,31 +8,11 @@ public class Account implements Model {
     private Long branchId;
     private String accountType;  // Changed to String
     private Long dateOfOpening;
-    private Integer balance;
-    private String status;  // Changed to String
+    private Long balance;
+    private Status status;  // Changed to String
     private Long creationTime;
     private Long modifiedTime;
     private Long modifiedBy;
-
-    // Default constructor
-    public Account() {
-    }
-
-    // Constructor with parameters
-    public Account(Long accountNumber, Long userId, Long branchId, String accountType,
-                   Long dateOfOpening, Integer balance, String status, 
-                   Long creationTime, Long modifiedTime, Long modifiedBy) {
-        this.accountNumber = accountNumber;
-        this.userId = userId;
-        this.branchId = branchId;
-        this.accountType = accountType;
-        this.dateOfOpening = dateOfOpening;
-        this.balance = balance;
-        this.status = status;
-        this.creationTime = creationTime;
-        this.modifiedTime = modifiedTime;
-        this.modifiedBy = modifiedBy;
-    }
 
     // Getters and Setters
     public Long getAccountNumber() {
@@ -75,19 +55,19 @@ public class Account implements Model {
         this.dateOfOpening = dateOfOpening;
     }
 
-    public Integer getBalance() {
+    public Long getBalance() {
         return balance;
     }
 
-    public void setBalance(Integer balance) {
+    public void setBalance(Long balance) {
         this.balance = balance;
     }
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 

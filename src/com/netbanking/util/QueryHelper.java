@@ -46,14 +46,14 @@ public class QueryHelper {
         }
     }
 
-    public void appendConditions(StringBuilder sql, Map<String, Object> conditions, List<String> operators, List<String> logicOperators) {
+    public void appendConditions(StringBuilder sql, List<String> conditions, List<Object> values, List<String> operators, List<String> logicOperators) {
         int index = 0;
-        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-        	System.out.println(entry);
-        	sql.append(entry.getKey())
+        for (String condition : conditions) {
+            sql.append(condition)
                .append(" ")
                .append(operators.get(index))
                .append(" ?");
+            
             if (index < conditions.size() - 1 && logicOperators != null && index < logicOperators.size()) {
                 sql.append(" ").append(logicOperators.get(index)).append(" ");
             }
@@ -61,7 +61,8 @@ public class QueryHelper {
         }
     }
 
-    public void setParameters(PreparedStatement stmt, Map<String, Object> updates, Map<String, Object> conditions) throws SQLException {
+    
+    public void setParameters(PreparedStatement stmt, Map<String, Object> updates, List<Object> conditions) throws SQLException {
         int index = 1;
         if (updates != null) {
             for (Object value : updates.values()) {
@@ -69,7 +70,7 @@ public class QueryHelper {
             }
         }
         if (conditions != null) {
-            for (Object value : conditions.values()) {
+            for (Object value : conditions) {
                 stmt.setObject(index++, value);
             }
         }

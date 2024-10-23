@@ -33,10 +33,21 @@ public class YamlMapper {
         }
 
         @SuppressWarnings("unchecked")
-        String tableName = (String) ((Map<String, Object>) ((Map<String, Object>) map.get("relatedtable")).get(objectName)).get("table");
+        String tableName = (String) ((Map<String, Object>) ((Map<String, Object>) map.get("pojo")).get(objectName)).get("tablename");
 
         return tableName;  // Return null if no mapping is found
     }
+	
+	public static Map<String, String> getFieldToColumnMap(String objectName) {
+		if (map == null) {
+            new YamlMapper();
+        }
+		
+		@SuppressWarnings("unchecked")
+		Map<String, String> tableFieldName =(Map<String, String>) ((Map<String, Object>) ((Map<String, Object>) map.get("pojo")).get(objectName)).get("table_field_name");
+
+        return tableFieldName;
+	}
 	
 	public static List<String> getRelatedTableNames(String objectName) {
         if (map == null) {
