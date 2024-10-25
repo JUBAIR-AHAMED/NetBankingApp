@@ -7,13 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.catalina.webresources.war.Handler;
-
-import com.netbanking.api.Api;
 import com.netbanking.dao.DaoHandler;
+import com.netbanking.dao.FunctionHandler;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Customer;
 import com.netbanking.object.QueryRequest;
+import com.netbanking.util.Encryption;
 
 //import com.netbanking.api.Api;
 
@@ -21,8 +20,6 @@ public class TestRunner {
     @SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 //    	Api api = new Api();
-//    	// Get Login
-//    	api.getLogin(1L, "password");
 //    	
 //    	// Get Account
 //    	api.getAccounts(1L, "CUSTOMER", null);
@@ -69,8 +66,25 @@ public class TestRunner {
 //			e.printStackTrace();
 //		}
     	
-    	Api api = new Api();
-    	//Customer
+    	FunctionHandler api = new FunctionHandler();
+    	// Get Login
+//    	try {
+//    		String pass = Encryption.hashPassword("passwordd");
+//    		System.out.println(pass);
+//			System.out.println(api.getLogin(8L, "password"));
+//			System.out.println("here"+Encryption.verifyPassword("password", pass));
+//		} catch (CustomException e) {
+//			e.printStackTrace();
+//		}
+    	
+    	try {
+			System.out.println(api.getCustomer(8L));
+		} catch (CustomException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+//    	//Customer
 //    	Map<String, Object> customerDetails = new HashMap<>();
 //        customerDetails.put("password", "securePass123");
 //        customerDetails.put("name", "John Doe");
@@ -121,19 +135,36 @@ public class TestRunner {
 //        }
         
         //Account
-    	Map<String, Object> accountDetails = new HashMap<>();
-        accountDetails.put("userId", 7L);
-        accountDetails.put("branchId", 1L);
-        accountDetails.put("accountType", "SAVINGS");
-        accountDetails.put("balance", 10000L);
-        accountDetails.put("status", "ACTIVE");
-        accountDetails.put("modifiedBy", 1L);
-
-        try {
-            api.createAccount("MANAGER", accountDetails);
-            System.out.println("Account created successfully.");
-        } catch (CustomException e) {
-            e.printStackTrace();
-        }
+//    	Map<String, Object> accountDetails = new HashMap<>();
+//        accountDetails.put("userId", 7L);
+//        accountDetails.put("branchId", 1L);
+//        accountDetails.put("accountType", "SAVINGS");
+//        accountDetails.put("balance", 10000L);
+//        accountDetails.put("status", "ACTIVE");
+//        accountDetails.put("modifiedBy", 1L);
+//
+//        try {
+//            api.createAccount("MANAGER", accountDetails);
+//            System.out.println("Account created successfully.");
+//        } catch (CustomException e) {
+//            e.printStackTrace();
+//        }
+    	
+//    	DaoHandler<Customer> dao = new DaoHandler<Customer>();
+//    	Map<String, Object> updates = new HashMap<String, Object>();
+//    	updates.put("creationTime", System.currentTimeMillis());
+//    	List<String> whereConditions = new ArrayList<String>(), whereOperators = new ArrayList<String>();
+//    	whereConditions.add("userId");
+//    	whereOperators.add("=");
+//    	List<Object> whereConditionValues = new ArrayList<Object>();
+//    	whereConditionValues.add(7L);
+//    	try {
+//			dao.updateHandler(updates, Customer.class, whereConditions, whereConditionValues, whereOperators, null);
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+    	
+//    	System.out.println(Encryption.hashPassword("password"));
     }
 }

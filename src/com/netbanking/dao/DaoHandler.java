@@ -90,69 +90,70 @@ public class DaoHandler<T> implements Dao<T>{
 		}
 	}
 	
-	public void updateHandler(T object, 
-			Class<?> clazz,
-            List<String> updates, 
-            List<String> whereConditions,
-            List<Object> whereConditionsValues,
-            List<String> whereOperators,
-            List<String> whereLogicalOperators) throws SQLException {
+	public void updateHandler(
+	        Map<String, Object> updates, 
+	        Class<?> clazz,
+	        List<String> whereConditions,
+	        List<Object> whereConditionsValues,
+	        List<String> whereOperators,
+	        List<String> whereLogicalOperators) throws SQLException {
 
-		Class<?> superClass = clazz.getSuperclass();
-		String objectName = clazz.getSimpleName();
-		String tableName = YamlMapper.getTableName(objectName);
+	    Class<?> superClass = clazz.getSuperclass();
+	    String objectName = clazz.getSimpleName();
+	    String tableName = YamlMapper.getTableName(objectName);
 
-		if (superClass != null && !superClass.getSimpleName().equals("Object")) {
+	    if (superClass != null && !superClass.getSimpleName().equals("Object")) {
 	        try {
-	            updateHandler(object, superClass, updates, whereConditions, whereConditionsValues, whereOperators, whereLogicalOperators);
+	            updateHandler(updates, superClass, whereConditions, whereConditionsValues, whereOperators, whereLogicalOperators);
 	        } catch (ClassCastException e) {
 	            throw new SQLException("Failed to cast object to its superclass", e);
 	        }
-		}
+	    }
+
 	    Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMap(objectName);
-		
-		Map<String, Object> pojoValuesMap = null;
-		
-		try {
-		pojoValuesMap = new PojoValueMapper<T>().getMap(object);
-		} catch (Exception e) {
-		e.printStackTrace();
-		}
-		
-		Map<String, Object> updatesMap = new HashMap<>();
-		for(String updateField : updates)
-		{
-			if(fieldToColumnMap.containsKey(updateField))
-			{
-				updatesMap.put(fieldToColumnMap.get(updateField), pojoValuesMap.get(updateField));
-			}
-		}
-		if(updatesMap.isEmpty()) return;
-		List<String> currWhereConditions = new ArrayList<String>(), currWhereOperators = new ArrayList<String>(), currWhereLogicalOperators = new ArrayList<String>();
-		List<Object> currWhereValues = new ArrayList<Object>();
-		int index=0;
-		for(String whereCondition : whereConditions)
-		{
-			if(fieldToColumnMap.containsValue(whereCondition))
-			{
-				if(index>0)
-				{
-					currWhereLogicalOperators.add(whereLogicalOperators.remove(0));
-				}
-				currWhereConditions.add(whereConditions.remove(0));
-				currWhereOperators.add(whereOperators.remove(0));
-				currWhereValues.add(whereConditionsValues.remove(0));
-			}
-			index++;
-		}
-		QueryRequest request = new QueryRequest();
-		request.setTableName(tableName);
-		request.setWhereConditions(currWhereConditions);
-		request.setUpdates(updatesMap);
-		request.setWhereConditionsValues(currWhereValues);
-		request.setWhereOperators(currWhereOperators);
-		request.setWhereLogicalOperators(currWhereLogicalOperators);
-		update(request);
+
+	    Map<String, Object> updatesMap = new HashMap<>();
+	    for (Map.Entry<String, Object> entry : updates.entrySet()) {
+	        String fieldName = entry.getKey();
+	        Object fieldValue = entry.getValue();
+
+	        if (fieldToColumnMap.containsKey(fieldName)) {
+	            updatesMap.put(fieldToColumnMap.get(fieldName), fieldValue);
+	        }
+	    }
+
+	    if (updatesMap.isEmpty()) return;
+
+	    List<String> currWhereConditions = new ArrayList<>();
+	    List<String> currWhereOperators = new ArrayList<>();
+	    List<String> currWhereLogicalOperators = new ArrayList<>();
+	    List<Object> currWhereValues = new ArrayList<>();
+	    int index = 0;
+	    
+	    for(int i=0; i<whereConditions.size();i++)
+	    {
+	    	String tempWhereCondition = whereConditions.get(i);
+	    	if (fieldToColumnMap.containsKey(tempWhereCondition)) {
+	    		if (index > 0) {
+	                currWhereLogicalOperators.add(whereLogicalOperators.remove(0));
+	            }
+	    		String tempField =fieldToColumnMap.get(tempWhereCondition);
+	    		currWhereConditions.add(tempField);
+	    		currWhereOperators.add(whereOperators.remove(0));
+	            currWhereValues.add(whereConditionsValues.remove(0));
+	    	}
+	    	index++;
+	    }
+
+	    QueryRequest request = new QueryRequest();
+	    request.setTableName(tableName);
+	    request.setWhereConditions(currWhereConditions);
+	    request.setUpdates(updatesMap);
+	    request.setWhereConditionsValues(currWhereValues);
+	    request.setWhereOperators(currWhereOperators);
+	    request.setWhereLogicalOperators(currWhereLogicalOperators);
+
+	    update(request);
 	}
 
 

@@ -67,6 +67,6 @@ public class YamlMapper {
             new YamlMapper();
         }
 		
-        return (Map<String, Object>) ((Map<String, Object>) map.get("table")).get(tableName) ;  
+        return (Map<String, Object>) ((Map<String, Object>) ((Map<String, Object>) map.get("table")).get(tableName)).get("fields");  
 	}
 }

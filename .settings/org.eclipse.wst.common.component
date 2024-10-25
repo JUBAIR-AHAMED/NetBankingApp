@@ -6,6 +6,7 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/com/netbanking/dao"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/resources"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/api"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/servlet"/>
         <property name="context-root" value="NetBanking"/>
         <property name="java-output-path" value="/NetBanking/build/classes"/>
     </wb-module>

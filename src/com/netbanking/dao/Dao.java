@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.netbanking.mapper.YamlMapper;
 import com.netbanking.model.Model;
 import com.netbanking.object.QueryRequest;
 import com.netbanking.util.DBConnection;
@@ -120,25 +122,31 @@ public interface Dao<T> {
         List<Map<String, Object>> list = null;
         QueryHelper helper = new QueryHelper();
         
+        String tableName = request.getTableName();
+        String joinTableName = request.getJoinTableName();
+
+        Map<String, Object> tableField = YamlMapper.getTableField(tableName);
+        if(joinTableName!=null)
+        {
+        	tableField.putAll(YamlMapper.getTableField(joinTableName));
+        }
+        
         if(request.getSelectAllColumns() == true) {
         	sql.append(" * ");
         }
         else {
         	helper.appendSelectColumns(sql, request.getSelectColumns());
         }
+        sql.append(" FROM ").append(tableName);
         
-        sql.append(" FROM ").append(request.getTableName());
-        
-        String joinTableName = request.getJoinTableName();
         
         
         if (joinTableName != null) {
             sql.append(" JOIN ").append(joinTableName).append(" ON ");
-            helper.appendJoinConditions(sql, request.getJoinConditions(), request.getJoinOperators(), request.getJoinLogicalOperators());
+            helper.appendJoinConditions(sql, tableName, joinTableName, request.getJoinConditions(), request.getJoinOperators(), request.getJoinLogicalOperators());
         }
 
         if (request.getWhereConditions() != null && !request.getWhereConditions().isEmpty()) {
-            System.out.println(request.getWhereConditions() );
         	sql.append(" WHERE ");
             helper.appendConditions(sql, request.getWhereConditions(), request.getWhereConditionsValues(),request.getWhereOperators(), request.getWhereLogicalOperators());
         }
@@ -168,7 +176,8 @@ public interface Dao<T> {
             	if(request.getSelectColumns()!=null) {
             		for(String columnName : request.getSelectColumns())
             		{
-            			map.put(columnName, rs.getObject(columnName));
+            			String fieldName = ((Map<String, String>) tableField.get(columnName)).get("pojoname");
+            			map.put(fieldName, rs.getObject(columnName));
             		}
             		list.add(map);
             	}
@@ -177,8 +186,10 @@ public interface Dao<T> {
             	    int columnCount = metaData.getColumnCount();
             	    for (int i = 1; i <= columnCount; i++) {
             	        String columnName = metaData.getColumnName(i);
-            	        map.put(columnName, rs.getObject(columnName));
+            	        String fieldName = ((Map<String, String>) tableField.get(columnName)).get("pojoname");
+            	        map.put(fieldName, rs.getObject(columnName));
             	    }
+            	    System.out.println(list);
             	    list.add(map);
             	}
             }

@@ -1,5 +1,6 @@
 table:
   user:
+    pojoName: "User"
     autoincrement_field: "user_id"
     primaryKey: "user_id"
     fields:
@@ -27,6 +28,7 @@ table:
         pojoname: "modifiedBy"
   
   customer:
+    pojoName: "Customer"
     primaryKey: "customer_id"
     refrenceingKey: "customer_id"
     fields:
@@ -38,6 +40,7 @@ table:
         pojoname: "panNumber"
   
   employee:
+    pojoName: "Employee"
     primaryKey: "employee_id"
     refrenceingKey: "employee_id"
     fields:
@@ -47,6 +50,7 @@ table:
         pojoname: "branchId"
   
   branch:
+    pojoName: "Branch"
     primaryKey: "branch_id"
     autoincrement_field: "branch_id"
     fields:
@@ -68,6 +72,7 @@ table:
         pojoname: "modifiedBy"
   
   account:
+    pojoName: "Account"
     primaryKey: "account_number"
     autoincrement_field: "account_number"
     fields:
@@ -93,6 +98,7 @@ table:
         pojoname: "modifiedBy"
   
   transaction:
+    pojoName: "Transaction"
     fields:
       reference_number: 
         pojoname: "referenceNumber"

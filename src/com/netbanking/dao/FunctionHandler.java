@@ -1,11 +1,11 @@
-package com.netbanking.api;
+package com.netbanking.dao;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.netbanking.dao.DaoHandler;
+
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Account;
 import com.netbanking.object.Branch;
@@ -16,29 +16,26 @@ import com.netbanking.object.Role;
 import com.netbanking.object.Status;
 import com.netbanking.object.Transaction;
 import com.netbanking.object.User;
+import com.netbanking.util.Encryption;
 import com.netbanking.util.Validator;
 
-public class Api {
-	public Map<String, Object> getLogin(Long user_id, String password) {
+public class FunctionHandler {
+	public Map<String, Object> getLogin(Long user_id, String password) throws CustomException {
+		System.out.println(user_id+" "+password);
+		Validator.checkInvalidInput(user_id, password);
 		DaoHandler<User> daoCaller = new DaoHandler<User>();
-		
+	
 		List<String> whereCondition = new ArrayList<>();
 		whereCondition.add("user_id");
-		whereCondition.add("password");
 		
 		List<Object> whereConditionValues = new ArrayList<>();
 		whereConditionValues.add(user_id);
-		whereConditionValues.add(password);
 		
 		List<String> whereOperator = new ArrayList<>();
 		whereOperator.add("=");
-		whereOperator.add("=");
-		
-		List<String> whereLogicalOperator = new ArrayList<>();
-		whereLogicalOperator.add("AND");
-		
+
 		List<Map<String, Object>> userMap = null;
-		
+
 		try {
 			QueryRequest request = new QueryRequest();
 			request.setTableName("user");
@@ -46,7 +43,6 @@ public class Api {
 			request.setWhereConditions(whereCondition);
 			request.setWhereConditionsValues(whereConditionValues);
 			request.setWhereOperators(whereOperator);
-			request.setWhereLogicalOperators(whereLogicalOperator);
 			userMap = daoCaller.selectHandler(request);
 		} catch (CustomException e) {
 			e.printStackTrace();
@@ -55,53 +51,115 @@ public class Api {
 		
 		if(userMap != null && !userMap.isEmpty())
 		{
+			Boolean check=Encryption.verifyPassword(password, (String) userMap.get(0).get("password"));
+			System.out.println(check);
+			if(!check)
+			{
+				throw new CustomException("Wrong Password");
+			}
 			return userMap.get(0);
 		}
 		return null;
 	}
 	
-	public List<Map<String, Object>> getAccounts(Long user_id, String role, Long branch_id)
+	public Map<String, Object> getCustomer(Long customer_id) throws CustomException
 	{
+		Validator.checkInvalidInput(customer_id);
 		QueryRequest request = new QueryRequest();
-		
 		request.setSelectAllColumns(true);
-		request.setTableName("account");
-		
-		List<String> whereCondition = null;
-		List<Object> whereConditionValue = null;
-		List<String> whereOperator = null;
-		
-		if(!role.equals("MANAGER")) {
-			whereCondition = new ArrayList<String>();
-			whereConditionValue = new ArrayList<Object>();
-			whereOperator = new ArrayList<String>();
-			
-			if(role.equals("CUSTOMER")) {
-				whereCondition.add("user_id");
-				whereConditionValue.add(user_id);
-			} else if(role.equals("EMPLOYEE")) {
-				whereCondition.add("branch_id");
-				whereConditionValue.add(branch_id);
-			}
-			whereOperator.add("=");
-			request.setWhereConditions(whereCondition);
-			request.setWhereOperators(whereOperator);
-		}
-		
+		request.setTableName("customer");
+		List<String> whereCondition = new ArrayList<String>(), whereOperator = new ArrayList<String>();
+		List<Object> whereConditionValue = new ArrayList<Object>();
+		whereCondition.add("customer_id");
+		whereConditionValue.add(customer_id);
+		whereOperator.add("=");
+		request.setWhereConditions(whereCondition);
+		request.setWhereOperators(whereOperator);
+		request.setWhereConditionsValues(whereConditionValue);
 		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
 		List<Map<String, Object>> accountMap = null;
-		
 		try {
 			accountMap = daoCaller.selectHandler(request);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
-		return accountMap;
+		return accountMap.get(0);
+	}
+	
+	public Map<String, Object> getEmployee(Long employee_id) throws CustomException
+	{
+		Validator.checkInvalidInput(employee_id);
+		QueryRequest request = new QueryRequest();
+		request.setSelectAllColumns(true);
+		request.setTableName("employee");
+		List<String> whereCondition = new ArrayList<String>(), whereOperator = new ArrayList<String>();;
+		List<Object> whereConditionValue = new ArrayList<Object>();
+		whereCondition.add("employee_id");
+		whereConditionValue.add(employee_id);
+		whereOperator.add("=");
+		request.setWhereConditions(whereCondition);
+		request.setWhereOperators(whereOperator);
+		request.setWhereConditionsValues(whereConditionValue);
+		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
+		List<Map<String, Object>> accountMap = null;
+		try {
+			accountMap = daoCaller.selectHandler(request);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		return accountMap.get(0);
+	}
+	
+	public List<Map<String, Object>> getAccounts(Long user_id, String role, Long branch_id) throws CustomException
+	{
+		Validator.checkInvalidInput(user_id, role);
+		
+		QueryRequest request = new QueryRequest();
+		
+		request.setSelectAllColumns(true);
+		request.setTableName("account");
+		request.setJoinTableName("branch");
+		List<String> whereCondition = new ArrayList<String>();
+		List<Object> whereConditionValue = new ArrayList<Object>();
+		List<String> whereOperator = new ArrayList<String>(), joinOperators =null;
+		Map<String, String> joinConditions = new HashMap<String, String>();
+		
+		joinConditions.put("branch_id", "branch_id");
+		
+		if(role.equals("CUSTOMER")) {
+			whereCondition.add("user_id");
+			whereConditionValue.add(user_id);
+		} else if(role.equals("EMPLOYEE")) {
+			whereCondition.add("account.branch_id");
+			whereConditionValue.add(branch_id);
+		}
+		whereOperator.add("=");
+		joinOperators = whereOperator;
+		
+		request.setWhereConditions(whereCondition);
+		request.setWhereOperators(whereOperator);
+		request.setWhereConditionsValues(whereConditionValue);
+		
+		request.setJoinConditions(joinConditions);
+		request.setJoinOperators(joinOperators);
+		
+		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
+		List<Map<String, Object>> accountMap = null;
+		
+		try {
+			accountMap = daoCaller.selectHandler(request);
+			return accountMap;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
-	public List<Map<String, Object>> getTransactions(Long account_number, Long from_time, Long to_time)
+	public List<Map<String, Object>> getTransactions(Long account_number, Long from_time, Long to_time) throws CustomException
 	{
+		Validator.checkInvalidInput(account_number, from_time, to_time);
 		QueryRequest request = new QueryRequest();
 		
 		request.setSelectAllColumns(true);
@@ -143,8 +201,9 @@ public class Api {
 		return transactionMap;
 	}
 	
-	public Long getBalance(Long account_number)	
+	public Long getBalance(Long account_number) throws CustomException	
 	{
+		Validator.checkInvalidInput(account_number);
 		QueryRequest request = new QueryRequest();
 		
 		List<String> selectColumns = new ArrayList<String>();
@@ -174,8 +233,9 @@ public class Api {
 		}
 	}
 	
-	public Map<String, Object> getProfile(Long customerId)
+	public Map<String, Object> getProfile(Long customerId) throws CustomException
 	{
+		Validator.checkInvalidInput(customerId);
 		QueryRequest request = new QueryRequest();
 		
 		request.setSelectAllColumns(true);
@@ -220,6 +280,7 @@ public class Api {
 
 	private void storeTransaction(Long from_account, Long to_account, Long user_id, Long amount, Long from_account_balance, Long to_account_balance) throws Exception
 	{
+		Validator.checkInvalidInput(from_account, to_account, user_id, amount, from_account, to_account_balance);
 		DaoHandler<Transaction> transactionHandle = new DaoHandler<Transaction>();
 		
 		Transaction transaction_acc_one = new Transaction();
@@ -245,6 +306,7 @@ public class Api {
 	}
 	
 	public void makeTransaction(Long from_account, Long user_id, Long to_account, Long amount) throws Exception {
+		Validator.checkInvalidInput(from_account, user_id, to_account, amount);
 		Long from_account_balance = getBalance(from_account);
 		Long to_account_balance = getBalance(to_account);
 		
@@ -270,16 +332,16 @@ public class Api {
 		
 		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
 		
-		Account account_one = new Account();
-		account_one.setBalance(from_account_balance);
-		Account account_two = new Account();
-		account_two.setBalance(to_account_balance);
+		Map<String, Object> account_one = new HashMap<>();
+		account_one.put("balance", from_account_balance);
+		Map<String, Object> account_two = new HashMap<>();
+		account_two.put("balance", to_account_balance);
 		
 		try {
-			daoCaller.updateHandler(account_one, Account.class, updates, whereConditions, whereConditionsValues, whereOperators, null);
+			daoCaller.updateHandler(account_one, Account.class, whereConditions, whereConditionsValues, whereOperators, null);
 			whereConditionsValues.remove(0);
 			whereConditionsValues.add(to_account);
-			daoCaller.updateHandler(account_one, Account.class, updates, whereConditions, whereConditionsValues, whereOperators, null);
+			daoCaller.updateHandler(account_two, Account.class, whereConditions, whereConditionsValues, whereOperators, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception("Failed Transaction");
@@ -290,6 +352,7 @@ public class Api {
 	}
 	
 	public void makeDepositWithdraw(Long from_account, Long user_id, Long amount, String process) throws Exception {
+		Validator.checkInvalidInput(from_account, user_id, amount, process);
 		Long from_account_balance = getBalance(from_account);
 		
 		if(process.equals("DEPOSIT"))
@@ -315,6 +378,7 @@ public class Api {
 	
 	public void deleteOrBlock(String type, String entity, String conditionValue) throws Exception
 	{
+		Validator.checkInvalidInput(type, entity, conditionValue);
 		String tableName;
 		String whereField;
 		String status = null;
@@ -347,7 +411,7 @@ public class Api {
 		{
 			throw new CustomException("Not allowed");
 		}
-		String password = (String) customerDetails.get("password");
+		String password =Encryption.hashPassword((String) customerDetails.get("password"));
 		String name = (String) customerDetails.get("name");
 		String email = (String) customerDetails.get("email");
 		String mobile = (String) customerDetails.get("mobile");
@@ -355,11 +419,8 @@ public class Api {
 		Long modifiedBy = (Long) customerDetails.get("modifiedBy");
 		Long aadharNumber = (Long) customerDetails.get("aadharNumber");
 		String panNumber = (String) customerDetails.get("panNumber");
-		try {
-			Validator.checkInvalidInput(password, name, email, mobile, dateOfBirth, modifiedBy, aadharNumber, panNumber);
-		} catch (CustomException e) {
-			throw e;
-		}
+
+		Validator.checkInvalidInput(password, name, email, mobile, dateOfBirth, modifiedBy, aadharNumber, panNumber);
 
 		Customer customer = new Customer();
 		customer.setPassword(password);
@@ -394,11 +455,7 @@ public class Api {
 	    String address = (String) branchDetails.get("address");
 	    Long modifiedBy = (Long) branchDetails.get("modifiedBy");
 
-	    try {
-	        Validator.checkInvalidInput(name, ifsc, employeeId, address);
-	    } catch (CustomException e) {
-	        throw e;
-	    }
+	    Validator.checkInvalidInput(name, ifsc, employeeId, address);
 
 	    Branch branch = new Branch();
 	    branch.setName(name);
@@ -430,11 +487,8 @@ public class Api {
 	    Long modifiedBy = (Long) employeeDetails.get("modifiedBy");
 	    Long branchId = (Long) employeeDetails.get("branchId");
 	    String employeeRole = (String) employeeDetails.get("role");
-	    try {
-	        Validator.checkInvalidInput(password, name, email, mobile, dateOfBirth, modifiedBy);
-	    } catch (CustomException e) {
-	        throw e;
-	    }
+	    
+	    Validator.checkInvalidInput(password, name, email, mobile, dateOfBirth, modifiedBy);
 
 	    Employee employee = new Employee();
 	    employee.setPassword(password);
@@ -469,11 +523,7 @@ public class Api {
 	    String status = (String) accountDetails.get("status");
 	    Long modifiedBy = (Long) accountDetails.get("modifiedBy");
 
-	    try {
-	        Validator.checkInvalidInput(userId, branchId, accountType, balance, status);
-	    } catch (CustomException e) {
-	        throw e;
-	    }
+	    Validator.checkInvalidInput(userId, branchId, accountType, balance, status);
 
 	    Account account = new Account();
 	    account.setUserId(userId);
