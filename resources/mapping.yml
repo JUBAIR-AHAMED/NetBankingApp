@@ -112,6 +112,8 @@ table:
         pojoname: "accountNumber"
       user_id: 
         pojoname: "userId"
+      creation_time: 
+        pojoname: "creationTime"
       transaction_account: 
         pojoname: "transactionAccount"
       modified_by: 
@@ -179,6 +181,7 @@ pojo:
       timestamp: "timestamp"
       balance: "balance"
       accountNumber: "account_number"
+      creationTime: "creation_time"
       userId: "user_id"
       transactionAccount: "transaction_account"
       modifiedBy: "modified_by"

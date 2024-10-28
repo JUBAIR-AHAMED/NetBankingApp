@@ -8,7 +8,7 @@ public class Account implements Model {
     private Long branchId;
     private String accountType;  // Changed to String
     private Long dateOfOpening;
-    private Long balance;
+    private Float balance;
     private Status status;  // Changed to String
     private Long creationTime;
     private Long modifiedTime;
@@ -55,11 +55,11 @@ public class Account implements Model {
         this.dateOfOpening = dateOfOpening;
     }
 
-    public Long getBalance() {
+    public Float getBalance() {
         return balance;
     }
 
-    public void setBalance(Long balance) {
+    public void setBalance(Float balance) {
         this.balance = balance;
     }
 

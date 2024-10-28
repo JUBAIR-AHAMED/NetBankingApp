@@ -59,7 +59,7 @@ public class AccountsServlet extends HttpServlet {
             	return;
             }
 
-            if ("EMPLOYEE".equals(role) && branchId == null) {
+            if (("EMPLOYEE".equals(role) || "MANAGER".equals(role)) && branchId == null) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 responseMap.put("status", false);
                 responseMap.put("message", "Branch ID is required for employees.");

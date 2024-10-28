@@ -27,13 +27,11 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        BufferedReader reader = request.getReader();
         Map<String, Object> responseMap = new HashMap<>();
 
         try {
             ApiHandler apiHandler = new ApiHandler();
-            Map<String, Object> userDetails = apiHandler.loginHandler(reader);
-            System.out.println("*******");
+            Map<String, Object> userDetails = apiHandler.loginHandler(request);
             if (userDetails.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 responseMap.put("message", "Invalid credentials");

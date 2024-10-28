@@ -4,12 +4,13 @@ import com.netbanking.model.Model;
 
 public class Transaction implements Model {
     private Long referenceNumber;  // Use Integer if you want to allow nulls, otherwise use int
-    private Long transactionAmount;
+    private Float transactionAmount;
     private Long timestamp;  // Consider using java.time.Instant for better time handling
-    private Long balance;
+    private Float balance;
     private Long accountNumber;
     private Long userId;
     private Long transactionAccount;
+    private Long creationTime;
     private Long modifiedBy;
 
     // Default constructor
@@ -25,11 +26,11 @@ public class Transaction implements Model {
         this.referenceNumber = referenceNumber;
     }
 
-    public Long getTransactionAmount() {
+    public Float getTransactionAmount() {
         return transactionAmount;
     }
 
-    public void setTransactionAmount(Long transactionAmount) {
+    public void setTransactionAmount(Float transactionAmount) {
         this.transactionAmount = transactionAmount;
     }
 
@@ -41,11 +42,11 @@ public class Transaction implements Model {
         this.timestamp = timestamp;
     }
 
-    public Long getBalance() {
+    public Float getBalance() {
         return balance;
     }
 
-    public void setBalance(Long balance) {
+    public void setBalance(Float balance) {
         this.balance = balance;
     }
 
@@ -72,7 +73,15 @@ public class Transaction implements Model {
     public void setTransactionAccount(Long transactionAccount) {
         this.transactionAccount = transactionAccount;
     }
+    
+    public Long getCreationTime() {
+        return creationTime;
+    }
 
+    public void setCreationTime(Long creationTime) {
+        this.creationTime = creationTime;
+    }
+    
     public Long getModifiedBy() {
         return modifiedBy;
     }

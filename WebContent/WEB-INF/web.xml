@@ -19,7 +19,26 @@
 	    <servlet-name>AccountsServlet</servlet-name>
 	    <url-pattern>/accounts</url-pattern>
 	</servlet-mapping>
-
+	
+	<servlet>
+	    <servlet-name>TransactionServlet</servlet-name>
+	    <servlet-class>com.netbanking.servlet.TransactionServlet</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+	    <servlet-name>TransactionServlet</servlet-name>
+	    <url-pattern>/transaction</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+	    <servlet-name>StatementServlet</servlet-name>
+	    <servlet-class>com.netbanking.servlet.StatementServlet</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+	    <servlet-name>StatementServlet</servlet-name>
+	    <url-pattern>/statement</url-pattern>
+	</servlet-mapping>
 
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>

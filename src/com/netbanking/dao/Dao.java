@@ -49,7 +49,7 @@ public interface Dao<T> {
 	    	        stmt.setObject(parameterIndex++, value);
 	    	    }
 	    	    System.out.println(stmt);
-	    	    int affectedRows = stmt.executeUpdate();
+	    	    stmt.executeUpdate();
 
 	    	    Long generatedKeysList = null;
 
@@ -86,7 +86,7 @@ public interface Dao<T> {
 	    	    for (Object value : conditions.values()) {
 	    	        stmt.setObject(parameterIndex++, value);
 	    	    }
-
+	    	    System.out.println(stmt);
 	    	    stmt.executeUpdate();
 	    	}
 	}
@@ -107,7 +107,6 @@ public interface Dao<T> {
             helper.appendConditions(sql, whereConditions, request.getWhereConditionsValues(),request.getWhereOperators(), request.getWhereLogicalOperators());
         }
         
-
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
         	helper.setParameters(stmt, updates, request.getWhereConditionsValues());

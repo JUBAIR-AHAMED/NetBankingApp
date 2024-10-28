@@ -201,7 +201,7 @@ public class FunctionHandler {
 		return transactionMap;
 	}
 	
-	public Long getBalance(Long account_number) throws CustomException	
+	public Float getBalance(Long account_number) throws CustomException
 	{
 		Validator.checkInvalidInput(account_number);
 		QueryRequest request = new QueryRequest();
@@ -216,7 +216,7 @@ public class FunctionHandler {
 		whereOperator.add("=");
 		
 		request.setSelectColumns(selectColumns);
-		request.setJoinTableName("account");
+		request.setTableName("account");
 		request.setWhereConditions(whereCondition);
 		request.setWhereConditionsValues(whereConditionValue);
 		request.setWhereOperators(whereOperator);
@@ -224,13 +224,10 @@ public class FunctionHandler {
 		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
 		List<Map<String, Object>> accountMap = null;
 		
-		try {
-			accountMap = daoCaller.selectHandler(request);
-			return (Long) accountMap.get(0).get("balance");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		accountMap = daoCaller.selectHandler(request);
+		Object balanceValue = accountMap.get(0).get("balance");
+
+        return ((Float) balanceValue).floatValue();
 	}
 	
 	public Map<String, Object> getProfile(Long customerId) throws CustomException
@@ -278,9 +275,13 @@ public class FunctionHandler {
 		return transactionMap.get(0);
 	}
 
-	private void storeTransaction(Long from_account, Long to_account, Long user_id, Long amount, Long from_account_balance, Long to_account_balance) throws Exception
+	private void storeTransaction(Long from_account, Long to_account, Long user_id, Float amount, Float from_account_balance, Float to_account_balance, String bankName) throws Exception
 	{
-		Validator.checkInvalidInput(from_account, to_account, user_id, amount, from_account, to_account_balance);
+		Validator.checkInvalidInput(from_account, user_id, amount);
+		if(bankName == null)
+		{
+			Validator.checkInvalidInput(to_account, to_account_balance);
+		}
 		DaoHandler<Transaction> transactionHandle = new DaoHandler<Transaction>();
 		
 		Transaction transaction_acc_one = new Transaction();
@@ -289,33 +290,45 @@ public class FunctionHandler {
 		transaction_acc_one.setModifiedBy(from_account);
 		transaction_acc_one.setTimestamp(System.currentTimeMillis());
 		transaction_acc_one.setTransactionAccount(to_account);
-		transaction_acc_one.setTransactionAmount(amount);
+		transaction_acc_one.setTransactionAmount(-amount);
 		transaction_acc_one.setUserId(user_id);
+		transaction_acc_one.setCreationTime(System.currentTimeMillis());
 		Long ref_number = transactionHandle.insertHandler(transaction_acc_one);
 		
-		Transaction transaction_acc_two = new Transaction();
-		transaction_acc_two.setAccountNumber(to_account);
-		transaction_acc_two.setBalance(to_account_balance);
-		transaction_acc_two.setModifiedBy(from_account);
-		transaction_acc_two.setTimestamp(System.currentTimeMillis());
-		transaction_acc_two.setTransactionAccount(to_account);
-		transaction_acc_two.setTransactionAmount(amount);
-		transaction_acc_two.setUserId(user_id);
-		transaction_acc_two.setReferenceNumber(ref_number);
-		transactionHandle.insertHandler(transaction_acc_two);
+		System.out.println("Bank name"+bankName);
+		if(bankName == null)
+		{
+			Transaction transaction_acc_two = new Transaction();
+			transaction_acc_two.setAccountNumber(to_account);
+			transaction_acc_two.setBalance(to_account_balance);
+			transaction_acc_two.setModifiedBy(from_account);
+			transaction_acc_two.setTimestamp(System.currentTimeMillis());
+			transaction_acc_two.setTransactionAccount(from_account);
+			transaction_acc_two.setTransactionAmount(amount);
+			transaction_acc_two.setUserId(user_id);
+			transaction_acc_two.setReferenceNumber(ref_number);
+			transaction_acc_two.setCreationTime(System.currentTimeMillis());
+			transactionHandle.insertHandler(transaction_acc_two);
+		}
 	}
 	
-	public void makeTransaction(Long from_account, Long user_id, Long to_account, Long amount) throws Exception {
-		Validator.checkInvalidInput(from_account, user_id, to_account, amount);
-		Long from_account_balance = getBalance(from_account);
-		Long to_account_balance = getBalance(to_account);
+	public void makeTransaction(Long from_account, Long to_account, Long user_id, Float amount, String bankName) throws Exception {
+		Validator.checkInvalidInput(from_account, user_id, amount);
+		Float from_account_balance = getBalance(from_account);
+		Float to_account_balance = null;
 		
-		if(from_account_balance >= amount) {
+		if(from_account_balance < amount) {
 			throw new Exception("Balance Not Enough");
 		}
 		
+		if(bankName==null)
+		{
+			Validator.checkInvalidInput(to_account);
+			to_account_balance = getBalance(to_account);
+			to_account_balance += amount;
+		}
+		
 		from_account_balance -= amount;
-		to_account_balance += amount;
 		
 		QueryRequest acc_bal = new QueryRequest();
 		
@@ -325,7 +338,7 @@ public class FunctionHandler {
 		updates.add("balance");
 		List<String> whereConditions = new ArrayList<>();
 		List<Object> whereConditionsValues = new ArrayList<>();
-		whereConditions.add("account_number");
+		whereConditions.add("accountNumber");
 		whereConditionsValues.add(from_account);
 		List<String> whereOperators = new ArrayList<String>();
 		whereOperators.add("=");
@@ -336,24 +349,28 @@ public class FunctionHandler {
 		account_one.put("balance", from_account_balance);
 		Map<String, Object> account_two = new HashMap<>();
 		account_two.put("balance", to_account_balance);
-		
+
 		try {
 			daoCaller.updateHandler(account_one, Account.class, whereConditions, whereConditionsValues, whereOperators, null);
-			whereConditionsValues.remove(0);
-			whereConditionsValues.add(to_account);
-			daoCaller.updateHandler(account_two, Account.class, whereConditions, whereConditionsValues, whereOperators, null);
+			if(bankName==null)
+			{
+				whereConditions.add("accountNumber");
+				whereOperators.add("=");
+				whereConditionsValues.add(to_account);
+				daoCaller.updateHandler(account_two, Account.class, whereConditions, whereConditionsValues, whereOperators, null);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception("Failed Transaction");
 		}
 		
 		
-		storeTransaction(from_account, to_account, user_id, amount, from_account_balance, to_account_balance);
+		storeTransaction(from_account, to_account, user_id, amount, from_account_balance, to_account_balance, bankName);
 	}
 	
-	public void makeDepositWithdraw(Long from_account, Long user_id, Long amount, String process) throws Exception {
+	public void makeDepositWithdraw(Long from_account, Long user_id, Float amount, String process) throws Exception {
 		Validator.checkInvalidInput(from_account, user_id, amount, process);
-		Long from_account_balance = getBalance(from_account);
+		Float from_account_balance = getBalance(from_account);
 		
 		if(process.equals("DEPOSIT"))
 		{
@@ -374,6 +391,34 @@ public class FunctionHandler {
 		transaction_acc_one.setTransactionAmount(amount);
 		transaction_acc_one.setUserId(user_id);
 		transactionHandle.insertHandler(transaction_acc_one);
+	}
+	
+	public List<Map<String, Object>> getTransactionStatement(Long accountNumber, Long fromDate, Long toDate) throws CustomException {
+		Validator.checkInvalidInput(accountNumber, fromDate, toDate);
+		DaoHandler<Transaction> transactionHandle = new DaoHandler<Transaction>();		
+		QueryRequest request = new QueryRequest();
+		request.setTableName("transaction");
+		request.setSelectAllColumns(true);
+		List<String> whereConditions = new ArrayList<>();
+		whereConditions.add("account_number");
+		whereConditions.add("timestamp");
+		whereConditions.add("timestamp");
+		request.setWhereConditions(whereConditions);
+		List<Object> whereConditionValues = new ArrayList<>();
+		whereConditionValues.add(accountNumber);
+		whereConditionValues.add(fromDate);
+		whereConditionValues.add(toDate);
+		request.setWhereConditionsValues(whereConditionValues);
+		List<String> whereOperators = new ArrayList<String>();
+		whereOperators.add("=");
+		whereOperators.add(">=");
+		whereOperators.add("<=");
+		request.setWhereOperators(whereOperators);
+		List<String> whereLogicalOperator = new ArrayList<String>();
+		whereLogicalOperator.add("AND");
+		whereLogicalOperator.add("AND");
+		request.setWhereLogicalOperators(whereLogicalOperator);
+		return transactionHandle.selectHandler(request);
 	}
 	
 	public void deleteOrBlock(String type, String entity, String conditionValue) throws Exception
@@ -519,7 +564,7 @@ public class FunctionHandler {
 	    Long userId = (Long) accountDetails.get("userId");
 	    Long branchId = (Long) accountDetails.get("branchId");
 	    String accountType = (String) accountDetails.get("accountType");
-	    Long balance = (Long) accountDetails.get("balance");
+	    Float balance = (Float) accountDetails.get("balance");
 	    String status = (String) accountDetails.get("status");
 	    Long modifiedBy = (Long) accountDetails.get("modifiedBy");
 

@@ -85,6 +85,7 @@ public class QueryRequest {
 
     public void setSelectColumns(List<String> selectColumns) {
         this.selectColumns = selectColumns;
+        selectAllColumns = false;
     }
 
     public List<String> getOrderByColumns() {

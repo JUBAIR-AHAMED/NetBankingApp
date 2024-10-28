@@ -59,6 +59,16 @@ public class YamlMapper {
 
         return tables;  // Return null if no mapping is found
     }
+
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> getTableMap(String tableName)
+	{
+		if (map == null) {
+            new YamlMapper();
+        }
+		
+        return (Map<String, Object>) ((Map<String, Object>) map.get("table")).get(tableName);  
+	}
 	
 	@SuppressWarnings("unchecked")
 	public static Map<String, Object> getTableField(String tableName)
@@ -66,7 +76,7 @@ public class YamlMapper {
 		if (map == null) {
             new YamlMapper();
         }
-		
-        return (Map<String, Object>) ((Map<String, Object>) ((Map<String, Object>) map.get("table")).get(tableName)).get("fields");  
+		System.out.println(tableName);
+        return (Map<String, Object>) ((Map<String, Object>) ((Map<String, Object>) map.get("table")).get(tableName)).get("fields");
 	}
 }

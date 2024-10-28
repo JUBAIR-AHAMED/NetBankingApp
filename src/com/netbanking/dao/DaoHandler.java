@@ -30,17 +30,16 @@ public class DaoHandler<T> implements Dao<T>{
 				
 		Long refrenceKey = null;
 		for(String subTable : tableNames) {
-			Map<String, Object> tableData= YamlMapper.getTableField(subTable);
+			Map<String, Object> tableData = YamlMapper.getTableMap(subTable);
 			@SuppressWarnings("unchecked")
 			Map<String, Object> tableFieldData= (Map<String, Object>) tableData.get("fields");
 			Map<String, Object> insertValues = new HashMap<String, Object>();
 			String autoinc = null;
-			System.out.println(tableFieldData);
+			System.out.println(tableData);
 			if(tableData.containsKey("autoincrement_field"))
 			{
 				autoinc = (String) tableData.get("autoincrement_field");
 			}
-			
 			for(Map.Entry<String, Object> tempMap : tableFieldData.entrySet())
 			{
 				String key = tempMap.getKey();
@@ -129,7 +128,7 @@ public class DaoHandler<T> implements Dao<T>{
 	    List<String> currWhereLogicalOperators = new ArrayList<>();
 	    List<Object> currWhereValues = new ArrayList<>();
 	    int index = 0;
-	    
+	    System.out.println("**** "+whereConditions);
 	    for(int i=0; i<whereConditions.size();i++)
 	    {
 	    	String tempWhereCondition = whereConditions.get(i);
@@ -141,8 +140,10 @@ public class DaoHandler<T> implements Dao<T>{
 	    		currWhereConditions.add(tempField);
 	    		currWhereOperators.add(whereOperators.remove(0));
 	            currWhereValues.add(whereConditionsValues.remove(0));
+	            whereConditions.remove(i);
+	            i--;
+	            index++;
 	    	}
-	    	index++;
 	    }
 
 	    QueryRequest request = new QueryRequest();

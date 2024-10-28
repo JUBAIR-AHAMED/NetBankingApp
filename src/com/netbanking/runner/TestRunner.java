@@ -77,23 +77,23 @@ public class TestRunner {
 //			e.printStackTrace();
 //		}
     	
-    	try {
-			System.out.println(api.getCustomer(8L));
-		} catch (CustomException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//    	try {
+//			System.out.println(api.getCustomer(8L));
+//		} catch (CustomException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
     	
-//    	//Customer
+    	//Customer
 //    	Map<String, Object> customerDetails = new HashMap<>();
-//        customerDetails.put("password", "securePass123");
-//        customerDetails.put("name", "John Doe");
-//        customerDetails.put("email", "john.doe@example.com");
-//        customerDetails.put("mobile", "9876543210");
-//        customerDetails.put("dob", new Date(99, 9, 23)); // Date for 23-10-1999
+//        customerDetails.put("password", "password");
+//        customerDetails.put("name", "Jubair");
+//        customerDetails.put("email", "jubair@example.com");
+//        customerDetails.put("mobile", "9767876037");
+//        customerDetails.put("dob", new Date(103, 12, 13)); // Date for 23-10-1999
 //        customerDetails.put("modifiedBy", 1L);
-//        customerDetails.put("aadharNumber", 123456789012L);
-//        customerDetails.put("panNumber", "ABCDE1234F");
+//        customerDetails.put("aadharNumber", 909876789876L);
+//        customerDetails.put("panNumber", "ERTYU6768K");
 //
 //        try {
 //            api.createCustomer("MANAGER", customerDetails);
@@ -166,5 +166,27 @@ public class TestRunner {
 //		}
     	
 //    	System.out.println(Encryption.hashPassword("password"));
+    	
+//    	Map<String, Object> accMap = new HashMap<String, Object>();
+//    	accMap.put("userId", 9L);
+//    	accMap.put("branchId", 1L);
+//    	accMap.put("accountType", "SAVINGS");
+//    	accMap.put("balance", 15987L);
+//    	accMap.put("status", "ACTIVE");
+//    	accMap.put("modifiedBy", 6L);
+//    	
+//    	try {
+//    		api.createAccount("MANAGER", accMap);
+//    	} catch (Exception e) {
+//    		e.printStackTrace();
+//		}
+    	
+    	//getStatement
+    	try {
+			System.out.println(api.getTransactionStatement(776784567877L, 0L, 1729999825500L));
+		} catch (CustomException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 }
