@@ -60,4 +60,20 @@ public class Validator {
 			throw new CustomException("File name must be end with .txt");
 		}
 	}
+	
+    public static boolean decimalChecker(Float number) {        
+        String numberStr = number.toString();
+        
+        if (numberStr.contains(".")) {
+            String[] parts = numberStr.split("\\.");
+            String decimalPart = parts[1];
+            
+            System.out.println("&&&&&&&& "+parts[1]);
+            if (decimalPart.length() > 2) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

@@ -63,7 +63,7 @@ public class TransactionServlet extends HttpServlet{
                 return;
             }
 			try {
-				apiHandler.initiateTransaction(request, userId);	
+				apiHandler.initiateTransaction(request, userId, role, branchId);	
 				response.setStatus(HttpServletResponse.SC_OK);
 				responseMap.put("status", true);
                 responseMap.put("message", "Transaction success.");

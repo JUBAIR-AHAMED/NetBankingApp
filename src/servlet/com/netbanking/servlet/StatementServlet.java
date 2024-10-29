@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.netbanking.api.ApiHandler;
+import com.netbanking.exception.CustomException;
 import com.netbanking.util.Parser;
 
 import io.jsonwebtoken.Claims;
@@ -20,7 +21,7 @@ public class StatementServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String SECRET_KEY = "018d7a1625d1d217ffde1629409edbdb889f373aaef7032d6a711d2d40848fef";
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Map<String, Object> responseMap = new HashMap<>();
 		try {
 			ApiHandler apiHandler = new ApiHandler();
@@ -64,15 +65,24 @@ public class StatementServlet extends HttpServlet {
                 Parser.writeResponse(response, responseMap);
                 return;
             }
-            List<Map<String, Object>> statement = apiHandler.getStatement(request);
+            List<Map<String, Object>> statement = apiHandler.getStatement(request, userId, role, branchId);
             response.setStatus(HttpServletResponse.SC_OK);
             responseMap.put("status", true);
-            responseMap.put("message", "Accounts fetched successfully");
+            responseMap.put("message", "Statement fetched successfully");
             responseMap.put("statement", statement);
+            System.out.println(statement);
             Parser.writeResponse(response, responseMap);
             return;
+		} catch(CustomException e) {			
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			responseMap.put("status", false);
+			responseMap.put("message", e.getMessage());
+			Parser.writeResponse(response, responseMap);
 		} catch(Exception e) {
-			
+			e.printStackTrace();
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			responseMap.put("status", false);
+			Parser.writeResponse(response, responseMap);	
 		}
 	}
 }

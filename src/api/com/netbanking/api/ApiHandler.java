@@ -12,6 +12,7 @@ import com.google.gson.JsonParser;
 import com.netbanking.dao.FunctionHandler;
 import com.netbanking.exception.CustomException;
 import com.netbanking.util.Parser;
+import com.netbanking.util.Validator;
 
 public class ApiHandler {
 	public Map<String, Object> loginHandler(HttpServletRequest request) throws IOException, CustomException
@@ -45,7 +46,7 @@ public class ApiHandler {
 		return functionHandler.getAccounts(userId, role, branchId);
 	}
 	
-	public void initiateTransaction(HttpServletRequest request, Long userId) throws Exception {
+	public void initiateTransaction(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
 		StringBuilder jsonBody = new StringBuilder();
 		String line;
 		try(BufferedReader reader = request.getReader())
@@ -60,24 +61,46 @@ public class ApiHandler {
 			e.printStackTrace();
 		}
 		JsonObject jsonObject = JsonParser.parseString(jsonBody.toString()).getAsJsonObject();
-		Long fromAccount = jsonObject.get("fromAccount").getAsLong();
-		Long toAccount = jsonObject.get("toAccount").getAsLong();
-		Float amount = jsonObject.get("amount").getAsFloat();
+		Long fromAccount=null, toAccount=null;
+		Float amount=null;
+		try {
+			fromAccount = jsonObject.get("fromAccount").getAsLong();
+			toAccount = jsonObject.get("toAccount").getAsLong();
+			amount = jsonObject.get("amount").getAsFloat();
+		} catch (Exception e) {
+			throw new CustomException("Enter numeric values for account number and amount.");
+		}
 		String bankName = jsonObject.get("bankName").getAsString();
+		System.out.println(amount);
+		FunctionHandler functionHandler = new FunctionHandler();
+		if(!functionHandler.accountAccessPermit(fromAccount, userId, role, branchId)) {
+			throw new CustomException("You don't have permission to access this account.");
+		}
 		if(fromAccount.equals(toAccount))
 		{
-			System.out.println(fromAccount+" "+toAccount);
 			throw new CustomException("Cannot send money to the same account.");
 		}
 		if(bankName.trim().isEmpty())
 		{
 			bankName=null;
 		}
-		FunctionHandler functionHandler = new FunctionHandler();
+		if(amount<0)
+		{
+			throw new CustomException("Amount cannot be negative.");
+		}
+		float decimalPart = amount - amount.intValue();
+		if(decimalPart!=0&&decimalPart<0.01)
+		{
+			throw new CustomException("Cannot send amount less than 0.01 rupees.");
+		}
+		if(!Validator.decimalChecker(amount))
+		{
+			throw new CustomException("Can have only 2 digits after the decimal.");
+		}
 		functionHandler.makeTransaction(fromAccount, toAccount, userId, amount, bankName);
 	}
 	
-	public List<Map<String, Object>> getStatement(HttpServletRequest request) throws CustomException {
+	public List<Map<String, Object>> getStatement(HttpServletRequest request, Long userId, String role, Long branchId) throws CustomException {
 		StringBuilder jsonBody = new StringBuilder();
 		String line;
 		try(BufferedReader reader = request.getReader())
@@ -96,6 +119,19 @@ public class ApiHandler {
 		Long fromDate = jsonObject.get("fromDate").getAsLong();
 		Long toDate = jsonObject.get("toDate").getAsLong();
 		FunctionHandler functionHandler = new FunctionHandler();
+		
+		if(!functionHandler.accountIsValid(accountNumber)) {
+			throw new CustomException("Account is invalid.");
+		}
+		
+		if(!functionHandler.accountAccessPermit(accountNumber, userId, role, branchId)) {
+			throw new CustomException("You don't have permission to access this account.");
+		}
+		
+		if(fromDate>toDate)
+		{
+			throw new CustomException("Time frame is invalid.");
+		}
 		try {
 			return functionHandler.getTransactionStatement(accountNumber, fromDate, toDate);
 		} catch (CustomException e) {

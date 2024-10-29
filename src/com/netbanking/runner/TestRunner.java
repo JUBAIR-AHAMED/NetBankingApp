@@ -91,7 +91,7 @@ public class TestRunner {
 //        customerDetails.put("email", "jubair@example.com");
 //        customerDetails.put("mobile", "9767876037");
 //        customerDetails.put("dob", new Date(103, 12, 13)); // Date for 23-10-1999
-//        customerDetails.put("modifiedBy", 1L);
+//        customerDetails.put("modifiedBy", 3L);
 //        customerDetails.put("aadharNumber", 909876789876L);
 //        customerDetails.put("panNumber", "ERTYU6768K");
 //
@@ -102,18 +102,36 @@ public class TestRunner {
 //            e.printStackTrace();
 //        }
     	
+    	//Customer
+//    	Map<String, Object> customerDetails = new HashMap<>();
+//        customerDetails.put("password", "password");
+//        customerDetails.put("name", "Mari");
+//        customerDetails.put("email", "mari@example.com");
+//        customerDetails.put("mobile", "9776459805");
+//        customerDetails.put("dob", new Date(100, 11, 12)); // Date for 23-10-1999
+//        customerDetails.put("modifiedBy", 3L);
+//        customerDetails.put("aadharNumber", 909876789579L);
+//        customerDetails.put("panNumber", "QRTYU6768L");
+//
+//        try {
+//            api.createCustomer("MANAGER", customerDetails);
+//            System.out.println("Customer created successfully.");
+//        } catch (CustomException e) {
+//            e.printStackTrace();
+//        }
+    	
     	
     	//Eployee
-//    	Map<String, Object> customerDetails = new HashMap<>();
-//    	customerDetails.put("password", "234567");
-//    	customerDetails.put("name", "Opera Ji");
-//    	customerDetails.put("email", "oper@asd.com");
-//    	customerDetails.put("mobile", "9876543201");
-//    	customerDetails.put("dob", new Date(99, 9, 23));
-//    	customerDetails.put("modifiedBy", 1L);
-//    	customerDetails.put("role", "MANAGER");
+//    	Map<String, Object> employeeDetails = new HashMap<>();
+//    	employeeDetails.put("password", "234567");
+//    	employeeDetails.put("name", "Opera Ji");
+//    	employeeDetails.put("email", "oper@asd.com");
+//    	employeeDetails.put("mobile", "9876543201");
+//    	employeeDetails.put("dob", new Date(99, 9, 23));
+//    	employeeDetails.put("modifiedBy", 1L);
+//    	employeeDetails.put("role", "MANAGER");
 //    	try {
-//			api.createEmployee("MANAGER", customerDetails);
+//			api.createEmployee("MANAGER", employeeDetails);
 //		} catch (CustomException e) {
 //			e.printStackTrace();
 //		}
@@ -123,7 +141,7 @@ public class TestRunner {
 //    	Map<String, Object> branchDetails = new HashMap<>();
 //        branchDetails.put("name", "Main Branch");
 //        branchDetails.put("ifsc", 1234567890L);
-//        branchDetails.put("employeeId", 6L);
+//        branchDetails.put("employeeId", 3L);
 //        branchDetails.put("address", "123 Main St, City, India");
 //        branchDetails.put("modifiedBy", 1L);
 //
@@ -135,14 +153,27 @@ public class TestRunner {
 //        }
         
         //Account
-//    	Map<String, Object> accountDetails = new HashMap<>();
-//        accountDetails.put("userId", 7L);
-//        accountDetails.put("branchId", 1L);
+    	Map<String, Object> accountDetails = new HashMap<>();
+//        accountDetails.put("userId", 4L);
+//        accountDetails.put("branchId", 6L);
 //        accountDetails.put("accountType", "SAVINGS");
-//        accountDetails.put("balance", 10000L);
+//        accountDetails.put("balance", 10000.00F);
 //        accountDetails.put("status", "ACTIVE");
 //        accountDetails.put("modifiedBy", 1L);
-//
+//        try {
+//            api.createAccount("MANAGER", accountDetails);
+//            System.out.println("Account created successfully.");
+//        } catch (CustomException e) {
+//            e.printStackTrace();
+//        }
+    	
+//    	Map<String, Object> accountDetails = new HashMap<>();
+//        accountDetails.put("userId", 5L);
+//        accountDetails.put("branchId", 6L);
+//        accountDetails.put("accountType", "SAVINGS");
+//        accountDetails.put("balance", 10000.00F);
+//        accountDetails.put("status", "ACTIVE");
+//        accountDetails.put("modifiedBy", 1L);
 //        try {
 //            api.createAccount("MANAGER", accountDetails);
 //            System.out.println("Account created successfully.");
@@ -182,8 +213,15 @@ public class TestRunner {
 //		}
     	
     	//getStatement
+//    	try {
+//			System.out.println(api.getTransactionStatement(776784567877L, 0L, 1729999825500L));
+//		} catch (CustomException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+    	
     	try {
-			System.out.println(api.getTransactionStatement(776784567877L, 0L, 1729999825500L));
+			System.out.println(api.accountIsValid(80960987234520L));
 		} catch (CustomException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
