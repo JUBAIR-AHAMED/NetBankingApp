@@ -115,9 +115,21 @@ public class ApiHandler {
 			e.printStackTrace();
 		}
 		JsonObject jsonObject = JsonParser.parseString(jsonBody.toString()).getAsJsonObject();
-		Long accountNumber = jsonObject.get("accountNumber").getAsLong();
-		Long fromDate = jsonObject.get("fromDate").getAsLong();
-		Long toDate = jsonObject.get("toDate").getAsLong();
+		Long accountNumber = jsonObject.has("accountNumber") && !jsonObject.get("accountNumber").isJsonNull() 
+                ? jsonObject.get("accountNumber").getAsLong() 
+                : null;
+
+		Long fromDate = jsonObject.has("fromDate") && !jsonObject.get("fromDate").isJsonNull() 
+		           ? jsonObject.get("fromDate").getAsLong() 
+		           : null;
+		
+		Long toDate = jsonObject.has("toDate") && !jsonObject.get("toDate").isJsonNull() 
+		         ? jsonObject.get("toDate").getAsLong() 
+		         : null;
+
+		Integer limit = jsonObject.has("limit") && !jsonObject.get("limit").isJsonNull() 
+                ? jsonObject.get("limit").getAsInt() 
+                : null;
 		FunctionHandler functionHandler = new FunctionHandler();
 		
 		if(!functionHandler.accountIsValid(accountNumber)) {
@@ -128,12 +140,20 @@ public class ApiHandler {
 			throw new CustomException("You don't have permission to access this account.");
 		}
 		
-		if(fromDate>toDate)
+		if(fromDate==null&&toDate==null&&limit==null)
+		{
+			throw new CustomException("Please enter valid details");
+		}
+		if((fromDate==null&&toDate!=null)||(fromDate!=null&&toDate==null)) {
+			throw new CustomException("Time frame is invalid.");
+		}
+		if(fromDate!=null && fromDate>toDate)
 		{
 			throw new CustomException("Time frame is invalid.");
 		}
+		
 		try {
-			return functionHandler.getTransactionStatement(accountNumber, fromDate, toDate);
+			return functionHandler.getTransactionStatement(accountNumber, fromDate, toDate, limit);
 		} catch (CustomException e) {
 			e.printStackTrace();
 			throw e;

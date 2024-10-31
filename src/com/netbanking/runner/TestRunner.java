@@ -84,23 +84,23 @@ public class TestRunner {
 //			e.printStackTrace();
 //		}
     	
-    	//Customer
-//    	Map<String, Object> customerDetails = new HashMap<>();
-//        customerDetails.put("password", "password");
-//        customerDetails.put("name", "Jubair");
-//        customerDetails.put("email", "jubair@example.com");
-//        customerDetails.put("mobile", "9767876037");
-//        customerDetails.put("dob", new Date(103, 12, 13)); // Date for 23-10-1999
-//        customerDetails.put("modifiedBy", 3L);
-//        customerDetails.put("aadharNumber", 909876789876L);
-//        customerDetails.put("panNumber", "ERTYU6768K");
-//
-//        try {
-//            api.createCustomer("MANAGER", customerDetails);
-//            System.out.println("Customer created successfully.");
-//        } catch (CustomException e) {
-//            e.printStackTrace();
-//        }
+//    	Customer
+    	Map<String, Object> customerDetails = new HashMap<>();
+        customerDetails.put("password", "password");
+        customerDetails.put("name", "Tony Stark");
+        customerDetails.put("email", "stark@example.com");
+        customerDetails.put("mobile", "7656755309");
+        customerDetails.put("dob", new Date(102, 1, 7)); // Date for 23-10-1999
+        customerDetails.put("modifiedBy", 3L);
+        customerDetails.put("aadharNumber", 966823569120L);
+        customerDetails.put("panNumber", "YTIC7854H");
+
+        try {
+            api.createCustomer("MANAGER", customerDetails);
+            System.out.println("Customer created successfully.");
+        } catch (CustomException e) {
+            e.printStackTrace();
+        }
     	
     	//Customer
 //    	Map<String, Object> customerDetails = new HashMap<>();
@@ -153,7 +153,7 @@ public class TestRunner {
 //        }
         
         //Account
-    	Map<String, Object> accountDetails = new HashMap<>();
+//    	Map<String, Object> accountDetails = new HashMap<>();
 //        accountDetails.put("userId", 4L);
 //        accountDetails.put("branchId", 6L);
 //        accountDetails.put("accountType", "SAVINGS");
@@ -220,11 +220,11 @@ public class TestRunner {
 //			e.printStackTrace();
 //		}
     	
-    	try {
-			System.out.println(api.accountIsValid(80960987234520L));
-		} catch (CustomException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//    	try {
+//			System.out.println(api.accountIsValid(80960987234520L));
+//		} catch (CustomException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
     }
 }

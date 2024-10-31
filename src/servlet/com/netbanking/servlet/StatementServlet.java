@@ -70,7 +70,7 @@ public class StatementServlet extends HttpServlet {
             responseMap.put("status", true);
             responseMap.put("message", "Statement fetched successfully");
             responseMap.put("statement", statement);
-            System.out.println(statement);
+            System.out.println("state"+statement);
             Parser.writeResponse(response, responseMap);
             return;
 		} catch(CustomException e) {			

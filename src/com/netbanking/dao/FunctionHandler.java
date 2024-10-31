@@ -479,31 +479,39 @@ public class FunctionHandler {
 		transactionHandle.insertHandler(transaction_acc_one);
 	}
 	
-	public List<Map<String, Object>> getTransactionStatement(Long accountNumber, Long fromDate, Long toDate) throws CustomException {
-		Validator.checkInvalidInput(accountNumber, fromDate, toDate);
+	public List<Map<String, Object>> getTransactionStatement(Long accountNumber, Long fromDate, Long toDate, Integer limit) throws CustomException {
 		DaoHandler<Transaction> transactionHandle = new DaoHandler<Transaction>();		
 		QueryRequest request = new QueryRequest();
 		request.setTableName("transaction");
 		request.setSelectAllColumns(true);
 		List<String> whereConditions = new ArrayList<>();
-		whereConditions.add("account_number");
-		whereConditions.add("timestamp");
-		whereConditions.add("timestamp");
-		request.setWhereConditions(whereConditions);
 		List<Object> whereConditionValues = new ArrayList<>();
-		whereConditionValues.add(accountNumber);
-		whereConditionValues.add(fromDate);
-		whereConditionValues.add(toDate);
-		request.setWhereConditionsValues(whereConditionValues);
 		List<String> whereOperators = new ArrayList<String>();
-		whereOperators.add("=");
-		whereOperators.add(">=");
-		whereOperators.add("<=");
-		request.setWhereOperators(whereOperators);
 		List<String> whereLogicalOperator = new ArrayList<String>();
-		whereLogicalOperator.add("AND");
-		whereLogicalOperator.add("AND");
+		whereConditions.add("account_number");
+		whereOperators.add("=");
+		whereConditionValues.add(accountNumber);
+		if(fromDate!=null) {
+			whereConditions.add("timestamp");
+			whereConditions.add("timestamp");
+			
+			whereConditionValues.add(fromDate);
+			whereConditionValues.add(toDate);
+
+			whereOperators.add(">=");
+			whereOperators.add("<=");
+
+			whereLogicalOperator.add("AND");
+			whereLogicalOperator.add("AND");
+		}
+		request.setWhereOperators(whereOperators);
 		request.setWhereLogicalOperators(whereLogicalOperator);
+		request.setWhereConditionsValues(whereConditionValues);
+		request.setWhereConditions(whereConditions);
+		if(limit!=null)
+		{
+			request.setLimit(limit);			
+		}
 		return transactionHandle.selectHandler(request);
 	}
 	
