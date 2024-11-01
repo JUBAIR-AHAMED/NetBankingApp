@@ -39,6 +39,16 @@
 	    <servlet-name>StatementServlet</servlet-name>
 	    <url-pattern>/statement</url-pattern>
 	</servlet-mapping>
+	
+	<servlet>
+	    <servlet-name>ProfileServlet</servlet-name>
+	    <servlet-class>com.netbanking.servlet.ProfileServlet</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+	    <servlet-name>ProfileServlet</servlet-name>
+	    <url-pattern>/profile</url-pattern>
+	</servlet-mapping>
 
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>

@@ -1,21 +1,20 @@
 package com.netbanking.servlet;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.JsonObject;
 import com.netbanking.api.ApiHandler;
-import com.netbanking.dao.FunctionHandler;
 import com.netbanking.exception.CustomException;
 import com.netbanking.util.Parser;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -37,6 +36,7 @@ public class LoginServlet extends HttpServlet {
                 responseMap.put("message", "Invalid credentials");
                 responseMap.put("status", false);
             } else {
+            	System.out.println(userDetails);
                 String jwt = generateJwt(userDetails);
 
                 response.setStatus(HttpServletResponse.SC_OK);
@@ -64,9 +64,11 @@ public class LoginServlet extends HttpServlet {
         }
 
         return Jwts.builder()
-                .setClaims(userDetails)
+//                .setClaims(userDetails)
                 .setSubject(userDetails.get("userId").toString()) // Include user ID as a subject
+                .claim("userId", userDetails.get("userId"))
                 .claim("role", userDetails.get("role")) // Add role to the JWT
+                .claim("branchId", userDetails.getOrDefault("branchId", null))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 24 hours
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)

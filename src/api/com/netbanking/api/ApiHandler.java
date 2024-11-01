@@ -63,15 +63,18 @@ public class ApiHandler {
 		JsonObject jsonObject = JsonParser.parseString(jsonBody.toString()).getAsJsonObject();
 		Long fromAccount=null, toAccount=null;
 		Float amount=null;
+		String transactionType = null;
 		try {
 			fromAccount = jsonObject.get("fromAccount").getAsLong();
-			toAccount = jsonObject.get("toAccount").getAsLong();
+			toAccount = jsonObject.has("toAccount") && !jsonObject.get("toAccount").isJsonNull() 
+	                ? jsonObject.get("toAccount").getAsLong() : null;
+            transactionType = jsonObject.has("transactionType") && !jsonObject.get("transactionType").isJsonNull() 
+            		? jsonObject.get("transactionType").getAsString() : null;
 			amount = jsonObject.get("amount").getAsFloat();
 		} catch (Exception e) {
 			throw new CustomException("Enter numeric values for account number and amount.");
 		}
-		String bankName = jsonObject.get("bankName").getAsString();
-		System.out.println(amount);
+		System.out.println("---------"+toAccount);
 		FunctionHandler functionHandler = new FunctionHandler();
 		if(!functionHandler.accountAccessPermit(fromAccount, userId, role, branchId)) {
 			throw new CustomException("You don't have permission to access this account.");
@@ -79,10 +82,6 @@ public class ApiHandler {
 		if(fromAccount.equals(toAccount))
 		{
 			throw new CustomException("Cannot send money to the same account.");
-		}
-		if(bankName.trim().isEmpty())
-		{
-			bankName=null;
 		}
 		if(amount<0)
 		{
@@ -97,7 +96,17 @@ public class ApiHandler {
 		{
 			throw new CustomException("Can have only 2 digits after the decimal.");
 		}
-		functionHandler.makeTransaction(fromAccount, toAccount, userId, amount, bankName);
+		if(transactionType.equals("same-bank")||transactionType.equals("other-bank"))
+		{
+			if(toAccount==null)
+			{				
+				throw new CustomException("Reciever account is required.");
+			}
+			functionHandler.makeTransaction(fromAccount, toAccount, userId, amount, transactionType);
+			return;
+		} else {
+			functionHandler.makeTransaction(fromAccount, null, userId, amount, transactionType);
+		}
 	}
 	
 	public List<Map<String, Object>> getStatement(HttpServletRequest request, Long userId, String role, Long branchId) throws CustomException {
@@ -158,5 +167,11 @@ public class ApiHandler {
 			e.printStackTrace();
 			throw e;
 		}
+	}
+	
+	public Map<String, Object> getProfile(Long userId, String role) throws CustomException
+	{
+		FunctionHandler functionHandler = new FunctionHandler();
+		return functionHandler.getProfile(userId, role);
 	}
 }
