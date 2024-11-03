@@ -13,6 +13,7 @@ public class QueryRequest {
     private Boolean selectAllColumns;
     private List<String> selectColumns; 
     private List<String> orderByColumns;
+    private List<String> orderDirections;
     private List<String> joinOperators;
     private List<String> whereOperators;
     private List<String> joinLogicalOperators;
@@ -94,6 +95,14 @@ public class QueryRequest {
 
     public void setOrderByColumns(List<String> orderByColumns) {
         this.orderByColumns = orderByColumns;
+    }
+    
+    public List<String> getOrderDirections() {
+        return orderDirections;
+    }
+
+    public void setOrderDirections(List<String> orderDirections) {
+        this.orderDirections = orderDirections;
     }
     
     public List<String> getJoinOperators() {

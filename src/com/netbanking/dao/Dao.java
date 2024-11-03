@@ -151,8 +151,19 @@ public interface Dao<T> {
         }
 
         if (request.getOrderByColumns() != null && !request.getOrderByColumns().isEmpty()) {
-            sql.append(" ORDER BY ").append(String.join(", ", request.getOrderByColumns()));
+            sql.append(" ORDER BY ");
+            List<String> orderClauses = new ArrayList<>();
+            
+            for (int i = 0; i < request.getOrderByColumns().size(); i++) {
+                String column = request.getOrderByColumns().get(i);
+                String direction = request.getOrderDirections() != null && i < request.getOrderDirections().size()
+                    ? request.getOrderDirections().get(i)
+                    : "ASC"; // Default to ASC if no direction specified
+                orderClauses.add(column + " " + direction);
+            }
+            sql.append(String.join(", ", orderClauses));
         }
+
 
         if (request.getLimit() != null) {
             sql.append(" LIMIT ").append(request.getLimit());

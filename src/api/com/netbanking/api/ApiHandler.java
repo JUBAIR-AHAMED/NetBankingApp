@@ -40,10 +40,19 @@ public class ApiHandler {
 		}
 	}
 	
-	public List<Map<String, Object>> getUserAccounts(Long userId, String role, Long branchId) throws IOException, CustomException
+	public List<Map<String, Object>> getUserAccounts(HttpServletRequest request, Long userId, String role, Long branchId) throws IOException, CustomException
 	{
+		String accountNumberStr = request.getParameter("accountNumber");
+
+		Long accountNumber = null;
+		try {
+		    accountNumber = accountNumberStr == null? null:Long.parseLong(accountNumberStr);
+		} catch (NumberFormatException e) {
+		    e.printStackTrace();
+		}
+        
 		FunctionHandler functionHandler = new FunctionHandler();
-		return functionHandler.getAccounts(userId, role, branchId);
+		return functionHandler.getAccounts(userId, role, branchId, accountNumber);
 	}
 	
 	public void initiateTransaction(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {

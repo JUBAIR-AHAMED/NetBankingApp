@@ -14,8 +14,7 @@ import com.netbanking.exception.CustomException;
 import com.netbanking.util.Parser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-
-@WebServlet("/bankaccounts")
+	
 public class AccountsServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String SECRET_KEY = "018d7a1625d1d217ffde1629409edbdb889f373aaef7032d6a711d2d40848fef";
@@ -67,7 +66,7 @@ public class AccountsServlet extends HttpServlet {
                 return;
             }
 
-            List<Map<String, Object>> accounts = apiHandler.getUserAccounts(userId, role, branchId);
+            List<Map<String, Object>> accounts = apiHandler.getUserAccounts(request, userId, role, branchId);
             System.out.println(accounts);
             response.setStatus(HttpServletResponse.SC_OK);
             responseMap.put("status", true);

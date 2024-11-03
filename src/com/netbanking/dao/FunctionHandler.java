@@ -198,7 +198,7 @@ public class FunctionHandler {
 		}
 	}
 	
-	public List<Map<String, Object>> getAccounts(Long user_id, String role, Long branch_id) throws CustomException
+	public List<Map<String, Object>> getAccounts(Long user_id, String role, Long branch_id, Long accountNumber) throws CustomException
 	{
 		Validator.checkInvalidInput(user_id, role);
 		
@@ -209,7 +209,7 @@ public class FunctionHandler {
 		request.setJoinTableName("branch");
 		List<String> whereCondition = new ArrayList<String>();
 		List<Object> whereConditionValue = new ArrayList<Object>();
-		List<String> whereOperator = new ArrayList<String>(), joinOperators =null;
+		List<String> whereOperator = new ArrayList<String>(), whereLogicalOperator = new ArrayList<String>(), joinOperators =null;
 		Map<String, String> joinConditions = new HashMap<String, String>();
 		
 		joinConditions.put("branch_id", "branch_id");
@@ -217,17 +217,24 @@ public class FunctionHandler {
 		if(role.equals("CUSTOMER")) {
 			whereCondition.add("user_id");
 			whereConditionValue.add(user_id);
-		} else if(role.equals("EMPLOYEE")) {
+		} else if(role.equals("EMPLOYEE")||role.equals("MANAGER")) {
 			whereCondition.add("account.branch_id");
 			whereConditionValue.add(branch_id);
+			if(accountNumber != null)
+			{
+				whereCondition.add("account.account_number");
+				whereConditionValue.add(accountNumber);
+				whereLogicalOperator.add("AND");
+			}
 		}
+		whereOperator.add("=");
 		whereOperator.add("=");
 		joinOperators = whereOperator;
 		
 		request.setWhereConditions(whereCondition);
 		request.setWhereOperators(whereOperator);
 		request.setWhereConditionsValues(whereConditionValue);
-		
+		request.setWhereLogicalOperators(whereLogicalOperator);
 		request.setJoinConditions(joinConditions);
 		request.setJoinOperators(joinOperators);
 		
@@ -473,9 +480,12 @@ public class FunctionHandler {
 		List<Object> whereConditionValues = new ArrayList<>();
 		List<String> whereOperators = new ArrayList<String>();
 		List<String> whereLogicalOperator = new ArrayList<String>();
+	    List<String> orderByColumn = new ArrayList<String>(), orderDirections = new ArrayList<String>();
 		whereConditions.add("account_number");
 		whereOperators.add("=");
 		whereConditionValues.add(accountNumber);
+		orderByColumn.add("timestamp");
+		orderDirections.add("DESC");
 		if(fromDate!=null) {
 			whereConditions.add("timestamp");
 			whereConditions.add("timestamp");
@@ -489,6 +499,8 @@ public class FunctionHandler {
 			whereLogicalOperator.add("AND");
 			whereLogicalOperator.add("AND");
 		}
+		request.setOrderByColumns(orderByColumn);
+		request.setOrderDirections(orderDirections);
 		request.setWhereOperators(whereOperators);
 		request.setWhereLogicalOperators(whereLogicalOperator);
 		request.setWhereConditionsValues(whereConditionValues);

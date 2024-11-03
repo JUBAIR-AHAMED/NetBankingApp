@@ -156,10 +156,10 @@ public class TestRunner {
 //    	Map<String, Object> accountDetails = new HashMap<>();
 //        accountDetails.put("userId", 4L);
 //        accountDetails.put("branchId", 6L);
-//        accountDetails.put("accountType", "SAVINGS");
+//        accountDetails.put("accountType", "Current");
 //        accountDetails.put("balance", 10000.00F);
 //        accountDetails.put("status", "ACTIVE");
-//        accountDetails.put("modifiedBy", 1L);
+//        accountDetails.put("modifiedBy", 3L);
 //        try {
 //            api.createAccount("MANAGER", accountDetails);
 //            System.out.println("Account created successfully.");
@@ -226,11 +226,11 @@ public class TestRunner {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-    	try {
-			System.out.println(api.getProfile(3L, "EMPLOYEE"));
-		} catch (CustomException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//    	try {
+//			System.out.println(api.getProfile(3L, "EMPLOYEE"));
+//		} catch (CustomException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
     }
 }
