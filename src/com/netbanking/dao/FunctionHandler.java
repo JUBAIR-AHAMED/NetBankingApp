@@ -123,7 +123,7 @@ public class FunctionHandler {
 		List<Object> whereConditionValue = new ArrayList<Object>();
 		List<String> whereOperator = new ArrayList<String>();
 		
-		whereCondition.add("account_number");
+		whereCondition.add("accountNumber");
 		whereOperator.add("=");
 		whereConditionValue.add(accountNumber);
 		
@@ -163,17 +163,17 @@ public class FunctionHandler {
 		List<String> whereOperator = new ArrayList<String>();
 		List<String> whereLogicalOperators = new ArrayList<String>();
 		
-		whereCondition.add("account_number");
+		whereCondition.add("accountNumber");
 		whereOperator.add("=");
 		whereConditionValue.add(accountNumber);
 		whereLogicalOperators.add("AND");
 		if(role.equals("CUSTOMER"))
 		{
-			whereCondition.add("user_id");
+			whereCondition.add("userId");
 			whereOperator.add("=");
 			whereConditionValue.add(userId);
 		} else {
-			whereCondition.add("branch_id");
+			whereCondition.add("branchId");
 			whereOperator.add("=");
 			whereConditionValue.add(branchId);
 		}
@@ -198,7 +198,7 @@ public class FunctionHandler {
 		}
 	}
 	
-	public List<Map<String, Object>> getAccounts(Long user_id, String role, Long branch_id, Long accountNumber) throws CustomException
+	public List<Map<String, Object>> getAccounts(Long user_id, String role, Long branch_id, String findField, Long findData) throws CustomException
 	{
 		Validator.checkInvalidInput(user_id, role);
 		
@@ -207,7 +207,7 @@ public class FunctionHandler {
 		request.setSelectAllColumns(true);
 		request.setTableName("account");
 		request.setJoinTableName("branch");
-		List<String> whereCondition = new ArrayList<String>();
+		Map<String, String> whereConditionWithTable = new HashMap<>();
 		List<Object> whereConditionValue = new ArrayList<Object>();
 		List<String> whereOperator = new ArrayList<String>(), whereLogicalOperator = new ArrayList<String>(), joinOperators =null;
 		Map<String, String> joinConditions = new HashMap<String, String>();
@@ -215,23 +215,22 @@ public class FunctionHandler {
 		joinConditions.put("branch_id", "branch_id");
 		
 		if(role.equals("CUSTOMER")) {
-			whereCondition.add("user_id");
+			whereConditionWithTable.put("userId", "user");
 			whereConditionValue.add(user_id);
 		} else if(role.equals("EMPLOYEE")||role.equals("MANAGER")) {
-			whereCondition.add("account.branch_id");
-			whereConditionValue.add(branch_id);
-			if(accountNumber != null)
+			String tableName = "account";
+			if(findField.equals("branchId"))
 			{
-				whereCondition.add("account.account_number");
-				whereConditionValue.add(accountNumber);
-				whereLogicalOperator.add("AND");
+				tableName = "branch";
 			}
+			whereConditionWithTable.put(findField, tableName);
+			whereConditionValue.add(findData);
 		}
 		whereOperator.add("=");
 		whereOperator.add("=");
 		joinOperators = whereOperator;
 		
-		request.setWhereConditions(whereCondition);
+		request.setWhereConditionsWithTable(whereConditionWithTable);
 		request.setWhereOperators(whereOperator);
 		request.setWhereConditionsValues(whereConditionValue);
 		request.setWhereLogicalOperators(whereLogicalOperator);
@@ -263,7 +262,7 @@ public class FunctionHandler {
 		List<String> whereOperator = new ArrayList<String>();
 		List<String> whereLogicalOperator = new ArrayList<String>();
 		
-		whereCondition.add("account_number");
+		whereCondition.add("accountNumber");
 		whereConditionValue.add(account_number);
 		whereCondition.add("timestamp");
 		whereConditionValue.add(from_time);
@@ -303,7 +302,7 @@ public class FunctionHandler {
 		selectColumns.add("balance");
 		List<String> whereCondition = new ArrayList<String>();
 		List<Object> whereConditionValue = new ArrayList<>(); 
-		whereCondition.add("account_number");
+		whereCondition.add("accountNumber");
 		whereConditionValue.add(account_number);
 		List<String> whereOperator = new ArrayList<String>();
 		whereOperator.add("=");
@@ -349,7 +348,7 @@ public class FunctionHandler {
 			throw new CustomException("Role of the user is undefined.");
 		}
 		joinOperator.add("=");
-		whereCondition.add("user_id");
+		whereCondition.add("userId");
 		whereConditionValue.add(userId);
 		whereOperator.add("=");
 		whereOperator.add("=");
@@ -377,11 +376,11 @@ public class FunctionHandler {
 	private void storeTransaction(Long from_account, Long to_account, Long user_id, Float amount, Float from_account_balance, Float to_account_balance, String transactionType) throws Exception
 	{
 		Validator.checkInvalidInput(from_account, user_id, amount);
+		DaoHandler<Transaction> transactionHandle = new DaoHandler<Transaction>();
 		if(transactionType.equals("same-bank"))
 		{
 			Validator.checkInvalidInput(to_account, to_account_balance);
 		}
-		DaoHandler<Transaction> transactionHandle = new DaoHandler<Transaction>();
 		
 		Transaction transaction_acc_one = new Transaction();
 		transaction_acc_one.setAccountNumber(from_account);
@@ -389,9 +388,18 @@ public class FunctionHandler {
 		transaction_acc_one.setModifiedBy(from_account);
 		transaction_acc_one.setTimestamp(System.currentTimeMillis());
 		transaction_acc_one.setTransactionAccount(to_account);
-		transaction_acc_one.setTransactionAmount(-amount);
+		transaction_acc_one.setTransactionAmount(amount);
 		transaction_acc_one.setUserId(user_id);
 		transaction_acc_one.setCreationTime(System.currentTimeMillis());
+		if(transactionType.equals("same-bank")||transactionType.equals("other-bank")) {
+			transaction_acc_one.setType("Debit");
+		} else if(transactionType.equals("deposit")){
+			transaction_acc_one.setType("Deposit");
+		} else if(transactionType.equals("withdraw")) {
+			transaction_acc_one.setType("Withdraw");
+		} else {
+			throw new CustomException("Invalid transaction type.");
+		}
 		Long ref_number = transactionHandle.insertHandler(transaction_acc_one);
 		
 		if(transactionType.equals("same-bank"))
@@ -406,6 +414,7 @@ public class FunctionHandler {
 			transaction_acc_two.setUserId(user_id);
 			transaction_acc_two.setReferenceNumber(ref_number);
 			transaction_acc_two.setCreationTime(System.currentTimeMillis());
+			transaction_acc_two.setType("Credit");
 			transactionHandle.insertHandler(transaction_acc_two);
 		}
 	}
@@ -428,7 +437,6 @@ public class FunctionHandler {
 		if(transactionType.equals("deposit"))
 		{
 			from_account_balance += amount;
-			amount = -amount;
 		} else {
 			from_account_balance -= amount;
 		}
@@ -481,7 +489,7 @@ public class FunctionHandler {
 		List<String> whereOperators = new ArrayList<String>();
 		List<String> whereLogicalOperator = new ArrayList<String>();
 	    List<String> orderByColumn = new ArrayList<String>(), orderDirections = new ArrayList<String>();
-		whereConditions.add("account_number");
+		whereConditions.add("accountNumber");
 		whereOperators.add("=");
 		whereConditionValues.add(accountNumber);
 		orderByColumn.add("timestamp");

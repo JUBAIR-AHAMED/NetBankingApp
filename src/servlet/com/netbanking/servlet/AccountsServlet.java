@@ -12,6 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.netbanking.api.ApiHandler;
 import com.netbanking.exception.CustomException;
 import com.netbanking.util.Parser;
+import com.netbanking.util.ServletHelper;
+import com.netbanking.util.Validator;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 	
@@ -30,7 +33,7 @@ public class AccountsServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 responseMap.put("status", false);
                 responseMap.put("message", "Authorization token is required.");
-                writeResponse(response, responseMap);
+                Parser.writeResponse(response, responseMap);
                 return;
             }
 
@@ -42,7 +45,7 @@ public class AccountsServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 responseMap.put("status", false);
                 responseMap.put("message", "Invalid or expired token.");
-                writeResponse(response, responseMap);
+                Parser.writeResponse(response, responseMap);
                 return;
             }
 
@@ -54,43 +57,76 @@ public class AccountsServlet extends HttpServlet {
             	response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             	responseMap.put("status", false);
             	responseMap.put("message", "User ID is missing.");
-            	writeResponse(response, responseMap);
+            	Parser.writeResponse(response, responseMap);
             	return;
             }
 
             if (("EMPLOYEE".equals(role) || "MANAGER".equals(role)) && branchId == null) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 responseMap.put("status", false);
-                responseMap.put("message", "Branch ID is required for employees.");
-                writeResponse(response, responseMap);
+                responseMap.put("message", "Branch ID is not found.");
+                Parser.writeResponse(response, responseMap);
                 return;
             }
-
-            List<Map<String, Object>> accounts = apiHandler.getUserAccounts(request, userId, role, branchId);
-            System.out.println(accounts);
-            response.setStatus(HttpServletResponse.SC_OK);
-            responseMap.put("status", true);
-            responseMap.put("message", "Accounts fetched successfully");
+            
+            String findField=null;
+            Long findData=null;
+            if ("CUSTOMER".equals(role)) {
+                if (request.getParameter("accountNumber") != null || request.getParameter("userId") != null || request.getParameter("branchId") != null) {
+                	ServletHelper.responseWriter(response, false, HttpServletResponse.SC_BAD_REQUEST, "No parameters allowed for CUSTOMER role.", responseMap);
+                    Parser.writeResponse(response, responseMap);
+                    return;
+                }
+            } else if ("EMPLOYEE".equals(role) || "MANAGER".equals(role)) {
+                String accountNumberStr = request.getParameter("accountNumber");
+                String userIdStr = request.getParameter("userId");
+                String branchIdStr = request.getParameter("branchId");
+                
+                if(accountNumberStr!=null) {
+                	accountNumberStr = accountNumberStr.isEmpty()? null:accountNumberStr;
+                	findField = "accountNumber";
+                	try {
+                		findData = accountNumberStr == null || accountNumberStr.isEmpty()? null:Long.parseLong(accountNumberStr);
+                	} catch (NumberFormatException e) {
+                		e.printStackTrace();
+                	}
+                }
+                if(userIdStr!=null) {
+                	userIdStr = userIdStr.isEmpty()? null:userIdStr;
+                	findField = "userId";
+                	try {
+                		findData = userIdStr == null || userIdStr.isEmpty()? null:Long.parseLong(userIdStr);
+                	} catch (NumberFormatException e) {
+                		e.printStackTrace();
+                	}
+                }
+                if(branchIdStr!=null) {
+                	branchIdStr = branchIdStr.isEmpty()? null:branchIdStr;
+                	findField = "branchId";
+                	try {
+                		findData = branchIdStr == null || branchIdStr.isEmpty()? null:Long.parseLong(branchIdStr);
+                	} catch (NumberFormatException e) {
+                		e.printStackTrace();
+                	}
+                }                
+                if (accountNumberStr == null && userIdStr == null && branchIdStr == null) {
+                	ServletHelper.responseWriter(response, false, HttpServletResponse.SC_BAD_REQUEST, "At least one parameter (accountNumber, customerId, or branchId) must be provided.", responseMap);
+                    Parser.writeResponse(response, responseMap);
+                    return;
+                }
+            }
+            System.out.println(findData);
+            List<Map<String, Object>> accounts = apiHandler.getUserAccounts(findField, findData, userId, role, branchId);
+            ServletHelper.responseWriter(response, true, HttpServletResponse.SC_OK, "Accounts fetched successfully", responseMap);
             responseMap.put("accounts", accounts);
         } catch (CustomException e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            responseMap.put("status", false);
-            responseMap.put("message", "Failed to fetch accounts due to a server error.");
+        	ServletHelper.responseWriter(response, false, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage(), responseMap);
             e.printStackTrace(); // Log the stack trace for debugging
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            responseMap.put("status", false);
-            responseMap.put("message", "An unexpected error occurred.");
+        	ServletHelper.responseWriter(response, false, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An unexpected error occurred", responseMap);
             e.printStackTrace(); // Log unexpected exceptions
         }
 
-        writeResponse(response, responseMap);
-    }
-
-    private void writeResponse(HttpServletResponse response, Map<String, Object> responseMap) throws IOException {
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        String jsonResponse = Parser.getJsonResponse(responseMap);
-        response.getWriter().write(jsonResponse);
+        Parser.writeResponse(response, responseMap);
     }
 }

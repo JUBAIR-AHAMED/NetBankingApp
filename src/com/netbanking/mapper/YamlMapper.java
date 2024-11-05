@@ -19,7 +19,6 @@ public class YamlMapper {
 				System.out.println("File Not Found");
 			}
 			map  = yaml.load(inputStream);
-			System.out.println(map);
 		}
 		catch(Exception e)
 		{
@@ -48,6 +47,27 @@ public class YamlMapper {
 
         return tableFieldName;
 	}
+	
+	// Method to get the 'table_field_name' map for a given tablename
+	@SuppressWarnings("unchecked")
+	public static Map<String, String> getFieldToColumnMapByTableName(String tablename) {
+		if (map == null) {
+            new YamlMapper();
+        }
+
+		Map<String, Object> pojo =(Map<String, Object>) map.get("pojo");
+	    for (Map.Entry<String, Object> entry : pojo.entrySet()) {
+	        String objectName = entry.getKey();
+			Map<String, Object> tableData = (Map<String, Object>) entry.getValue();  // This will be the map for the object
+	        
+	        if (tableData.containsKey("tablename") && tableData.get("tablename").equals(tablename)) {
+	            return (Map<String, String>) tableData.get("table_field_name");
+	        }
+	    }
+	    
+	    return null;
+	}
+
 	
 	public static List<String> getRelatedTableNames(String objectName) {
         if (map == null) {

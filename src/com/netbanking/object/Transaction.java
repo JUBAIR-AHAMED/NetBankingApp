@@ -12,6 +12,7 @@ public class Transaction implements Model {
     private Long transactionAccount;
     private Long creationTime;
     private Long modifiedBy;
+    private String type;
 
     // Default constructor
     public Transaction() {
@@ -88,5 +89,13 @@ public class Transaction implements Model {
 
     public void setModifiedBy(Long modifiedBy) {
         this.modifiedBy = modifiedBy;
+    }
+    
+    public String getType() {
+    	return type;
+    }
+    
+    public void setType(String type) {
+    	this.type=type;
     }
 }

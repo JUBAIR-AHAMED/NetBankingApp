@@ -8,6 +8,7 @@ public class QueryRequest {
     private String joinTableName;
     private Map<String, String> joinConditions; 
     private List<String> whereConditions;
+    private Map<String, String> whereConditionsWithTable;
     private List<Object> whereConditionsValues;
     private Map<String, Object> updates; 
     private Boolean selectAllColumns;
@@ -58,6 +59,14 @@ public class QueryRequest {
 
     public List<Object> getWhereConditionsValues() {
         return whereConditionsValues;
+    }
+    
+    public void setWhereConditionsWithTable(Map<String, String> whereConditions) {
+        this.whereConditionsWithTable = whereConditions;
+    }
+
+    public Map<String, String> getWhereConditionsValuesWithTable() {
+        return whereConditionsWithTable;
     }
 
     public void setWhereConditionsValues(List<Object> whereConditionsValues) {

@@ -118,6 +118,8 @@ table:
         pojoname: "transactionAccount"
       modified_by: 
         pojoname: "modifiedBy"
+      type:
+        pojoname: "type"
 pojo:
   User:
     tablename: "user"
@@ -185,6 +187,7 @@ pojo:
       userId: "user_id"
       transactionAccount: "transaction_account"
       modifiedBy: "modified_by"
+      type: "type"
 
 relatedtable:
   User:

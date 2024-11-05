@@ -75,5 +75,11 @@ public class Validator {
         }
         return true;
     }
+    
+    public static boolean isValidAccountNumber(String accountNumber) {
+        // Regex to check if the accountNumber has exactly 16 digits
+        String regex = "^\\d{16}$";
+        return accountNumber != null && accountNumber.matches(regex);
+    }
 
 }

@@ -128,7 +128,6 @@ public class DaoHandler<T> implements Dao<T>{
 	    List<String> currWhereLogicalOperators = new ArrayList<>();
 	    List<Object> currWhereValues = new ArrayList<>();
 	    int index = 0;
-	    System.out.println("**** "+whereConditions);
 	    for(int i=0; i<whereConditions.size();i++)
 	    {
 	    	String tempWhereCondition = whereConditions.get(i);
@@ -160,6 +159,33 @@ public class DaoHandler<T> implements Dao<T>{
 
 	
 	public List<Map<String, Object>> selectHandler(QueryRequest request) throws CustomException {
+		List<String> currWhereConditions = new ArrayList<>();
+		List<String> whereConditions=request.getWhereConditions();
+		Map<String, String> whereConditionsWithTable=request.getWhereConditionsValuesWithTable();
+		System.out.println(whereConditions);
+		if(whereConditions!=null) {
+			Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(request.getTableName());
+			for(String fieldName : whereConditions) {
+				currWhereConditions.add(fieldToColumnMap.get(fieldName));
+			}
+		} else if(whereConditionsWithTable!=null) {
+			Map<String, Map<String, String>> fieldToColumnMap = new HashMap<>();
+			for(Map.Entry<String, String> entry : whereConditionsWithTable.entrySet()) {
+				System.out.println("***"+entry);
+				String tableName = entry.getValue();
+				String field = entry.getKey();
+				if(!fieldToColumnMap.containsKey(tableName))
+				{
+					fieldToColumnMap.put(tableName, YamlMapper.getFieldToColumnMapByTableName(tableName));
+				}
+				String newFieldValue = fieldToColumnMap.get(tableName).get(field);
+				StringBuilder sb = new StringBuilder(tableName);
+				sb.append(".").append(newFieldValue);
+				currWhereConditions.add(sb.toString());
+			}
+		}
+		request.setWhereConditions(currWhereConditions);
+		
 		try {
 			return select(request);
 		} catch (SQLException e) {
