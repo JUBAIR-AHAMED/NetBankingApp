@@ -72,8 +72,21 @@ public class ApiHandler {
 			throw new CustomException("Enter numeric values for account number and amount.");
 		}
 		FunctionHandler functionHandler = new FunctionHandler();
+				
 		if(!functionHandler.accountAccessPermit(fromAccount, userId, role, branchId)) {
 			throw new CustomException("You don't have permission to access this account.");
+		}
+		
+		String fromAccountStatus = functionHandler.getAccountStatus(fromAccount);
+		String toAccountStatus = functionHandler.getAccountStatus(toAccount);
+		
+		if(!fromAccountStatus.equals("ACTIVE"))
+		{
+			throw new CustomException("Sender Account is "+ fromAccountStatus);
+		}
+		if(!toAccountStatus.equals("ACTIVE"))
+		{
+			throw new CustomException("Reciever Account is "+ toAccountStatus);
 		}
 		
 		if(fromAccount.equals(toAccount))
@@ -140,6 +153,12 @@ public class ApiHandler {
 			throw new CustomException("You don't have permission to access this account.");
 		}
 		
+		String accountStatus = functionHandler.getAccountStatus(accountNumber);
+		if(accountStatus.equals("BLOCKED")||accountStatus.equals("INACTIVE"))
+		{
+			throw new CustomException("Account is "+accountStatus+".");
+		}
+		
 		if(fromDate==null&&toDate==null&&limit==null)
 		{
 			throw new CustomException("Please enter valid details");
@@ -164,5 +183,42 @@ public class ApiHandler {
 	{
 		FunctionHandler functionHandler = new FunctionHandler();
 		return functionHandler.getProfile(userId, role);
+	}
+	
+	public void initiateAction(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception, CustomException {
+		StringBuilder jsonBody = new StringBuilder();
+		String line;
+		try(BufferedReader reader = request.getReader())
+		{
+			while((line = reader.readLine()) != null)
+			{
+				jsonBody.append(line);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		JsonObject jsonObject = JsonParser.parseString(jsonBody.toString()).getAsJsonObject();
+		Long accountNumber=null;
+		String actionType = null;
+		
+		try {
+			accountNumber = jsonObject.get("accountNumber").getAsLong();
+            actionType = jsonObject.has("actionType") && !jsonObject.get("actionType").isJsonNull() 
+            		? jsonObject.get("actionType").getAsString() : null;
+        } catch (Exception e) {
+			throw new CustomException("Enter numeric values for account number.");
+		}
+		
+		FunctionHandler functionHandler = new FunctionHandler();
+		
+		if(!functionHandler.accountAccessPermit(accountNumber, userId, role, branchId)) {
+			throw new CustomException("You don't have permission to access this account.");
+		}
+		
+		if(!actionType.equals("BLOCK")&&!actionType.equals("UNBLOCK")&&!actionType.equals("DELETE")) {
+			throw new CustomException("Invalid action type.");
+		}
+		
+		functionHandler.actionHandler(actionType, "ACCOUNT", accountNumber);
 	}
 }

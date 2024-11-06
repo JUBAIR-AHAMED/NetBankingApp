@@ -57,7 +57,7 @@ public class FunctionHandler {
 			}
 			return userMap.get(0);
 		}
-		return null;
+		throw new CustomException("Invalid login credentials.");
 	}
 	
 	public Map<String, Object> getCustomer(Long customer_id) throws CustomException
@@ -143,6 +143,38 @@ public class FunctionHandler {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	public String getAccountStatus(Long accountNumber) throws CustomException {
+		Validator.checkInvalidInput(accountNumber);
+		
+		QueryRequest request = new QueryRequest();
+		
+		request.setSelectAllColumns(true);
+		request.setTableName("account");
+		List<String> whereCondition = new ArrayList<String>();
+		List<Object> whereConditionValue = new ArrayList<Object>();
+		List<String> whereOperator = new ArrayList<String>();
+		
+		whereCondition.add("accountNumber");
+		whereOperator.add("=");
+		whereConditionValue.add(accountNumber);
+		
+		request.setWhereConditions(whereCondition);
+		request.setWhereOperators(whereOperator);
+		request.setWhereConditionsValues(whereConditionValue);
+		
+		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
+		List<Map<String, Object>> accountList = null;
+
+		accountList = daoCaller.selectHandler(request);
+		if(accountList==null||accountList.isEmpty())
+		{
+			throw new CustomException("Account is invalid.");
+		}
+		Map<String, Object> accountMap= accountList.get(0);
+		String status = (String) accountMap.get("status");
+		return status;
 	}
 	
 	public boolean accountAccessPermit(Long accountNumber, Long userId, String role, Long branchId) throws CustomException {
@@ -524,33 +556,43 @@ public class FunctionHandler {
 		return transactionHandle.selectHandler(request);
 	}
 	
-	public void deleteOrBlock(String type, String entity, String conditionValue) throws Exception
+	public void actionHandler(String type, String entity, Long entityValue) throws Exception
 	{
-		Validator.checkInvalidInput(type, entity, conditionValue);
-		String tableName;
-		String whereField;
+		Validator.checkInvalidInput(type, entity, entityValue);
 		String status = null;
 		
 		if(type.equals("DELETE")) {
 			status = "INACTIVE";
 		} else if(type.equals("BLOCK")) {
 			status = "BLOCKED";
+		} else if(type.equals("UNBLOCK")){
+			status = "ACTIVE";
 		} else {
 			throw new Exception("Wrong Type");
 		}
-		if(entity.equals("USER")) {
-			tableName = "user";
-			whereField = "user_id";
-			DaoHandler<User> statusHandle = new DaoHandler<User>();
-			statusHandle.deleteHandler(tableName, status, whereField, conditionValue);
-		} else if(entity.equals("ACCOUNT")) {
-			tableName = "account";
-			whereField = "account_number";
-			DaoHandler<Account> statusHandle = new DaoHandler<Account>();
-			statusHandle.deleteHandler(tableName, status, whereField, conditionValue);
-		} else {
-			throw new Exception("Wrong Entity");
-		}
+		
+		DaoHandler<User> statusHandle = new DaoHandler<User>();
+		Map<String, Object> updates = new HashMap<String, Object>();
+		List<String> whereConditions = new ArrayList<String>();
+        List<Object> whereConditionsValues = new ArrayList<Object>();
+        List<String> whereOperators = new ArrayList<String>();
+		
+        if(getAccountStatus(entityValue).equals("INACTIVE")) {
+        	throw new CustomException("Cannot perform any actions this account is inactive.");
+        }
+        updates.put("status", status);
+		whereConditions.add("accountNumber");
+		whereConditionsValues.add(entityValue);
+		whereOperators.add("=");
+		Class<?> clazz = Account.class;
+//		if(entity.equals("USER")) {
+//			clazz = User.class;
+//		} else if(entity.equals("ACCOUNT")) {
+//			clazz = Account.class;
+//		} else {
+//			throw new Exception("Wrong Entity");
+//		}
+		statusHandle.updateHandler(updates, clazz, whereConditions, whereConditionsValues, whereOperators, null);
 	}
 	
 	public void createCustomer(String role, Map<String, Object> customerDetails) throws CustomException

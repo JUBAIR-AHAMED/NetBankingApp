@@ -45,8 +45,8 @@ public class LoginServlet extends HttpServlet {
             }
         } catch (CustomException e) {
         	e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            responseMap.put("message", "Failed to authenticate user");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            responseMap.put("message", e.getMessage());
             responseMap.put("status", false);
         }
 

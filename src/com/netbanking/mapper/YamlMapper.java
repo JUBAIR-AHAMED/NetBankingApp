@@ -96,7 +96,6 @@ public class YamlMapper {
 		if (map == null) {
             new YamlMapper();
         }
-		System.out.println(tableName);
         return (Map<String, Object>) ((Map<String, Object>) ((Map<String, Object>) map.get("table")).get(tableName)).get("fields");
 	}
 }

@@ -124,13 +124,13 @@ public class TestRunner {
     	
     	//Eployee
 //    	Map<String, Object> employeeDetails = new HashMap<>();
-//    	employeeDetails.put("password", "234567");
-//    	employeeDetails.put("name", "Opera Ji");
-//    	employeeDetails.put("email", "oper@asd.com");
-//    	employeeDetails.put("mobile", "9876543201");
-//    	employeeDetails.put("dob", new Date(99, 9, 23));
-//    	employeeDetails.put("modifiedBy", 1L);
-//    	employeeDetails.put("role", "MANAGER");
+//    	employeeDetails.put("password", "12345");
+//    	employeeDetails.put("name", "Gandhi");
+//    	employeeDetails.put("email", "gandhi@asd.com");
+//    	employeeDetails.put("mobile", "9247274243");
+//    	employeeDetails.put("dob", new Date(91, 3, 12));
+//    	employeeDetails.put("modifiedBy", 8L);
+//    	employeeDetails.put("role", "EMPLOYEE");
 //    	try {
 //			api.createEmployee("MANAGER", employeeDetails);
 //		} catch (CustomException e) {
@@ -140,12 +140,12 @@ public class TestRunner {
         
         //Branch
 //    	Map<String, Object> branchDetails = new HashMap<>();
-//        branchDetails.put("name", "Main Branch");
-//        branchDetails.put("ifsc", 1234567890L);
-//        branchDetails.put("employeeId", 3L);
-//        branchDetails.put("address", "123 Main St, City, India");
-//        branchDetails.put("modifiedBy", 1L);
-//
+//        branchDetails.put("name", "Kovai Branch");
+//        branchDetails.put("ifsc", 1234567891L);
+//        branchDetails.put("employeeId", 8L);
+//        branchDetails.put("address", "223, Mani St, Kovai, India");
+//        branchDetails.put("modifiedBy", 3L);
+
 //        try {
 //            api.createBranch("MANAGER", branchDetails);
 //            System.out.println("Branch created successfully.");

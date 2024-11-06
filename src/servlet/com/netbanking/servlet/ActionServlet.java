@@ -1,15 +1,12 @@
 package com.netbanking.servlet;
 
-import javax.servlet.http.HttpServletRequest;
-
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.netbanking.api.ApiHandler;
@@ -19,15 +16,15 @@ import com.netbanking.util.Parser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
-@WebServlet("/starttransaction")
-public class TransactionServlet extends HttpServlet{
+public class ActionServlet extends HttpServlet{
 	private static final long serialVersionUID = 1L;
-	private static final String SECRET_KEY = "018d7a1625d1d217ffde1629409edbdb889f373aaef7032d6a711d2d40848fef";
-	
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Map<String, Object> responseMap = new HashMap<>();
-		try {
+
+    private static final String SECRET_KEY = "018d7a1625d1d217ffde1629409edbdb889f373aaef7032d6a711d2d40848fef";
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	Map<String, Object> responseMap = new HashMap<>();
+    	try {
 			String token = request.getHeader("Authorization");
 			token = token.substring(7);
 			ApiHandler apiHandler = new ApiHandler();
@@ -55,18 +52,19 @@ public class TransactionServlet extends HttpServlet{
             	return;
 			}
 			
-			if (("EMPLOYEE".equals(role) || "MANAGER".equals(role)) && branchId == null) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                responseMap.put("status", false);
-                responseMap.put("message", "Branch ID is required for employees.");
-                Parser.writeResponse(response, responseMap);
-                return;
-            }
+			if(!role.equals("EMPLOYEE") && !role.equals("MANAGER")) {
+				response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+				responseMap.put("status", false);
+				responseMap.put("message", "Permission Denied.");
+				Parser.writeResponse(response, responseMap);
+				return;
+			}
+			
 			try {
-				apiHandler.initiateTransaction(request, userId, role, branchId);	
+				apiHandler.initiateAction(request, userId, role, branchId);	
 				response.setStatus(HttpServletResponse.SC_OK);
 				responseMap.put("status", true);
-                responseMap.put("message", "Transaction success.");
+                responseMap.put("message", "Action completed successfully.");
 			} catch(CustomException e) {
 				System.out.println("adjnas");
 				e.printStackTrace();
@@ -74,12 +72,12 @@ public class TransactionServlet extends HttpServlet{
 				responseMap.put("status", false);
                 responseMap.put("message", e.getMessage());
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+    	} catch(Exception e) {
+    		e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			responseMap.put("status", false);
-            responseMap.put("message", "Transaction failed.");
-		}
-		Parser.writeResponse(response, responseMap);
-	}
+            responseMap.put("message", "Action failed.");
+    	}
+    	Parser.writeResponse(response, responseMap);
+    }
 }
