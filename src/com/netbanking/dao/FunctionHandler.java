@@ -21,12 +21,11 @@ import com.netbanking.util.Validator;
 
 public class FunctionHandler {
 	public Map<String, Object> getLogin(Long user_id, String password) throws CustomException {
-		System.out.println(user_id+" "+password);
 		Validator.checkInvalidInput(user_id, password);
 		DaoHandler<User> daoCaller = new DaoHandler<User>();
 	
 		List<String> whereCondition = new ArrayList<>();
-		whereCondition.add("user_id");
+		whereCondition.add("userId");
 		
 		List<Object> whereConditionValues = new ArrayList<>();
 		whereConditionValues.add(user_id);
@@ -52,7 +51,6 @@ public class FunctionHandler {
 		if(userMap != null && !userMap.isEmpty())
 		{
 			Boolean check=Encryption.verifyPassword(password, (String) userMap.get(0).get("password"));
-			System.out.println(check);
 			if(!check)
 			{
 				throw new CustomException("Wrong Password");
@@ -70,7 +68,7 @@ public class FunctionHandler {
 		request.setTableName("customer");
 		List<String> whereCondition = new ArrayList<String>(), whereOperator = new ArrayList<String>();
 		List<Object> whereConditionValue = new ArrayList<Object>();
-		whereCondition.add("customer_id");
+		whereCondition.add("customerId");
 		whereConditionValue.add(customer_id);
 		whereOperator.add("=");
 		request.setWhereConditions(whereCondition);
@@ -95,7 +93,7 @@ public class FunctionHandler {
 		request.setTableName("employee");
 		List<String> whereCondition = new ArrayList<String>(), whereOperator = new ArrayList<String>();;
 		List<Object> whereConditionValue = new ArrayList<Object>();
-		whereCondition.add("employee_id");
+		whereCondition.add("employeeId");
 		whereConditionValue.add(employee_id);
 		whereOperator.add("=");
 		request.setWhereConditions(whereCondition);
@@ -148,7 +146,9 @@ public class FunctionHandler {
 	}
 	
 	public boolean accountAccessPermit(Long accountNumber, Long userId, String role, Long branchId) throws CustomException {
-		Validator.checkInvalidInput(accountNumber);
+		if(!accountIsValid(accountNumber)) {
+			throw new CustomException(accountNumber+" account is invalid.");
+		}
 		
 		if(role.equals("MANAGER"))
 		{
@@ -215,7 +215,7 @@ public class FunctionHandler {
 		joinConditions.put("branch_id", "branch_id");
 		
 		if(role.equals("CUSTOMER")) {
-			whereConditionWithTable.put("userId", "user");
+			whereConditionWithTable.put("userId", "account");
 			whereConditionValue.add(user_id);
 		} else if(role.equals("EMPLOYEE")||role.equals("MANAGER")) {
 			String tableName = "account";
@@ -317,6 +317,10 @@ public class FunctionHandler {
 		List<Map<String, Object>> accountMap = null;
 		
 		accountMap = daoCaller.selectHandler(request);
+		if(accountMap==null||accountMap.isEmpty())
+		{
+			throw new CustomException(account_number+" account is invalid.");
+		}
 		Object balanceValue = accountMap.get(0).get("balance");
 
         return ((Float) balanceValue).floatValue();

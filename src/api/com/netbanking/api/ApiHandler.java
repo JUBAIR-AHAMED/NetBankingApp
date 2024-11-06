@@ -27,7 +27,6 @@ public class ApiHandler {
 			Map<String, Object> map = fn.getLogin(username, password);
 			String role = (String) map.get("role");
 			Long user_id = (Long) map.get("userId");
-			System.out.println(map);
 			FunctionHandler functionalHandler = new FunctionHandler();
 			if(role.equals("EMPLOYEE")||role.equals("MANAGER")) {
 				map.putAll(functionalHandler.getEmployee(user_id));
@@ -46,16 +45,14 @@ public class ApiHandler {
 		return functionHandler.getAccounts(userId, role, branchId, findField, findData);
 	}
 	
-	public void initiateTransaction(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
+	public void initiateTransaction(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception, CustomException {
 		StringBuilder jsonBody = new StringBuilder();
 		String line;
 		try(BufferedReader reader = request.getReader())
 		{
-			System.out.println("data");
 			while((line = reader.readLine()) != null)
 			{
 				jsonBody.append(line);
-				System.out.println(line);
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -74,11 +71,11 @@ public class ApiHandler {
 		} catch (Exception e) {
 			throw new CustomException("Enter numeric values for account number and amount.");
 		}
-		System.out.println("---------"+toAccount);
 		FunctionHandler functionHandler = new FunctionHandler();
 		if(!functionHandler.accountAccessPermit(fromAccount, userId, role, branchId)) {
 			throw new CustomException("You don't have permission to access this account.");
 		}
+		
 		if(fromAccount.equals(toAccount))
 		{
 			throw new CustomException("Cannot send money to the same account.");
@@ -114,11 +111,9 @@ public class ApiHandler {
 		String line;
 		try(BufferedReader reader = request.getReader())
 		{
-			System.out.println("data");
 			while((line = reader.readLine()) != null)
 			{
 				jsonBody.append(line);
-				System.out.println(line);
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -140,10 +135,6 @@ public class ApiHandler {
                 ? jsonObject.get("limit").getAsInt() 
                 : null;
 		FunctionHandler functionHandler = new FunctionHandler();
-		
-		if(!functionHandler.accountIsValid(accountNumber)) {
-			throw new CustomException("Account is invalid.");
-		}
 		
 		if(!functionHandler.accountAccessPermit(accountNumber, userId, role, branchId)) {
 			throw new CustomException("You don't have permission to access this account.");

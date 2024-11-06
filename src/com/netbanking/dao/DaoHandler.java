@@ -35,7 +35,6 @@ public class DaoHandler<T> implements Dao<T>{
 			Map<String, Object> tableFieldData= (Map<String, Object>) tableData.get("fields");
 			Map<String, Object> insertValues = new HashMap<String, Object>();
 			String autoinc = null;
-			System.out.println(tableData);
 			if(tableData.containsKey("autoincrement_field"))
 			{
 				autoinc = (String) tableData.get("autoincrement_field");
@@ -162,7 +161,6 @@ public class DaoHandler<T> implements Dao<T>{
 		List<String> currWhereConditions = new ArrayList<>();
 		List<String> whereConditions=request.getWhereConditions();
 		Map<String, String> whereConditionsWithTable=request.getWhereConditionsValuesWithTable();
-		System.out.println(whereConditions);
 		if(whereConditions!=null) {
 			Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(request.getTableName());
 			for(String fieldName : whereConditions) {
@@ -171,7 +169,6 @@ public class DaoHandler<T> implements Dao<T>{
 		} else if(whereConditionsWithTable!=null) {
 			Map<String, Map<String, String>> fieldToColumnMap = new HashMap<>();
 			for(Map.Entry<String, String> entry : whereConditionsWithTable.entrySet()) {
-				System.out.println("***"+entry);
 				String tableName = entry.getValue();
 				String field = entry.getKey();
 				if(!fieldToColumnMap.containsKey(tableName))

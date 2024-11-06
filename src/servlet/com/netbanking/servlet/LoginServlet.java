@@ -36,7 +36,6 @@ public class LoginServlet extends HttpServlet {
                 responseMap.put("message", "Invalid credentials");
                 responseMap.put("status", false);
             } else {
-            	System.out.println(userDetails);
                 String jwt = generateJwt(userDetails);
 
                 response.setStatus(HttpServletResponse.SC_OK);

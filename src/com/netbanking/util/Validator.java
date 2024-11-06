@@ -54,7 +54,6 @@ public class Validator {
 	}
 	
 	public static void isTxtFile(String fileName) throws CustomException {
-		System.out.println(fileName);
 		if(!fileName.endsWith(".txt"))
 		{
 			throw new CustomException("File name must be end with .txt");
@@ -68,7 +67,6 @@ public class Validator {
             String[] parts = numberStr.split("\\.");
             String decimalPart = parts[1];
             
-            System.out.println("&&&&&&&& "+parts[1]);
             if (decimalPart.length() > 2) {
                 return false;
             }

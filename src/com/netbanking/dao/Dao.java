@@ -199,7 +199,6 @@ public interface Dao<T> {
             	        String fieldName = ((Map<String, String>) tableField.get(columnName)).get("pojoname");
             	        map.put(fieldName, rs.getObject(columnName));
             	    }
-            	    System.out.println(list);
             	    list.add(map);
             	}
             }

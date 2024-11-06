@@ -26,7 +26,6 @@ public class StatementServlet extends HttpServlet {
 		try {
 			ApiHandler apiHandler = new ApiHandler();
 			String token = request.getHeader("Authorization");
-			System.out.println(token);
 			if(token == null || !token.startsWith("Bearer ")) {
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				responseMap.put("status", false);
@@ -70,7 +69,6 @@ public class StatementServlet extends HttpServlet {
             responseMap.put("status", true);
             responseMap.put("message", "Statement fetched successfully");
             responseMap.put("statement", statement);
-            System.out.println("state"+statement);
             Parser.writeResponse(response, responseMap);
             return;
 		} catch(CustomException e) {			

@@ -115,7 +115,6 @@ public class AccountsServlet extends HttpServlet {
                     return;
                 }
             }
-            System.out.println(findData);
             List<Map<String, Object>> accounts = apiHandler.getUserAccounts(findField, findData, userId, role, branchId);
             ServletHelper.responseWriter(response, true, HttpServletResponse.SC_OK, "Accounts fetched successfully", responseMap);
             responseMap.put("accounts", accounts);
