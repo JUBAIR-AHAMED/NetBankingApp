@@ -15,6 +15,7 @@ import com.netbanking.mapper.YamlMapper;
 import com.netbanking.model.Model;
 import com.netbanking.object.QueryRequest;
 import com.netbanking.object.User;
+import com.netbanking.object.WhereCondition;
 
 public class DaoHandler<T> implements Dao<T>{
 	public <T extends Model> Long insertHandler(T object) throws Exception {
@@ -159,18 +160,22 @@ public class DaoHandler<T> implements Dao<T>{
 	
 	public List<Map<String, Object>> selectHandler(QueryRequest request) throws CustomException {
 		List<String> currWhereConditions = new ArrayList<>();
+		List<Object> currWhereConditionsValues = new ArrayList<>();
 		List<String> whereConditions=request.getWhereConditions();
-		Map<String, String> whereConditionsWithTable=request.getWhereConditionsValuesWithTable();
+		List<WhereCondition> wheConditionsType = request.getWhereConditionsType();
+		
 		if(whereConditions!=null) {
 			Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(request.getTableName());
 			for(String fieldName : whereConditions) {
 				currWhereConditions.add(fieldToColumnMap.get(fieldName));
 			}
-		} else if(whereConditionsWithTable!=null) {
+		} else if(wheConditionsType!=null) {
 			Map<String, Map<String, String>> fieldToColumnMap = new HashMap<>();
-			for(Map.Entry<String, String> entry : whereConditionsWithTable.entrySet()) {
-				String tableName = entry.getValue();
-				String field = entry.getKey();
+			for(WhereCondition entity: wheConditionsType) {
+				String tableName = entity.getTable();
+				String field = entity.getField();
+				Object value = entity.getValue();
+				
 				if(!fieldToColumnMap.containsKey(tableName))
 				{
 					fieldToColumnMap.put(tableName, YamlMapper.getFieldToColumnMapByTableName(tableName));
@@ -179,7 +184,9 @@ public class DaoHandler<T> implements Dao<T>{
 				StringBuilder sb = new StringBuilder(tableName);
 				sb.append(".").append(newFieldValue);
 				currWhereConditions.add(sb.toString());
+				currWhereConditionsValues.add(value);
 			}
+			request.setWhereConditionsValues(currWhereConditionsValues);
 		}
 		request.setWhereConditions(currWhereConditions);
 		

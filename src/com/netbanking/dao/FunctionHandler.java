@@ -16,6 +16,7 @@ import com.netbanking.object.Role;
 import com.netbanking.object.Status;
 import com.netbanking.object.Transaction;
 import com.netbanking.object.User;
+import com.netbanking.object.WhereCondition;
 import com.netbanking.util.Encryption;
 import com.netbanking.util.Validator;
 
@@ -239,35 +240,38 @@ public class FunctionHandler {
 		request.setSelectAllColumns(true);
 		request.setTableName("account");
 		request.setJoinTableName("branch");
-		Map<String, String> whereConditionWithTable = new HashMap<>();
-		List<Object> whereConditionValue = new ArrayList<Object>();
 		List<String> whereOperator = new ArrayList<String>(), whereLogicalOperator = new ArrayList<String>(), joinOperators =null;
 		Map<String, String> joinConditions = new HashMap<String, String>();
+		List<WhereCondition> whereConditionsType = new ArrayList<WhereCondition>();
 		
 		joinConditions.put("branch_id", "branch_id");
 		
 		if(role.equals("CUSTOMER")) {
-			whereConditionWithTable.put("userId", "account");
-			whereConditionValue.add(user_id);
+			WhereCondition whereConditionOne = new WhereCondition("userId", "account", user_id);
+			WhereCondition whereConditionTwo = new WhereCondition("status", "account", "INACTIVE");
+			whereConditionsType.add(whereConditionOne);
+			whereConditionsType.add(whereConditionTwo);
+			whereOperator.add("=");
+			whereOperator.add("!=");
+			whereLogicalOperator.add("AND");
 		} else if(role.equals("EMPLOYEE")||role.equals("MANAGER")) {
 			String tableName = "account";
 			if(findField.equals("branchId"))
 			{
 				tableName = "branch";
 			}
-			whereConditionWithTable.put(findField, tableName);
-			whereConditionValue.add(findData);
+			WhereCondition whereConditionOne = new WhereCondition(findField, tableName, findData);
+			whereConditionsType.add(whereConditionOne);
+			whereOperator.add("=");
 		}
-		whereOperator.add("=");
-		whereOperator.add("=");
 		joinOperators = whereOperator;
 		
-		request.setWhereConditionsWithTable(whereConditionWithTable);
+		request.setWhereConditionsType(whereConditionsType);
 		request.setWhereOperators(whereOperator);
-		request.setWhereConditionsValues(whereConditionValue);
 		request.setWhereLogicalOperators(whereLogicalOperator);
 		request.setJoinConditions(joinConditions);
 		request.setJoinOperators(joinOperators);
+		
 		
 		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
 		List<Map<String, Object>> accountMap = null;
