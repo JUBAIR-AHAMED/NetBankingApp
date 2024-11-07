@@ -48,7 +48,12 @@ public class LoginServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             responseMap.put("message", e.getMessage());
             responseMap.put("status", false);
-        }
+        } catch(Exception e) {
+    		e.printStackTrace();
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			responseMap.put("status", false);
+            responseMap.put("message", "Action failed.");
+    	}
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

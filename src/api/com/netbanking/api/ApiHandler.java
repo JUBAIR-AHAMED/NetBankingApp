@@ -19,7 +19,7 @@ import com.netbanking.util.Parser;
 import com.netbanking.util.Validator;
 
 public class ApiHandler {
-	public Map<String, Object> loginHandler(HttpServletRequest request) throws IOException, CustomException
+	public Map<String, Object> loginHandler(HttpServletRequest request) throws IOException, CustomException, Exception
 	{
 		try(BufferedReader reader = request.getReader())
 		{
@@ -85,12 +85,25 @@ public class ApiHandler {
 		}
 		FunctionHandler functionHandler = new FunctionHandler();
 				
-		if(!functionHandler.accountAccessPermit(fromAccount, userId, role, branchId)) {
-			throw new CustomException("You don't have permission to access this account.");
+		Map<String, Object> fromAccountMap = functionHandler.getAccount(fromAccount);
+		Map<String, Object> toAccountMap = functionHandler.getAccount(toAccount);
+		
+		if(fromAccountMap == null || toAccountMap == null) {
+			throw new CustomException("Invalid accounts.");
+		}
+		if(role.equals("CUSTOMER"))
+		{
+			if(userId != (Long) fromAccountMap.get("userId")) {
+				throw new CustomException("You don't have permission to access this account.");
+			}
+		} else if(role.equals("EMPLOYEE")) {
+			if(branchId != (Long) fromAccountMap.get("branchId")) {
+				throw new CustomException("You don't have permission to access this account.");
+			}
 		}
 		
-		String fromAccountStatus = functionHandler.getAccountStatus(fromAccount);
-		String toAccountStatus = functionHandler.getAccountStatus(toAccount);
+		String fromAccountStatus = (String) fromAccountMap.get("status");
+		String toAccountStatus = (String) toAccountMap.get("status");
 		
 		if(!fromAccountStatus.equals("ACTIVE"))
 		{
@@ -161,11 +174,24 @@ public class ApiHandler {
                 : null;
 		FunctionHandler functionHandler = new FunctionHandler();
 		
-		if(!functionHandler.accountAccessPermit(accountNumber, userId, role, branchId)) {
-			throw new CustomException("You don't have permission to access this account.");
+		Map<String, Object> accountMap = functionHandler.getAccount(accountNumber);
+		
+		if(accountMap == null) {
+			throw new CustomException("Invalid account.");
 		}
 		
-		String accountStatus = functionHandler.getAccountStatus(accountNumber);
+		if(role.equals("CUSTOMER"))
+		{
+			if(userId != (Long) accountMap.get("userId")) {
+				throw new CustomException("You don't have permission to access this account.");
+			}
+		} else if(role.equals("EMPLOYEE")) {
+			if(branchId != (Long) accountMap.get("branchId")) {
+				throw new CustomException("You don't have permission to access this account.");
+			}
+		}
+		
+		String accountStatus =(String) functionHandler.getAccount(accountNumber).get("status");
 		if(accountStatus.equals("BLOCKED")||accountStatus.equals("INACTIVE"))
 		{
 			throw new CustomException("Account is "+accountStatus+".");
@@ -223,8 +249,21 @@ public class ApiHandler {
 		
 		FunctionHandler functionHandler = new FunctionHandler();
 		
-		if(!functionHandler.accountAccessPermit(accountNumber, userId, role, branchId)) {
-			throw new CustomException("You don't have permission to access this account.");
+		Map<String, Object> accountMap = functionHandler.getAccount(accountNumber);
+		
+		if(accountMap == null) {
+			throw new CustomException("Invalid account.");
+		}
+		
+		if(role.equals("CUSTOMER"))
+		{
+			if(userId != (Long) accountMap.get("userId")) {
+				throw new CustomException("You don't have permission to access this account.");
+			}
+		} else if(role.equals("EMPLOYEE")) {
+			if(branchId != (Long) accountMap.get("branchId")) {
+				throw new CustomException("You don't have permission to access this account.");
+			}
 		}
 		
 		if(!actionType.equals("BLOCK")&&!actionType.equals("UNBLOCK")&&!actionType.equals("DELETE")) {

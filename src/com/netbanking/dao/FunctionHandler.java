@@ -21,51 +21,31 @@ import com.netbanking.util.Encryption;
 import com.netbanking.util.Validator;
 
 public class FunctionHandler {
-	public Map<String, Object> getUser(Long user_id) throws CustomException {
+	public Map<String, Object> getUser(Long user_id) throws CustomException, Exception {
 		Validator.checkInvalidInput(user_id);
 		DaoHandler<User> daoCaller = new DaoHandler<User>();
-		List<String> whereCondition = new ArrayList<>(), whereOperator = new ArrayList<>();;
-		List<Object> whereConditionValues = new ArrayList<>();
-		List<Map<String, Object>> userMap = null;
-		whereCondition.add("userId");		
-		whereConditionValues.add(user_id);
-		whereOperator.add("=");
-		try {
-			QueryRequest request = new QueryRequest();
-			request.setTableName("user");
-			request.setSelectAllColumns(true);
-			request.setWhereConditions(whereCondition);
-			request.setWhereConditionsValues(whereConditionValues);
-			request.setWhereOperators(whereOperator);
-			List<Map<String, Object>> listOfMap = daoCaller.selectHandler(request);
-			return listOfMap == null? null : listOfMap.get(0);
-		} catch (CustomException e) {
-			throw e;
-		}
+		QueryRequest request = new QueryRequest();
+		request.setTableName("user");
+		request.setSelectAllColumns(true);
+		request.putWhereConditions("userId");
+		request.putWhereConditionsValues(user_id);
+		request.putWhereOperators("=");
+		List<Map<String, Object>> listOfMap = daoCaller.selectHandler(request);
+		return listOfMap == null? null : listOfMap.get(0);
 	}
 	
-	public Map<String, Object> getCustomer(Long customer_id) throws CustomException
+	public Map<String, Object> getCustomer(Long customer_id) throws CustomException, Exception
 	{
 		Validator.checkInvalidInput(customer_id);
 		QueryRequest request = new QueryRequest();
 		request.setSelectAllColumns(true);
 		request.setTableName("customer");
-		List<String> whereCondition = new ArrayList<String>(), whereOperator = new ArrayList<String>();
-		List<Object> whereConditionValue = new ArrayList<Object>();
-		whereCondition.add("customerId");
-		whereConditionValue.add(customer_id);
-		whereOperator.add("=");
-		request.setWhereConditions(whereCondition);
-		request.setWhereOperators(whereOperator);
-		request.setWhereConditionsValues(whereConditionValue);
+		request.putWhereConditions("customerId");
+		request.putWhereConditionsValues(customer_id);
+		request.putWhereOperators("=");
 		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
 		List<Map<String, Object>> accountMap = null;
-		try {
-			accountMap = daoCaller.selectHandler(request);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		accountMap = daoCaller.selectHandler(request);
 		return accountMap.get(0);
 	}
 	
@@ -75,145 +55,30 @@ public class FunctionHandler {
 		QueryRequest request = new QueryRequest();
 		request.setSelectAllColumns(true);
 		request.setTableName("employee");
-		List<String> whereCondition = new ArrayList<String>(), whereOperator = new ArrayList<String>();;
-		List<Object> whereConditionValue = new ArrayList<Object>();
-		whereCondition.add("employeeId");
-		whereConditionValue.add(employee_id);
-		whereOperator.add("=");
-		request.setWhereConditions(whereCondition);
-		request.setWhereOperators(whereOperator);
-		request.setWhereConditionsValues(whereConditionValue);
+		request.putWhereConditions("employeeId");
+		request.putWhereConditionsValues(employee_id);
+		request.putWhereOperators("=");
 		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
 		List<Map<String, Object>> accountMap = null;
-		try {
-			accountMap = daoCaller.selectHandler(request);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		accountMap = daoCaller.selectHandler(request);
 		return accountMap.get(0);
 	}
 	
-	public boolean accountIsValid(Long accountNumber) throws CustomException {
+	public Map<String, Object> getAccount(Long accountNumber) throws CustomException {
 		Validator.checkInvalidInput(accountNumber);
-		
 		QueryRequest request = new QueryRequest();
-		
 		request.setSelectAllColumns(true);
 		request.setTableName("account");
-		List<String> whereCondition = new ArrayList<String>();
-		List<Object> whereConditionValue = new ArrayList<Object>();
-		List<String> whereOperator = new ArrayList<String>();
-		
-		whereCondition.add("accountNumber");
-		whereOperator.add("=");
-		whereConditionValue.add(accountNumber);
-		
-		request.setWhereConditions(whereCondition);
-		request.setWhereOperators(whereOperator);
-		request.setWhereConditionsValues(whereConditionValue);
-		
-		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
-		List<Map<String, Object>> accountMap = null;
-		
-		try {
-			accountMap = daoCaller.selectHandler(request);
-			if(accountMap==null||accountMap.isEmpty())
-			{
-				return false;
-			}
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
-	public String getAccountStatus(Long accountNumber) throws CustomException {
-		Validator.checkInvalidInput(accountNumber);
-		
-		QueryRequest request = new QueryRequest();
-		
-		request.setSelectAllColumns(true);
-		request.setTableName("account");
-		List<String> whereCondition = new ArrayList<String>();
-		List<Object> whereConditionValue = new ArrayList<Object>();
-		List<String> whereOperator = new ArrayList<String>();
-		
-		whereCondition.add("accountNumber");
-		whereOperator.add("=");
-		whereConditionValue.add(accountNumber);
-		
-		request.setWhereConditions(whereCondition);
-		request.setWhereOperators(whereOperator);
-		request.setWhereConditionsValues(whereConditionValue);
-		
+		request.putWhereConditions("accountNumber");
+		request.putWhereConditionsValues(accountNumber);
+		request.putWhereOperators("=");				
 		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
 		List<Map<String, Object>> accountList = null;
-
 		accountList = daoCaller.selectHandler(request);
-		if(accountList==null||accountList.isEmpty())
-		{
-			throw new CustomException("Account is invalid.");
-		}
-		Map<String, Object> accountMap= accountList.get(0);
-		String status = (String) accountMap.get("status");
-		return status;
+		return  (accountList==null||accountList.isEmpty())? null : accountList.get(0);
 	}
 	
-	public boolean accountAccessPermit(Long accountNumber, Long userId, String role, Long branchId) throws CustomException {
-		if(!accountIsValid(accountNumber)) {
-			throw new CustomException(accountNumber+" account is invalid.");
-		}
-		
-		if(role.equals("MANAGER"))
-		{
-			return true;
-		}
-		QueryRequest request = new QueryRequest();
-		
-		request.setSelectAllColumns(true);
-		request.setTableName("account");
-		List<String> whereCondition = new ArrayList<String>();
-		List<Object> whereConditionValue = new ArrayList<Object>();
-		List<String> whereOperator = new ArrayList<String>();
-		List<String> whereLogicalOperators = new ArrayList<String>();
-		
-		whereCondition.add("accountNumber");
-		whereOperator.add("=");
-		whereConditionValue.add(accountNumber);
-		whereLogicalOperators.add("AND");
-		if(role.equals("CUSTOMER"))
-		{
-			whereCondition.add("userId");
-			whereOperator.add("=");
-			whereConditionValue.add(userId);
-		} else {
-			whereCondition.add("branchId");
-			whereOperator.add("=");
-			whereConditionValue.add(branchId);
-		}
-		request.setWhereConditions(whereCondition);
-		request.setWhereOperators(whereOperator);
-		request.setWhereConditionsValues(whereConditionValue);
-		request.setWhereLogicalOperators(whereLogicalOperators);
-		
-		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
-		List<Map<String, Object>> accountMap = null;
-		
-		try {
-			accountMap = daoCaller.selectHandler(request);
-			if(accountMap==null||accountMap.isEmpty())
-			{
-				return false;
-			}
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
+	//pending
 	public List<Map<String, Object>> getAccounts(Long user_id, String role, Long branch_id, String findField, Long findData) throws CustomException
 	{
 		Validator.checkInvalidInput(user_id, role);
@@ -268,131 +133,45 @@ public class FunctionHandler {
 		}
 	}
 
-	public List<Map<String, Object>> getTransactions(Long account_number, Long from_time, Long to_time) throws CustomException
+	public List<Map<String, Object>> getTransactions(Long account_number, Long from_time, Long to_time) throws CustomException, Exception
 	{
 		Validator.checkInvalidInput(account_number, from_time, to_time);
 		QueryRequest request = new QueryRequest();
-		
 		request.setSelectAllColumns(true);
 		request.setTableName("transaction");
-		
-		List<String> whereCondition = new ArrayList<String>();
-		List<Object> whereConditionValue = new ArrayList<>(); 
-		List<String> whereOperator = new ArrayList<String>();
-		List<String> whereLogicalOperator = new ArrayList<String>();
-		
-		whereCondition.add("accountNumber");
-		whereConditionValue.add(account_number);
-		whereCondition.add("timestamp");
-		whereConditionValue.add(from_time);
-		whereCondition.add("timestamp");
-		whereConditionValue.add(to_time);
-		
-		whereOperator.add("=");
-		whereOperator.add(">=");
-		whereOperator.add("<=");
-		
-		whereLogicalOperator.add("AND");
-		whereLogicalOperator.add("AND");
-		
-		request.setWhereConditions(whereCondition);
-		request.setWhereConditionsValues(whereConditionValue);
-		request.setWhereOperators(whereOperator);
-		request.setWhereLogicalOperators(whereLogicalOperator);
-		
+		request.putWhereConditions("accountNumber", "timestamp", "timestamp");
+		request.putWhereConditionsValues(account_number, from_time, to_time);
+		request.putWhereLogicalOperators("=", ">=", "<=");
+		request.putWhereOperators("AND", "AND");		
 		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
 		List<Map<String, Object>> transactionMap = null;
-		
-		try {
-			transactionMap = daoCaller.selectHandler(request);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		transactionMap = daoCaller.selectHandler(request);
 		return transactionMap;
-	}
-	
-	public Float getBalance(Long account_number) throws CustomException
-	{
-		Validator.checkInvalidInput(account_number);
-		QueryRequest request = new QueryRequest();
-		
-		List<String> selectColumns = new ArrayList<String>();
-		selectColumns.add("balance");
-		List<String> whereCondition = new ArrayList<String>();
-		List<Object> whereConditionValue = new ArrayList<>(); 
-		whereCondition.add("accountNumber");
-		whereConditionValue.add(account_number);
-		List<String> whereOperator = new ArrayList<String>();
-		whereOperator.add("=");
-		
-		request.setSelectColumns(selectColumns);
-		request.setTableName("account");
-		request.setWhereConditions(whereCondition);
-		request.setWhereConditionsValues(whereConditionValue);
-		request.setWhereOperators(whereOperator);
-		
-		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
-		List<Map<String, Object>> accountMap = null;
-		
-		accountMap = daoCaller.selectHandler(request);
-		if(accountMap==null||accountMap.isEmpty())
-		{
-			throw new CustomException(account_number+" account is invalid.");
-		}
-		Object balanceValue = accountMap.get(0).get("balance");
-
-        return ((Float) balanceValue).floatValue();
 	}
 	
 	public Map<String, Object> getProfile(Long userId, String role) throws CustomException
 	{
 		Validator.checkInvalidInput(userId, role);
 		QueryRequest request = new QueryRequest();
-		
 		request.setSelectAllColumns(true);
 		request.setTableName("user");
-		
-		List<String> whereCondition = new ArrayList<String>();
-		List<Object> whereConditionValue = new ArrayList<>(); 
-		List<String> whereOperator = new ArrayList<String>();
-		List<String> whereLogicalOperator = new ArrayList<String>();
-		Map<String, String> joinCondition = new HashMap<String, String>();
-		List<String> joinOperator = new ArrayList<String>();
-		
 		if(role.equals("CUSTOMER"))
 		{
-			joinCondition.put("user_id", "customer_id");
+			request.putJoinConditions("user_id", "customer_id");
 			request.setJoinTableName("customer");
 		} else if(role.equals("MANAGER")||role.equals("EMPLOYEE")) {
-			joinCondition.put("user_id", "employee_id");
+			request.putJoinConditions("user_id", "employee_id");
 			request.setJoinTableName("employee");
 		} else {
 			throw new CustomException("Role of the user is undefined.");
 		}
-		joinOperator.add("=");
-		whereCondition.add("userId");
-		whereConditionValue.add(userId);
-		whereOperator.add("=");
-		whereOperator.add("=");
-		whereLogicalOperator.add("AND");
-		
-		request.setJoinConditions(joinCondition);
-		request.setJoinOperators(joinOperator);
-		request.setWhereConditions(whereCondition);
-		request.setWhereConditionsValues(whereConditionValue);
-		request.setWhereOperators(whereOperator);
-		request.setWhereLogicalOperators(whereLogicalOperator);
-
+		request.putJoinOperators("=");
+		request.putWhereConditions("userId");
+		request.putWhereConditionsValues(userId);
+		request.putWhereOperators("=");
 		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
 		List<Map<String, Object>> transactionMap = null;
-		
-		try {
-			transactionMap = daoCaller.selectHandler(request);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		transactionMap = daoCaller.selectHandler(request);
 		return transactionMap.get(0);
 	}
 
@@ -444,7 +223,8 @@ public class FunctionHandler {
 	
 	public void makeTransaction(Long from_account, Long to_account, Long user_id, Float amount, String transactionType) throws Exception {
 		Validator.checkInvalidInput(from_account, user_id, amount);
-		Float from_account_balance = getBalance(from_account);
+		Map<String, Object> fromAccountMap = getAccount(from_account), toAccountMap = getAccount(to_account);;
+		Float from_account_balance = (Float) fromAccountMap.get("balance");
 		Float to_account_balance = null;
 		
 		if(!transactionType.equals("deposit")&&from_account_balance < amount) {
@@ -454,7 +234,7 @@ public class FunctionHandler {
 		if(transactionType.equals("same-bank"))
 		{
 			Validator.checkInvalidInput(to_account);
-			to_account_balance = getBalance(to_account);
+			to_account_balance = (Float) toAccountMap.get("balance");
 			to_account_balance += amount;
 		}
 		if(transactionType.equals("deposit"))
@@ -564,7 +344,7 @@ public class FunctionHandler {
         List<Object> whereConditionsValues = new ArrayList<Object>();
         List<String> whereOperators = new ArrayList<String>();
 		
-        if(getAccountStatus(entityValue).equals("INACTIVE")) {
+        if(getAccount(entityValue).get("status").equals("INACTIVE")) {
         	throw new CustomException("Cannot perform any actions this account is inactive.");
         }
         updates.put("status", status);

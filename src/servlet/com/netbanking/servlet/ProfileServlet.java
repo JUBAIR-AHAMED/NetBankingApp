@@ -55,6 +55,15 @@ public class ProfileServlet extends HttpServlet {
             	Parser.writeResponse(response, responseMap);
             	return;
             }
+            
+            if (!"EMPLOYEE".equals(role) && !"MANAGER".equals(role) && !"CUSTOMER".equals(role) ) {
+            	response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            	responseMap.put("status", false);
+            	responseMap.put("message", "Role is missing or inappropriate.");
+            	Parser.writeResponse(response, responseMap);
+            	return;
+            }
+            
             Map<String, Object> profile = apiHandler.getProfile(userId, role);
             response.setStatus(HttpServletResponse.SC_OK);
             responseMap.put("status", true);

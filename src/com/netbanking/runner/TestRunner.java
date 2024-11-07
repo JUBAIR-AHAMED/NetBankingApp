@@ -232,6 +232,5 @@ public class TestRunner {
 //		} catch (CustomException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
-    	
     }
 }
