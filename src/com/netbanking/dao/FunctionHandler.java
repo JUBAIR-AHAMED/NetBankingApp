@@ -21,21 +21,15 @@ import com.netbanking.util.Encryption;
 import com.netbanking.util.Validator;
 
 public class FunctionHandler {
-	public Map<String, Object> getLogin(Long user_id, String password) throws CustomException {
-		Validator.checkInvalidInput(user_id, password);
+	public Map<String, Object> getUser(Long user_id) throws CustomException {
+		Validator.checkInvalidInput(user_id);
 		DaoHandler<User> daoCaller = new DaoHandler<User>();
-	
-		List<String> whereCondition = new ArrayList<>();
-		whereCondition.add("userId");
-		
+		List<String> whereCondition = new ArrayList<>(), whereOperator = new ArrayList<>();;
 		List<Object> whereConditionValues = new ArrayList<>();
-		whereConditionValues.add(user_id);
-		
-		List<String> whereOperator = new ArrayList<>();
-		whereOperator.add("=");
-
 		List<Map<String, Object>> userMap = null;
-
+		whereCondition.add("userId");		
+		whereConditionValues.add(user_id);
+		whereOperator.add("=");
 		try {
 			QueryRequest request = new QueryRequest();
 			request.setTableName("user");
@@ -43,22 +37,11 @@ public class FunctionHandler {
 			request.setWhereConditions(whereCondition);
 			request.setWhereConditionsValues(whereConditionValues);
 			request.setWhereOperators(whereOperator);
-			userMap = daoCaller.selectHandler(request);
+			List<Map<String, Object>> listOfMap = daoCaller.selectHandler(request);
+			return listOfMap == null? null : listOfMap.get(0);
 		} catch (CustomException e) {
-			e.printStackTrace();
-			return null;
+			throw e;
 		}
-		
-		if(userMap != null && !userMap.isEmpty())
-		{
-			Boolean check=Encryption.verifyPassword(password, (String) userMap.get(0).get("password"));
-			if(!check)
-			{
-				throw new CustomException("Wrong Password");
-			}
-			return userMap.get(0);
-		}
-		throw new CustomException("Invalid login credentials.");
 	}
 	
 	public Map<String, Object> getCustomer(Long customer_id) throws CustomException
@@ -637,18 +620,14 @@ public class FunctionHandler {
 		}
 	}
 	
-	public void createBranch(String role, Map<String, Object> branchDetails) throws CustomException {
-	    if (!role.equals("MANAGER")) {
-	        throw new CustomException("Not allowed");
-	    }
-
+	public Long createBranch(Map<String, Object> branchDetails) throws CustomException {
 	    String name = (String) branchDetails.get("name");
 	    Long ifsc = (Long) branchDetails.get("ifsc");
 	    Long employeeId = (Long) branchDetails.get("employeeId");
 	    String address = (String) branchDetails.get("address");
 	    Long modifiedBy = (Long) branchDetails.get("modifiedBy");
-
-	    Validator.checkInvalidInput(name, ifsc, employeeId, address);
+	    System.out.println(employeeId);
+	    Validator.checkInvalidInput(name, ifsc, address);
 
 	    Branch branch = new Branch();
 	    branch.setName(name);
@@ -660,19 +639,15 @@ public class FunctionHandler {
 
 	    DaoHandler<Branch> branchDao = new DaoHandler<>();
 	    try {
-	        branchDao.insertHandler(branch);
+	        return branchDao.insertHandler(branch);
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        throw new CustomException("Error creating branch", e);
 	    }
 	}
 	
-	public void createEmployee(String role, Map<String, Object> employeeDetails) throws CustomException {
-	    if (!role.equals("MANAGER")) {
-	        throw new CustomException("Not allowed");
-	    }
-
-	    String password = Encryption.hashPassword((String) employeeDetails.get("password"));
+	public Long createEmployee(Map<String, Object> employeeDetails) throws CustomException {
+		String password = Encryption.hashPassword((String) employeeDetails.get("password"));
 	    String name = (String) employeeDetails.get("name");
 	    String email = (String) employeeDetails.get("email");
 	    String mobile = (String) employeeDetails.get("mobile");
@@ -697,25 +672,26 @@ public class FunctionHandler {
 
 	    DaoHandler<Employee> employeeDao = new DaoHandler<>();
 	    try {
-	        employeeDao.insertHandler(employee);
+	        return employeeDao.insertHandler(employee);
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        throw new CustomException("Error creating employee", e);
 	    }
 	}
 	
-	public void createAccount(String role, Map<String, Object> accountDetails) throws CustomException {
-	    if (!role.equals("MANAGER") && !role.equals("EMPLOYEE")) {
-	        throw new CustomException("Not allowed");
-	    }
-
+	public Long createAccount(Map<String, Object> accountDetails) throws CustomException {
 	    Long userId = (Long) accountDetails.get("userId");
 	    Long branchId = (Long) accountDetails.get("branchId");
 	    String accountType = (String) accountDetails.get("accountType");
 	    Float balance = (Float) accountDetails.get("balance");
 	    String status = (String) accountDetails.get("status");
 	    Long modifiedBy = (Long) accountDetails.get("modifiedBy");
-
+	    
+	    if(!accountType.equals("SAVINGS")&&!accountType.equals("CURRENT"))
+	    {
+	    	throw new CustomException("Account type is invalid.");
+	    }
+	    System.out.println(userId+" "+branchId+" "+accountType+" "+balance+" "+status);
 	    Validator.checkInvalidInput(userId, branchId, accountType, balance, status);
 
 	    Account account = new Account();
@@ -731,7 +707,7 @@ public class FunctionHandler {
 
 	    DaoHandler<Account> accountDao = new DaoHandler<>();
 	    try {
-	        accountDao.insertHandler(account);
+	        return accountDao.insertHandler(account);
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        throw new CustomException("Error creating account", e);

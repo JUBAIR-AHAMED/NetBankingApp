@@ -57,7 +57,10 @@ public class DaoHandler<T> implements Dao<T>{
 				insertValues.put(key, value);
 			}	
 			try {
-				refrenceKey =  insert(subTable, insertValues);
+				if(refrenceKey==null)
+				{
+					refrenceKey =  insert(subTable, insertValues);
+				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 				throw new Exception("Failed Inserting");
