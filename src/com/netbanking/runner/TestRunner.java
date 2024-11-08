@@ -104,22 +104,22 @@ public class TestRunner {
 //        }
     	
     	//Customer
-//    	Map<String, Object> customerDetails = new HashMap<>();
-//        customerDetails.put("password", "password");
-//        customerDetails.put("name", "Mari");
-//        customerDetails.put("email", "mari@example.com");
-//        customerDetails.put("mobile", "9776459805");
-//        customerDetails.put("dob", new Date(100, 11, 12)); // Date for 23-10-1999
-//        customerDetails.put("modifiedBy", 3L);
-//        customerDetails.put("aadharNumber", 909876789579L);
-//        customerDetails.put("panNumber", "QRTYU6768L");
-//
-//        try {
-//            api.createCustomer("MANAGER", customerDetails);
-//            System.out.println("Customer created successfully.");
-//        } catch (CustomException e) {
-//            e.printStackTrace();
-//        }
+    	Map<String, Object> customerDetails = new HashMap<>();
+        customerDetails.put("password", "password");
+        customerDetails.put("name", "Mari");
+        customerDetails.put("email", "mari@example.com");
+        customerDetails.put("mobile", "9776459805");
+        customerDetails.put("dob", new Date(100, 11, 12)); // Date for 23-10-1999
+        customerDetails.put("modifiedBy", 3L);
+        customerDetails.put("aadharNumber", 909876789579L);
+        customerDetails.put("panNumber", "QRTYU6768L");
+
+        try {
+            api.createCustomer(customerDetails);
+            System.out.println("Customer created successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     	
     	
     	//Eployee

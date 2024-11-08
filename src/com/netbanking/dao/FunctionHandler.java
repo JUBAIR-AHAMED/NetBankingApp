@@ -2,7 +2,6 @@ package com.netbanking.dao;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -88,7 +87,7 @@ public class FunctionHandler {
 		request.setTableName("account");
 		request.setJoinTableName("branch");
 		List<WhereCondition> whereConditionsType = new ArrayList<WhereCondition>();
-		JoinCondition joinConditions = new JoinCondition("account", "branch_id", "account", "branch_id", "=");
+		JoinCondition joinConditions = new JoinCondition("account", "branch_id", "branch", "branch_id", "=");
 		if(role.equals("CUSTOMER")) {
 			whereConditionsType.add(new WhereCondition("userId", "account", user_id));
 			whereConditionsType.add(new WhereCondition("status", "account", "INACTIVE"));
@@ -220,79 +219,48 @@ public class FunctionHandler {
 		} else {
 			from_account_balance -= amount;
 		}
-		
-		QueryRequest acc_bal = new QueryRequest();
-		
-		acc_bal.setTableName("account");
-		
-		List<String> updates = new ArrayList<>();
-		updates.add("balance");
-		List<String> whereConditions = new ArrayList<>();
-		List<Object> whereConditionsValues = new ArrayList<>();
-		whereConditions.add("accountNumber");
-		whereConditionsValues.add(from_account);
-		List<String> whereOperators = new ArrayList<String>();
-		whereOperators.add("=");
+		QueryRequest fromAccRequest = new QueryRequest();
+		fromAccRequest.putWhereConditions("accountNumber");
+		fromAccRequest.putWhereConditionsValues(from_account);
+		fromAccRequest.putWhereOperators("=");
+		fromAccRequest.putUpdateField("balance");
+		fromAccRequest.putUpdateValue(from_account_balance);
 		
 		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
-		
-		Map<String, Object> account_one = new HashMap<>();
-		account_one.put("balance", from_account_balance);
-		Map<String, Object> account_two = new HashMap<>();
-		account_two.put("balance", to_account_balance);
-
-		try {
-			daoCaller.updateHandler(account_one, Account.class, whereConditions, whereConditionsValues, whereOperators, null);
-			if(transactionType.equals("same-bank"))
-			{
-				whereConditions.add("accountNumber");
-				whereOperators.add("=");
-				whereConditionsValues.add(to_account);
-				daoCaller.updateHandler(account_two, Account.class, whereConditions, whereConditionsValues, whereOperators, null);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new Exception("Failed Transaction");
+		daoCaller.updateHandler(fromAccRequest, Account.class);
+		if(transactionType.equals("same-bank"))
+		{
+			QueryRequest toAccRequest = new QueryRequest();
+			toAccRequest.putWhereConditions("accountNumber");
+			toAccRequest.putWhereConditionsValues(to_account);
+			toAccRequest.putWhereOperators("=");
+			toAccRequest.putUpdateField("balance");
+			toAccRequest.putUpdateValue(to_account_balance);
+			daoCaller.updateHandler(toAccRequest, Account.class);
 		}
-		
-		
 		storeTransaction(from_account, to_account, user_id, amount, from_account_balance, to_account_balance, transactionType);
 	}
 	
 	public List<Map<String, Object>> getTransactionStatement(Long accountNumber, Long fromDate, Long toDate, Integer limit) throws CustomException {
+		Validator.checkInvalidInput(accountNumber);
 		DaoHandler<Transaction> transactionHandle = new DaoHandler<Transaction>();		
 		QueryRequest request = new QueryRequest();
 		request.setTableName("transaction");
 		request.setSelectAllColumns(true);
-		List<String> whereConditions = new ArrayList<>();
-		List<Object> whereConditionValues = new ArrayList<>();
-		List<String> whereOperators = new ArrayList<String>();
-		List<String> whereLogicalOperator = new ArrayList<String>();
 	    List<String> orderByColumn = new ArrayList<String>(), orderDirections = new ArrayList<String>();
-		whereConditions.add("accountNumber");
-		whereOperators.add("=");
-		whereConditionValues.add(accountNumber);
+	    request.putWhereConditions("accountNumber");
+	    request.putWhereOperators("=");
+	    request.putWhereConditionsValues(accountNumber);
 		orderByColumn.add("timestamp");
 		orderDirections.add("DESC");
 		if(fromDate!=null) {
-			whereConditions.add("timestamp");
-			whereConditions.add("timestamp");
-			
-			whereConditionValues.add(fromDate);
-			whereConditionValues.add(toDate);
-
-			whereOperators.add(">=");
-			whereOperators.add("<=");
-
-			whereLogicalOperator.add("AND");
-			whereLogicalOperator.add("AND");
+			request.putWhereConditions("timestamp", "timestamp");
+			request.putWhereConditionsValues(fromDate, toDate);
+			request.putWhereOperators(">=", "<=");
+			request.putWhereLogicalOperators("AND", "AND");
 		}
 		request.setOrderByColumns(orderByColumn);
 		request.setOrderDirections(orderDirections);
-		request.setWhereOperators(whereOperators);
-		request.setWhereLogicalOperators(whereLogicalOperator);
-		request.setWhereConditionsValues(whereConditionValues);
-		request.setWhereConditions(whereConditions);
 		if(limit!=null)
 		{
 			request.setLimit(limit);			
@@ -323,12 +291,8 @@ public class FunctionHandler {
 		statusHandle.updateHandler(request, Account.class);
 	}
 	
-	public void createCustomer(String role, Map<String, Object> customerDetails) throws CustomException, Exception
+	public Long createCustomer(Map<String, Object> customerDetails) throws CustomException, Exception
 	{
-		if(role.equals("CUSTOMER"))
-		{
-			throw new CustomException("Not allowed");
-		}
 		String password =Encryption.hashPassword((String) customerDetails.get("password"));
 		String name = (String) customerDetails.get("name");
 		String email = (String) customerDetails.get("email");
@@ -354,7 +318,7 @@ public class FunctionHandler {
 		customer.setPanNumber(panNumber);
 		
 		DaoHandler<Customer> customerDao = new DaoHandler<Customer>();
-		customerDao.insertHandler(customer);
+		return customerDao.insertHandler(customer);
 	}
 	
 	public Long createBranch(Map<String, Object> branchDetails) throws Exception {

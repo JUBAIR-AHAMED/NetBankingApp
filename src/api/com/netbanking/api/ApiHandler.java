@@ -296,7 +296,6 @@ public class ApiHandler {
 	    String password = null;
 	    String email = null;
 	    String employeeRole = null;
-	    String department = null;
 	    String mobile = null;
 	    Date dateOfBirth = null;
 	    String status = null;
@@ -334,6 +333,7 @@ public class ApiHandler {
 	    try {	    	
 	    	return functionHandler.createEmployee(employeeMap);
 	    } catch (Exception e) {
+	    	e.printStackTrace();
 	    	throw new Exception("Failed Creating employee.");
 		}
 	}
@@ -427,5 +427,56 @@ public class ApiHandler {
 		} catch (Exception e) {
 			throw new Exception("Failed to create account");
 		}
+	}
+	
+	public long createCustomer(HttpServletRequest request) throws Exception {
+		StringBuilder jsonBody = new StringBuilder();
+		String line;
+		try(BufferedReader reader = request.getReader())
+		{
+			while((line = reader.readLine()) != null)
+			{
+				jsonBody.append(line);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		JsonObject jsonObject = JsonParser.parseString(jsonBody.toString()).getAsJsonObject();
+		
+		String password =null;
+		String name = null;
+		String email = null;
+		String mobile = null;
+		Date dateOfBirth = null;
+		Long modifiedBy = null;
+		Long aadharNumber = null;
+		String panNumber = null;
+	    
+	    Map<String, Object> customerMap = new HashMap<String, Object>();
+	    try {
+	    	password = jsonObject.get("password").getAsString();
+	    	name = jsonObject.get("name").getAsString();
+	    	email = jsonObject.get("email").getAsString();
+	    	mobile = jsonObject.get("mobile").getAsString();
+	    	String dateString = jsonObject.get("dateOfBirth").getAsString();
+		    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		    dateOfBirth = formatter.parse(dateString);
+	    	aadharNumber = jsonObject.get("aadharNumber").getAsLong();
+	    	panNumber = jsonObject.get("panNumber").getAsString();
+		    
+	    	customerMap.put("password", password);
+	    	customerMap.put("name", name);
+	    	customerMap.put("email", email);
+	    	customerMap.put("mobile", mobile);
+	    	customerMap.put("dob", dateOfBirth);
+	    	customerMap.put("aadharNumber", aadharNumber);
+	    	customerMap.put("panNumber", panNumber);
+	    	customerMap.put("modifiedBy", 1L);
+        } catch (Exception e) {
+			throw new CustomException("Enter proper details for the required fields.");
+		}
+	    FunctionHandler functionHandler = new FunctionHandler();
+		return functionHandler.createCustomer(customerMap);
 	}
 }

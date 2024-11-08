@@ -3,22 +3,19 @@ package com.netbanking.dao;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.tomcat.util.buf.UDecoder;
 
 import com.netbanking.exception.CustomException;
 import com.netbanking.mapper.PojoValueMapper;
 import com.netbanking.mapper.YamlMapper;
 import com.netbanking.model.Model;
 import com.netbanking.object.QueryRequest;
-import com.netbanking.object.User;
 import com.netbanking.object.WhereCondition;
 
-public class DaoHandler<T> implements Dao<T>{
-	public <T extends Model> Long insertHandler(T object) throws Exception {
+public class DaoHandler<T extends Model>{
+	public <T> Long insertHandler(T object) throws Exception {
+		DaoImpl<T> dao = new DaoImpl<T>();
 		String objectName = object.getClass().getSimpleName();
 		List<String> tableNames = YamlMapper.getRelatedTableNames(objectName);
 		Map<String, Object> pojoValuesMap = null;
@@ -30,6 +27,7 @@ public class DaoHandler<T> implements Dao<T>{
 		}
 				
 		Long refrenceKey = null;
+		System.out.println(pojoValuesMap);
 		for(String subTable : tableNames) {
 			Map<String, Object> tableData = YamlMapper.getTableMap(subTable);
 			@SuppressWarnings("unchecked")
@@ -57,9 +55,10 @@ public class DaoHandler<T> implements Dao<T>{
 				insertValues.put(key, value);
 			}	
 			try {
+				Long tempRef = dao.insert(subTable, insertValues);
 				if(refrenceKey==null)
 				{
-					refrenceKey =  insert(subTable, insertValues);
+					refrenceKey =  tempRef;
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -70,6 +69,7 @@ public class DaoHandler<T> implements Dao<T>{
 	}
 	
 	public void deleteHandler(String tableName, String status, String whereField, String whereFieldValue) throws Exception {
+		DaoImpl<T> dao = new DaoImpl<T>();
 		try {
 			QueryRequest request = new QueryRequest();
 			request.setTableName(tableName);
@@ -86,7 +86,7 @@ public class DaoHandler<T> implements Dao<T>{
 			request.setWhereConditions(whereCondition);
 			request.setWhereConditionsValues(whereConditionValue);
 			request.setWhereOperators(whereConditionOperator);
-			update(request);
+			dao.update(request);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new Exception("Failed deleting.");
@@ -100,7 +100,7 @@ public class DaoHandler<T> implements Dao<T>{
 	        List<Object> whereConditionsValues,
 	        List<String> whereOperators,
 	        List<String> whereLogicalOperators) throws SQLException {
-
+		DaoImpl<T> dao = new DaoImpl<T>();
 	    Class<?> superClass = clazz.getSuperclass();
 	    String objectName = clazz.getSimpleName();
 	    String tableName = YamlMapper.getTableName(objectName);
@@ -157,10 +157,11 @@ public class DaoHandler<T> implements Dao<T>{
 	    request.setWhereOperators(currWhereOperators);
 	    request.setWhereLogicalOperators(currWhereLogicalOperators);
 
-	    update(request);
+	    dao.update(request);
 	}
 
 	public void updateHandler(QueryRequest request, Class<?> clazz) throws SQLException {
+		DaoImpl<T> dao = new DaoImpl<T>();
         List<String> whereConditions = request.getWhereConditions();
         List<Object> whereConditionsValues = request.getWhereConditionsValues();
         List<String> whereOperators = request.getWhereOperators();
@@ -192,15 +193,6 @@ public class DaoHandler<T> implements Dao<T>{
 	        	updatesMap.put(fieldToColumnMap.get(fieldName), fieldValue);
 	        }
         }
-//	    for (Map.Entry<String, Object> entry : updates.entrySet()) {
-//	        String fieldName = entry.getKey();
-//	        Object fieldValue = entry.getValue();
-//
-//	        if (fieldToColumnMap.containsKey(fieldName)) {
-//	            updatesMap.put(fieldToColumnMap.get(fieldName), fieldValue);
-//	        }
-//	    }
-
 	    if (updatesMap.isEmpty()) return;
 
 	    List<String> currWhereConditions = new ArrayList<>();
@@ -233,10 +225,11 @@ public class DaoHandler<T> implements Dao<T>{
 	    sendRequest.setWhereOperators(currWhereOperators);
 	    sendRequest.setWhereLogicalOperators(currWhereLogicalOperators);
 
-	    update(sendRequest);
+	    dao.update(sendRequest);
 	}
 	
 	public List<Map<String, Object>> selectHandler(QueryRequest request) throws CustomException {
+		DaoImpl<T> dao = new DaoImpl<T>();
 		List<String> currWhereConditions = new ArrayList<>();
 		List<Object> currWhereConditionsValues = new ArrayList<>();
 		List<String> whereConditions=request.getWhereConditions();
@@ -269,7 +262,7 @@ public class DaoHandler<T> implements Dao<T>{
 		request.setWhereConditions(currWhereConditions);
 		
 		try {
-			return select(request);
+			return dao.select(request);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new CustomException("Failed to fetch the data.");

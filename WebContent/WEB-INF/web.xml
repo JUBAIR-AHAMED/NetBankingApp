@@ -90,7 +90,16 @@
 		<url-pattern>/createAccount</url-pattern>
 	</servlet-mapping>
 	
-
+	<servlet>
+		<servlet-name>CreateCustomerServlet</servlet-name>
+		<servlet-class>com.netbanking.servlet.CreateCustomerServlet</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>CreateCustomerServlet</servlet-name>
+		<url-pattern>/createCustomer</url-pattern>
+	</servlet-mapping>
+	
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
