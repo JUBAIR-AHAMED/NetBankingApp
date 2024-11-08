@@ -5,31 +5,58 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import com.netbanking.object.JoinCondition;
+
 public class QueryHelper {
 	  // Helper methods for building the SQL query
-    public void appendJoinConditions(StringBuilder sql, String tableName, String joinTableName,
-    								  Map<String, String> joinConditions, 
-    								  List<String> joinOperators, 
-    								  List<String> logicalOperators) {
-        int index = 0;
-        for (Map.Entry<String, String> entry : joinConditions.entrySet()) {
-            sql.append(tableName)
-            	.append(".")
-               	.append(entry.getKey())
-               	.append(" ")
-               	.append(joinOperators.get(index))
-               	.append(" ")
-               	.append(joinTableName)
-            	.append(".")
-               	.append(entry.getValue());
+//    public void appendJoinConditions(StringBuilder sql, String tableName, String joinTableName,
+//    								  Map<String, String> joinConditions, 
+//    								  List<String> joinOperators, 
+//    								  List<String> logicalOperators) {
+//        int index = 0;
+//        for (Map.Entry<String, String> entry : joinConditions.entrySet()) {
+//            sql.append(tableName)
+//            	.append(".")
+//               	.append(entry.getKey())
+//               	.append(" ")
+//               	.append(joinOperators.get(index))
+//               	.append(" ")
+//               	.append(joinTableName)
+//            	.append(".")
+//               	.append(entry.getValue());
+//
+//            // Add logical operators (e.g., AND, OR) if it's not the last condition
+//            if (index < joinConditions.size() - 1) {
+//                sql.append(" ").append(logicalOperators.get(index)).append(" ");
+//            }
+//            index++;
+//        }
+//    }
+	
+	public void appendJoinConditions(StringBuilder sql, List<JoinCondition> joinConditions) {
+	    if (joinConditions == null || joinConditions.isEmpty()) {
+	        return;
+	    }
 
-            // Add logical operators (e.g., AND, OR) if it's not the last condition
-            if (index < joinConditions.size() - 1) {
-                sql.append(" ").append(logicalOperators.get(index)).append(" ");
-            }
-            index++;
-        }
-    }
+	    for (int index = 0; index < joinConditions.size(); index++) {
+	        JoinCondition condition = joinConditions.get(index);
+	        
+	        sql.append(condition.getLeftTable())
+	           .append(".")
+	           .append(condition.getLeftColumn())
+	           .append(" ")
+	           .append(condition.getOperator())
+	           .append(" ")
+	           .append(condition.getRightTable())
+	           .append(".")
+	           .append(condition.getRightColumn());
+
+	        // Add logical operator if not the last condition and logical operator exists
+	        if (index < joinConditions.size() - 1 && condition.getLogicalOperator() != null) {
+	            sql.append(" ").append(condition.getLogicalOperator()).append(" ");
+	        }
+	    }
+	}
 
     public void appendUpdateValues(StringBuilder sql, Map<String, Object> updates) {
         int index = 0;

@@ -10,18 +10,18 @@ import com.netbanking.exception.CustomException;
 public class QueryRequest {
     private String tableName;
     private String joinTableName;
-    private Map<String, String> joinConditions; 
+    private List<JoinCondition> joinConditions;
     private List<String> whereConditions;
     private List<WhereCondition> whereConditionsType;
     private List<Object> whereConditionsValues;
     private Map<String, Object> updates; 
+    private List<String> updateField;
+    private List<Object> updateValue;
     private Boolean selectAllColumns;
     private List<String> selectColumns; 
     private List<String> orderByColumns;
     private List<String> orderDirections;
-    private List<String> joinOperators;
     private List<String> whereOperators;
-    private List<String> joinLogicalOperators;
     private List<String> whereLogicalOperators;
     private Integer limit;
 
@@ -45,26 +45,15 @@ public class QueryRequest {
         this.joinTableName = joinTableName;
     }
 
-    public Map<String, String> getJoinConditions() {
-        return joinConditions;
+    public List<JoinCondition> getJoinConditions() {
+        return this.joinConditions;
     }
 
-    public void setJoinConditions(Map<String, String> joinConditions) {
-        this.joinConditions = joinConditions;
-    }
-    
-    public void putJoinConditions(String... conditions) throws CustomException {
-    	if(joinConditions == null)
-    	{
-    		joinConditions = new HashMap<String, String>();
+    public void addJoinConditions(JoinCondition condition) {
+    	if (this.joinConditions == null) {
+    		this.joinConditions = new ArrayList<>();
     	}
-    	int length = conditions.length;
-    	if(length%2==1) throw new CustomException("Pairs expected.");
-    	for(int i=0;i<length;i++)
-    	{
-    		joinConditions.put(conditions[i], conditions[i+1]);
-    		i++;
-    	}
+    	this.joinConditions.add(condition);
     }
 
     public List<String> getWhereConditions() {
@@ -119,6 +108,42 @@ public class QueryRequest {
     public void setUpdates(Map<String, Object> updates) {
         this.updates = updates;
     }
+    
+    public List<String> getUpdateField() {
+        return updateField;
+    }
+
+    public void setUpdateField(List<String> updateField) {
+        this.updateField = updateField;
+    }
+    
+    public void putUpdateField(String... updateFields) {
+        if(updateField==null)
+        {
+        	updateField = new ArrayList<String>();
+        }
+        for(String field : updateFields) {
+        	updateField.add(field);
+        }
+    }
+    
+    public List<Object> getUpdateValue() {
+        return updateValue;
+    }
+
+    public void setUpdateValue(List<Object> updateValue) {
+        this.updateValue = updateValue;
+    }
+    
+    public void putUpdateValue(Object... updateValues) {
+        if(updateValue==null)
+        {
+        	updateValue = new ArrayList<Object>();
+        }
+        for(Object value : updateValues) {
+        	updateValue.add(value);
+        }
+    }
 
     public Boolean getSelectAllColumns() {
         return selectAllColumns;
@@ -153,25 +178,6 @@ public class QueryRequest {
         this.orderDirections = orderDirections;
     }
     
-    public List<String> getJoinOperators() {
-        return joinOperators;
-    }
-
-    public void setJoinOperators(List<String> joinOperators) {
-        this.joinOperators = joinOperators;
-    }
-    
-    public void putJoinOperators(String... operators) {
-        if(joinOperators==null)
-        {
-        	joinOperators=new ArrayList<String>();
-        }
-        for(String operator : operators)
-        {
-        	joinOperators.add(operator);
-        }
-    }
-    
     public List<String> getWhereOperators() {
         return whereOperators;
     }
@@ -188,25 +194,6 @@ public class QueryRequest {
         for(String operator : operators)
         {
         	whereOperators.add(operator);
-        }
-    }
-    
-    public List<String> getJoinLogicalOperators() {
-        return joinLogicalOperators;
-    }
-
-    public void setJoinLogicalOperators(List<String> joinLogicalOperators) {
-        this.joinLogicalOperators = joinLogicalOperators;
-    }
-    
-    public void putJoinLogicalOperators(String... logicalOperators) {
-        if(joinLogicalOperators==null)
-        {
-        	joinLogicalOperators=new ArrayList<String>();
-        }
-        for(String operator : logicalOperators)
-        {
-        	joinLogicalOperators.add(operator);
         }
     }
     

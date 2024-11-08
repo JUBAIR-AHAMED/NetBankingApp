@@ -142,7 +142,7 @@ public interface Dao<T> {
         
         if (joinTableName != null) {
             sql.append(" JOIN ").append(joinTableName).append(" ON ");
-            helper.appendJoinConditions(sql, tableName, joinTableName, request.getJoinConditions(), request.getJoinOperators(), request.getJoinLogicalOperators());
+            helper.appendJoinConditions(sql, request.getJoinConditions());
         }
 
         if (request.getWhereConditions() != null && !request.getWhereConditions().isEmpty()) {

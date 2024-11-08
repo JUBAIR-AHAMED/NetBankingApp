@@ -11,6 +11,7 @@ import com.netbanking.object.Account;
 import com.netbanking.object.Branch;
 import com.netbanking.object.Customer;
 import com.netbanking.object.Employee;
+import com.netbanking.object.JoinCondition;
 import com.netbanking.object.QueryRequest;
 import com.netbanking.object.Role;
 import com.netbanking.object.Status;
@@ -79,58 +80,35 @@ public class FunctionHandler {
 	}
 	
 	//pending
-	public List<Map<String, Object>> getAccounts(Long user_id, String role, Long branch_id, String findField, Long findData) throws CustomException
+	public List<Map<String, Object>> getAccounts(Long user_id, String role, Long branch_id, String findField, Long findData) throws Exception
 	{
 		Validator.checkInvalidInput(user_id, role);
-		
 		QueryRequest request = new QueryRequest();
-		
 		request.setSelectAllColumns(true);
 		request.setTableName("account");
 		request.setJoinTableName("branch");
-		List<String> whereOperator = new ArrayList<String>(), whereLogicalOperator = new ArrayList<String>(), joinOperators =null;
-		Map<String, String> joinConditions = new HashMap<String, String>();
 		List<WhereCondition> whereConditionsType = new ArrayList<WhereCondition>();
-		
-		joinConditions.put("branch_id", "branch_id");
-		
+		JoinCondition joinConditions = new JoinCondition("account", "branch_id", "account", "branch_id", "=");
 		if(role.equals("CUSTOMER")) {
-			WhereCondition whereConditionOne = new WhereCondition("userId", "account", user_id);
-			WhereCondition whereConditionTwo = new WhereCondition("status", "account", "INACTIVE");
-			whereConditionsType.add(whereConditionOne);
-			whereConditionsType.add(whereConditionTwo);
-			whereOperator.add("=");
-			whereOperator.add("!=");
-			whereLogicalOperator.add("AND");
+			whereConditionsType.add(new WhereCondition("userId", "account", user_id));
+			whereConditionsType.add(new WhereCondition("status", "account", "INACTIVE"));
+			request.putWhereOperators("=", "!=");
+			request.putWhereLogicalOperators("AND");
 		} else if(role.equals("EMPLOYEE")||role.equals("MANAGER")) {
 			String tableName = "account";
 			if(findField.equals("branchId"))
 			{
 				tableName = "branch";
 			}
-			WhereCondition whereConditionOne = new WhereCondition(findField, tableName, findData);
-			whereConditionsType.add(whereConditionOne);
-			whereOperator.add("=");
+			whereConditionsType.add(new WhereCondition(findField, tableName, findData));
+			request.putWhereOperators("=");
 		}
-		joinOperators = whereOperator;
-		
 		request.setWhereConditionsType(whereConditionsType);
-		request.setWhereOperators(whereOperator);
-		request.setWhereLogicalOperators(whereLogicalOperator);
-		request.setJoinConditions(joinConditions);
-		request.setJoinOperators(joinOperators);
-		
-		
+		request.addJoinConditions(joinConditions);
 		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
 		List<Map<String, Object>> accountMap = null;
-		
-		try {
-			accountMap = daoCaller.selectHandler(request);
-			return accountMap;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		accountMap = daoCaller.selectHandler(request);
+		return accountMap;
 	}
 
 	public List<Map<String, Object>> getTransactions(Long account_number, Long from_time, Long to_time) throws CustomException, Exception
@@ -157,15 +135,14 @@ public class FunctionHandler {
 		request.setTableName("user");
 		if(role.equals("CUSTOMER"))
 		{
-			request.putJoinConditions("user_id", "customer_id");
+			request.addJoinConditions(new JoinCondition("user", "user_id", "customer", "customer_id", "="));
 			request.setJoinTableName("customer");
 		} else if(role.equals("MANAGER")||role.equals("EMPLOYEE")) {
-			request.putJoinConditions("user_id", "employee_id");
+			request.addJoinConditions(new JoinCondition("user", "user_id", "employee", "employee_id", "="));
 			request.setJoinTableName("employee");
 		} else {
 			throw new CustomException("Role of the user is undefined.");
 		}
-		request.putJoinOperators("=");
 		request.putWhereConditions("userId");
 		request.putWhereConditionsValues(userId);
 		request.putWhereOperators("=");
@@ -323,11 +300,10 @@ public class FunctionHandler {
 		return transactionHandle.selectHandler(request);
 	}
 	
-	public void actionHandler(String type, String entity, Long entityValue) throws Exception
+	public void actionHandler(String type, String entity, Long accountNumber) throws Exception
 	{
-		Validator.checkInvalidInput(type, entity, entityValue);
+		Validator.checkInvalidInput(type, entity, accountNumber);
 		String status = null;
-		
 		if(type.equals("DELETE")) {
 			status = "INACTIVE";
 		} else if(type.equals("BLOCK")) {
@@ -337,32 +313,17 @@ public class FunctionHandler {
 		} else {
 			throw new Exception("Wrong Type");
 		}
-		
+		QueryRequest request = new QueryRequest();
 		DaoHandler<User> statusHandle = new DaoHandler<User>();
-		Map<String, Object> updates = new HashMap<String, Object>();
-		List<String> whereConditions = new ArrayList<String>();
-        List<Object> whereConditionsValues = new ArrayList<Object>();
-        List<String> whereOperators = new ArrayList<String>();
-		
-        if(getAccount(entityValue).get("status").equals("INACTIVE")) {
-        	throw new CustomException("Cannot perform any actions this account is inactive.");
-        }
-        updates.put("status", status);
-		whereConditions.add("accountNumber");
-		whereConditionsValues.add(entityValue);
-		whereOperators.add("=");
-		Class<?> clazz = Account.class;
-//		if(entity.equals("USER")) {
-//			clazz = User.class;
-//		} else if(entity.equals("ACCOUNT")) {
-//			clazz = Account.class;
-//		} else {
-//			throw new Exception("Wrong Entity");
-//		}
-		statusHandle.updateHandler(updates, clazz, whereConditions, whereConditionsValues, whereOperators, null);
+        request.putUpdateField("status");
+        request.putUpdateValue(status);
+        request.putWhereConditions("accountNumber");
+        request.putWhereConditionsValues(accountNumber);
+        request.putWhereOperators("=");
+		statusHandle.updateHandler(request, Account.class);
 	}
 	
-	public void createCustomer(String role, Map<String, Object> customerDetails) throws CustomException
+	public void createCustomer(String role, Map<String, Object> customerDetails) throws CustomException, Exception
 	{
 		if(role.equals("CUSTOMER"))
 		{
@@ -393,22 +354,17 @@ public class FunctionHandler {
 		customer.setPanNumber(panNumber);
 		
 		DaoHandler<Customer> customerDao = new DaoHandler<Customer>();
-		try {
-			customerDao.insertHandler(customer);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		customerDao.insertHandler(customer);
 	}
 	
-	public Long createBranch(Map<String, Object> branchDetails) throws CustomException {
+	public Long createBranch(Map<String, Object> branchDetails) throws Exception {
 	    String name = (String) branchDetails.get("name");
 	    Long ifsc = (Long) branchDetails.get("ifsc");
 	    Long employeeId = (Long) branchDetails.get("employeeId");
 	    String address = (String) branchDetails.get("address");
 	    Long modifiedBy = (Long) branchDetails.get("modifiedBy");
 	    System.out.println(employeeId);
-	    Validator.checkInvalidInput(name, ifsc, address);
-
+	    Validator.checkInvalidInput(name, ifsc, address, employeeId, modifiedBy);
 	    Branch branch = new Branch();
 	    branch.setName(name);
 	    branch.setIfsc(ifsc);
@@ -416,17 +372,11 @@ public class FunctionHandler {
 	    branch.setAddress(address);
 	    branch.setCreationTime(System.currentTimeMillis());
 	    branch.setModifiedBy(modifiedBy);
-
 	    DaoHandler<Branch> branchDao = new DaoHandler<>();
-	    try {
-	        return branchDao.insertHandler(branch);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        throw new CustomException("Error creating branch", e);
-	    }
+        return branchDao.insertHandler(branch);
 	}
 	
-	public Long createEmployee(Map<String, Object> employeeDetails) throws CustomException {
+	public Long createEmployee(Map<String, Object> employeeDetails) throws Exception {
 		String password = Encryption.hashPassword((String) employeeDetails.get("password"));
 	    String name = (String) employeeDetails.get("name");
 	    String email = (String) employeeDetails.get("email");
@@ -435,7 +385,6 @@ public class FunctionHandler {
 	    Long modifiedBy = (Long) employeeDetails.get("modifiedBy");
 	    Long branchId = (Long) employeeDetails.get("branchId");
 	    String employeeRole = (String) employeeDetails.get("role");
-	    
 	    Validator.checkInvalidInput(password, name, email, mobile, dateOfBirth, modifiedBy);
 
 	    Employee employee = new Employee();
@@ -451,29 +400,21 @@ public class FunctionHandler {
 	    employee.setBranchId(branchId);
 
 	    DaoHandler<Employee> employeeDao = new DaoHandler<>();
-	    try {
-	        return employeeDao.insertHandler(employee);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        throw new CustomException("Error creating employee", e);
-	    }
+        return employeeDao.insertHandler(employee);
 	}
 	
-	public Long createAccount(Map<String, Object> accountDetails) throws CustomException {
+	public Long createAccount(Map<String, Object> accountDetails) throws Exception {
 	    Long userId = (Long) accountDetails.get("userId");
 	    Long branchId = (Long) accountDetails.get("branchId");
 	    String accountType = (String) accountDetails.get("accountType");
 	    Float balance = (Float) accountDetails.get("balance");
 	    String status = (String) accountDetails.get("status");
 	    Long modifiedBy = (Long) accountDetails.get("modifiedBy");
-	    
 	    if(!accountType.equals("SAVINGS")&&!accountType.equals("CURRENT"))
 	    {
 	    	throw new CustomException("Account type is invalid.");
 	    }
-	    System.out.println(userId+" "+branchId+" "+accountType+" "+balance+" "+status);
 	    Validator.checkInvalidInput(userId, branchId, accountType, balance, status);
-
 	    Account account = new Account();
 	    account.setUserId(userId);
 	    account.setBranchId(branchId);
@@ -486,11 +427,6 @@ public class FunctionHandler {
 	    account.setModifiedBy(modifiedBy);
 
 	    DaoHandler<Account> accountDao = new DaoHandler<>();
-	    try {
-	        return accountDao.insertHandler(account);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        throw new CustomException("Error creating account", e);
-	    }
+        return accountDao.insertHandler(account);
 	}
 }

@@ -51,7 +51,7 @@ public class ApiHandler {
 		}
 	}
 	
-	public List<Map<String, Object>> getUserAccounts(String findField, Long findData, Long userId, String role, Long branchId) throws IOException, CustomException
+	public List<Map<String, Object>> getUserAccounts(String findField, Long findData, Long userId, String role, Long branchId) throws Exception
 	{
 		FunctionHandler functionHandler = new FunctionHandler();
 		return functionHandler.getAccounts(userId, role, branchId, findField, findData);
@@ -270,10 +270,14 @@ public class ApiHandler {
 			throw new CustomException("Invalid action type.");
 		}
 		
+        if(accountMap.get("status").equals("INACTIVE")) {
+        	throw new CustomException("Cannot perform any actions this account is inactive.");
+        }
+		
 		functionHandler.actionHandler(actionType, "ACCOUNT", accountNumber);
 	}
 	
-	public long createEmployee(HttpServletRequest request, Long userId, String role, Long branchId) throws CustomException {
+	public long createEmployee(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
 		StringBuilder jsonBody = new StringBuilder();
 		String line;
 		try(BufferedReader reader = request.getReader())
@@ -327,10 +331,14 @@ public class ApiHandler {
 		}
 	    
 	    FunctionHandler functionHandler = new FunctionHandler();
-	    return functionHandler.createEmployee(employeeMap);
+	    try {	    	
+	    	return functionHandler.createEmployee(employeeMap);
+	    } catch (Exception e) {
+	    	throw new Exception("Failed Creating employee.");
+		}
 	}
 	
-	public long createBranch(HttpServletRequest request, Long userId, String role, Long branchId) throws CustomException {
+	public long createBranch(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
 		StringBuilder jsonBody = new StringBuilder();
 		String line;
 		try(BufferedReader reader = request.getReader())
@@ -367,10 +375,14 @@ public class ApiHandler {
 		}
 	    
 	    FunctionHandler functionHandler = new FunctionHandler();
-	    return functionHandler.createBranch(branchMap);
+	    try {
+	    	return functionHandler.createBranch(branchMap);
+	    } catch (Exception e) {
+	    	throw new Exception("Failed creating branch.");
+	    }
 	}
 	
-	public long createAccount(HttpServletRequest request, Long userId, String role, Long branchId) throws CustomException {
+	public long createAccount(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
 		StringBuilder jsonBody = new StringBuilder();
 		String line;
 		try(BufferedReader reader = request.getReader())
@@ -410,6 +422,10 @@ public class ApiHandler {
 		}
 	    
 	    FunctionHandler functionHandler = new FunctionHandler();
-	    return functionHandler.createAccount(branchMap);
+	    try {
+			return functionHandler.createAccount(branchMap);
+		} catch (Exception e) {
+			throw new Exception("Failed to create account");
+		}
 	}
 }
