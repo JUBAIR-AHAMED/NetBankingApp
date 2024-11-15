@@ -14,7 +14,7 @@ import com.netbanking.object.QueryRequest;
 import com.netbanking.object.WhereCondition;
 
 public class DaoHandler<T extends Model>{
-	public <T> Long insertHandler(T object) throws Exception {
+	public Long insertHandler(T object) throws Exception {
 		DaoImpl<T> dao = new DaoImpl<T>();
 		String objectName = object.getClass().getSimpleName();
 		List<String> tableNames = YamlMapper.getRelatedTableNames(objectName);
@@ -55,6 +55,7 @@ public class DaoHandler<T extends Model>{
 				insertValues.put(key, value);
 			}	
 			try {
+				System.out.println("io "+insertValues);
 				Long tempRef = dao.insert(subTable, insertValues);
 				if(refrenceKey==null)
 				{

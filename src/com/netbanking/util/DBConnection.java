@@ -2,7 +2,10 @@ package com.netbanking.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.List;
 
 public class DBConnection {
 	private static String url = "jdbc:mysql://localhost:3306/netbanking?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
@@ -18,5 +21,13 @@ public class DBConnection {
 		}
 		Connection connection = DriverManager.getConnection(url, username, password);
 		return connection;				
+	}
+	
+	public static int setValuesInPstm(PreparedStatement pstm, Collection<Object> values, int count) throws SQLException {
+		for(Object value:values) {
+			pstm.setObject(count, value);
+			count++;
+		}
+		return count;
 	}
 }

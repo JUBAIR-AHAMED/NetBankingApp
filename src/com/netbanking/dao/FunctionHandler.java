@@ -10,7 +10,7 @@ import com.netbanking.object.Account;
 import com.netbanking.object.Branch;
 import com.netbanking.object.Customer;
 import com.netbanking.object.Employee;
-import com.netbanking.object.JoinCondition;
+import com.netbanking.object.Join;
 import com.netbanking.object.QueryRequest;
 import com.netbanking.object.Role;
 import com.netbanking.object.Status;
@@ -87,7 +87,7 @@ public class FunctionHandler {
 		request.setTableName("account");
 		request.setJoinTableName("branch");
 		List<WhereCondition> whereConditionsType = new ArrayList<WhereCondition>();
-		JoinCondition joinConditions = new JoinCondition("account", "branch_id", "branch", "branch_id", "=");
+		Join joinConditions = new Join("account", "branch_id", "branch", "branch_id", "=");
 		if(role.equals("CUSTOMER")) {
 			whereConditionsType.add(new WhereCondition("userId", "account", user_id));
 			whereConditionsType.add(new WhereCondition("status", "account", "INACTIVE"));
@@ -134,10 +134,10 @@ public class FunctionHandler {
 		request.setTableName("user");
 		if(role.equals("CUSTOMER"))
 		{
-			request.addJoinConditions(new JoinCondition("user", "user_id", "customer", "customer_id", "="));
+			request.addJoinConditions(new Join("user", "user_id", "customer", "customer_id", "="));
 			request.setJoinTableName("customer");
 		} else if(role.equals("MANAGER")||role.equals("EMPLOYEE")) {
-			request.addJoinConditions(new JoinCondition("user", "user_id", "employee", "employee_id", "="));
+			request.addJoinConditions(new Join("user", "user_id", "employee", "employee_id", "="));
 			request.setJoinTableName("employee");
 		} else {
 			throw new CustomException("Role of the user is undefined.");

@@ -7,7 +7,7 @@ import java.util.Map;
 public class QueryRequest {
     private String tableName;
     private String joinTableName;
-    private List<JoinCondition> joinConditions;
+    private List<Join> joinConditions;
     private List<String> whereConditions;
     private List<WhereCondition> whereConditionsType;
     private List<Object> whereConditionsValues;
@@ -42,11 +42,11 @@ public class QueryRequest {
         this.joinTableName = joinTableName;
     }
 
-    public List<JoinCondition> getJoinConditions() {
+    public List<Join> getJoinConditions() {
         return this.joinConditions;
     }
 
-    public void addJoinConditions(JoinCondition condition) {
+    public void addJoinConditions(Join condition) {
     	if (this.joinConditions == null) {
     		this.joinConditions = new ArrayList<>();
     	}

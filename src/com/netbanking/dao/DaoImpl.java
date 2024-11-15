@@ -16,50 +16,28 @@ import com.netbanking.util.DBConnection;
 import com.netbanking.util.QueryHelper;
 
 public class DaoImpl<T> implements Dao<T> {
-	
 	//Insert operation
 	public Long insert(String tableName, Map<String, Object> insertValues) throws SQLException {
-	    StringBuilder sql = new StringBuilder("INSERT INTO ");
-	    sql.append(tableName).append(" (");
-	    int fieldCount = insertValues.size(), index = 0;
-	    for (String field : insertValues.keySet()) {
-	        sql.append(field);
-	        if (index < fieldCount - 1) {
-	            sql.append(", ");
-	        }
-	        index++;
-	    }
-
-	    sql.append(") VALUES (");
-
-	    for (int i = 0; i < fieldCount; i++) {
-	        sql.append("?");
-	        if (i < fieldCount - 1) {
-	            sql.append(", ");
-	        }
-	    }
-
-	    sql.append(")");
+		QueryBuilder qb = new QueryBuilder();
+	    qb.insert(tableName, insertValues.keySet());
+	    StringBuilder sql = qb.sqlQuery;
 	    try (Connection connection = DBConnection.getConnection();
-	    	    PreparedStatement stmt = connection.prepareStatement(sql.toString(), PreparedStatement.RETURN_GENERATED_KEYS)) {
+    	    PreparedStatement stmt = connection.prepareStatement(sql.toString(), PreparedStatement.RETURN_GENERATED_KEYS)) {
+	    	
+    	    int parameterIndex = 1;
+    	    DBConnection.setValuesInPstm(stmt, insertValues.values(), parameterIndex);
+    	    stmt.executeUpdate();
 
-	    	    int parameterIndex = 1;
-	    	    for (Object value : insertValues.values()) {
-	    	        stmt.setObject(parameterIndex++, value);
-	    	    }
-	    	    System.out.println(stmt);
-	    	    stmt.executeUpdate();
+    	    Long generatedKeysList = null;
 
-	    	    Long generatedKeysList = null;
-
-	            // Check if rows were inserted and get the generated keys
-	    	    try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        generatedKeysList = generatedKeys.getLong(1);
-                    }
+            // Check if rows were inserted and get the generated keys
+    	    try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    generatedKeysList = generatedKeys.getLong(1);
                 }
-	            return generatedKeysList;
-	    	} 
+            }
+            return generatedKeysList;
+    	} 
 	}
 	
 	//Delete operation
@@ -97,7 +75,6 @@ public class DaoImpl<T> implements Dao<T> {
         
         List<String> whereConditions = request.getWhereConditions();
         Map<String, Object> updates = request.getUpdates();
-
         sql.append(" SET ");
         helper.appendUpdateValues(sql, updates);
 

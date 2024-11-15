@@ -1,6 +1,6 @@
 package com.netbanking.object;
 
-public class JoinCondition {
+public class Join {
     private String leftTable;
     private String leftColumn;
     private String rightTable;
@@ -8,9 +8,9 @@ public class JoinCondition {
     private String operator;
     private String logicalOperator;
 
-    public JoinCondition() {}
+    public Join() {}
 
-    public JoinCondition(String leftTable, String leftColumn, 
+    public Join(String leftTable, String leftColumn, 
                          String rightTable, String rightColumn, 
                          String operator, String logicalOperator) {
         this.leftTable = leftTable;
@@ -21,7 +21,7 @@ public class JoinCondition {
         this.logicalOperator = logicalOperator;
     }
 
-    public JoinCondition(String leftTable, String leftColumn, 
+    public Join(String leftTable, String leftColumn, 
                          String rightTable, String rightColumn, 
                          String operator) {
         this(leftTable, leftColumn, rightTable, rightColumn, operator, null);

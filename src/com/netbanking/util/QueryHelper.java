@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import com.netbanking.object.JoinCondition;
+import com.netbanking.object.Join;
 
 public class QueryHelper {
 	  // Helper methods for building the SQL query
@@ -33,13 +33,13 @@ public class QueryHelper {
 //        }
 //    }
 	
-	public void appendJoinConditions(StringBuilder sql, List<JoinCondition> joinConditions) {
+	public void appendJoinConditions(StringBuilder sql, List<Join> joinConditions) {
 	    if (joinConditions == null || joinConditions.isEmpty()) {
 	        return;
 	    }
 
 	    for (int index = 0; index < joinConditions.size(); index++) {
-	        JoinCondition condition = joinConditions.get(index);
+	        Join condition = joinConditions.get(index);
 	        
 	        sql.append(condition.getLeftTable())
 	           .append(".")
