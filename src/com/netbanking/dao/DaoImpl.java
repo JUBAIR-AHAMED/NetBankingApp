@@ -29,7 +29,6 @@ public class DaoImpl<T> implements Dao<T> {
     	    stmt.executeUpdate();
 
     	    Long generatedKeysList = null;
-
             // Check if rows were inserted and get the generated keys
     	    try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
