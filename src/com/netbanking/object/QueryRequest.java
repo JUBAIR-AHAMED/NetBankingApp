@@ -6,10 +6,9 @@ import java.util.Map;
 
 public class QueryRequest {
     private String tableName;
-    private String joinTableName;
     private List<Join> joinConditions;
     private List<String> whereConditions;
-    private List<WhereCondition> whereConditionsType;
+    private List<Where> whereConditionsType;
     private List<Object> whereConditionsValues;
     private Map<String, Object> updates; 
     private List<String> updateField;
@@ -32,14 +31,6 @@ public class QueryRequest {
 
     public void setTableName(String tableName) {
         this.tableName = tableName;
-    }
-
-    public String getJoinTableName() {
-        return joinTableName;
-    }
-
-    public void setJoinTableName(String joinTableName) {
-        this.joinTableName = joinTableName;
     }
 
     public List<Join> getJoinConditions() {
@@ -71,11 +62,11 @@ public class QueryRequest {
         }
     }
 
-    public void setWhereConditionsType(List<WhereCondition> whereConditionsType) {
+    public void setWhereConditionsType(List<Where> whereConditionsType) {
         this.whereConditionsType = whereConditionsType;
     }
 
-    public List<WhereCondition> getWhereConditionsType() {
+    public List<Where> getWhereConditionsType() {
         return whereConditionsType;
     }
 

@@ -16,7 +16,7 @@ public class YamlMapper {
 		{
 			if(inputStream == null)
 			{
-				System.out.println("File Not Found");
+				throw new Exception("Failed loading map file.");
 			}
 			map  = yaml.load(inputStream);
 		}
@@ -67,18 +67,6 @@ public class YamlMapper {
 	    
 	    return null;
 	}
-
-	
-	public static List<String> getRelatedTableNames(String objectName) {
-        if (map == null) {
-            new YamlMapper();
-        }
-
-        @SuppressWarnings("unchecked")
-        List<String> tables = (List<String>) ((Map<String, Object>) ((Map<String, Object>) map.get("relatedtable")).get(objectName)).get("tables");
-
-        return tables;  // Return null if no mapping is found
-    }
 
 	@SuppressWarnings("unchecked")
 	public static Map<String, Object> getTableMap(String tableName)

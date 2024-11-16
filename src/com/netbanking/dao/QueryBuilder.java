@@ -53,50 +53,66 @@ public class QueryBuilder {
 	public QueryBuilder set(List<String> fields) {
 		sqlQuery.append(" SET ");
 		sqlQuery.append(String.join(" = ?,", fields));
+		sqlQuery.append(" = ? ");
 		return this;
 	}
 	
-	public QueryBuilder where(List<String> fields) {
+	public QueryBuilder where(Collection<String> fields, List<String> operators, List<String> logicOperators) {
 		sqlQuery.append(" WHERE ");
-		sqlQuery.append(String.join(" = ?,", fields));
+		int index = 0;
+        for (String field : fields) {
+            sqlQuery.append(field)
+               .append(" ")
+               .append(operators.get(index))
+               .append(" ?");
+            
+            if (index < fields.size() - 1 && logicOperators != null && index < logicOperators.size()) {
+                sqlQuery.append(" ").append(logicOperators.get(index)).append(" ");
+            }
+            index++;
+        }
 		return this;
 	}
 	
 	public QueryBuilder join(List<Join> joins) {
-		for (int i = 0; i < joins.size(); i++) {
-	        Join condition = joins.get(i);
-	        
-	        sqlQuery.append(condition.getLeftTable())
-	           .append(".")
-	           .append(condition.getLeftColumn())
-	           .append(" ")
-	           .append(condition.getOperator())
-	           .append(" ")
-	           .append(condition.getRightTable())
-	           .append(".")
-	           .append(condition.getRightColumn());
-
-	        if (i < joins.size() - 1 && condition.getLogicalOperator() != null) {
-	            sqlQuery.append(" ").append(condition.getLogicalOperator()).append(" ");
-	        }
-	    }
+		
+		for(Join join:joins) {
+			sqlQuery.append(" JOIN ").append(join.getTableName()).append(" ON ");
+			int joinLength = join.getLeftColumn().size();
+			for (int i = 0; i < joinLength; i++) {
+				
+				sqlQuery.append(join.getLeftTable().get(i))
+				.append(".")
+				.append(join.getLeftColumn().get(i))
+				.append(" ")
+				.append(join.getOperator().get(i))
+				.append(" ")
+				.append(join.getRightTable().get(i))
+				.append(".")
+				.append(join.getRightColumn().get(i));
+				
+				if (i < joinLength - 1 && join.getLogicalOperator().get(i) != null) {
+					sqlQuery.append(" ").append(join.getLogicalOperator().get(i)).append(" ");
+				}
+			}
+		}
 		return this;
 	}
 	
-	public QueryBuilder order(List<String> orderCols, List<String> orders) {
+	public QueryBuilder order(List<String> orderColumns, List<String> sortingOrders) {
 		sqlQuery.append(" ORDER BY");
-        for (int i = 0; i < orderCols.size(); i++) {
-            String column = orderCols.get(i);
-            String direction = orders != null && i < orders.size()
-                ? orders.get(i)
+        for (int i = 0; i < orderColumns.size(); i++) {
+            String column = orderColumns.get(i);
+            String direction = sortingOrders != null && i < sortingOrders.size()
+                ? sortingOrders.get(i)
                 : "ASC";
             sqlQuery.append(" ").append(column).append(" ").append(direction);
         }
 		return this;
 	}
 	
-	public QueryBuilder limit(int limit) {
-		sqlQuery.append(" LIMIT = ? ");
+	public QueryBuilder limit(Integer limit) {
+		sqlQuery.append(" LIMIT ").append(limit);
 		return this;
 	}
 	

@@ -16,7 +16,7 @@ import com.netbanking.object.Role;
 import com.netbanking.object.Status;
 import com.netbanking.object.Transaction;
 import com.netbanking.object.User;
-import com.netbanking.object.WhereCondition;
+import com.netbanking.object.Where;
 import com.netbanking.util.Encryption;
 import com.netbanking.util.Validator;
 
@@ -85,12 +85,17 @@ public class FunctionHandler {
 		QueryRequest request = new QueryRequest();
 		request.setSelectAllColumns(true);
 		request.setTableName("account");
-		request.setJoinTableName("branch");
-		List<WhereCondition> whereConditionsType = new ArrayList<WhereCondition>();
-		Join joinConditions = new Join("account", "branch_id", "branch", "branch_id", "=");
+		List<Where> whereConditionsType = new ArrayList<Where>();
+		Join joinConditions = new Join();
+		joinConditions.setTableName("branch");
+		joinConditions.putLeftTable("account");
+		joinConditions.putLeftColumn("branch_id");
+		joinConditions.putRightTable("branch");
+		joinConditions.putRightColumn("branch_id");
+		joinConditions.putOperator("=");
 		if(role.equals("CUSTOMER")) {
-			whereConditionsType.add(new WhereCondition("userId", "account", user_id));
-			whereConditionsType.add(new WhereCondition("status", "account", "INACTIVE"));
+			whereConditionsType.add(new Where("userId", "account", user_id));
+			whereConditionsType.add(new Where("status", "account", "INACTIVE"));
 			request.putWhereOperators("=", "!=");
 			request.putWhereLogicalOperators("AND");
 		} else if(role.equals("EMPLOYEE")||role.equals("MANAGER")) {
@@ -99,7 +104,7 @@ public class FunctionHandler {
 			{
 				tableName = "branch";
 			}
-			whereConditionsType.add(new WhereCondition(findField, tableName, findData));
+			whereConditionsType.add(new Where(findField, tableName, findData));
 			request.putWhereOperators("=");
 		}
 		request.setWhereConditionsType(whereConditionsType);
@@ -132,13 +137,24 @@ public class FunctionHandler {
 		QueryRequest request = new QueryRequest();
 		request.setSelectAllColumns(true);
 		request.setTableName("user");
+		Join joinConditions = new Join();
 		if(role.equals("CUSTOMER"))
 		{
-			request.addJoinConditions(new Join("user", "user_id", "customer", "customer_id", "="));
-			request.setJoinTableName("customer");
+			joinConditions.setTableName("customer");
+			joinConditions.putLeftTable("user");
+			joinConditions.putLeftColumn("user_id");
+			joinConditions.putRightTable("customer");
+			joinConditions.putRightColumn("customer_id");
+			joinConditions.putOperator("=");
+			request.addJoinConditions(joinConditions);
 		} else if(role.equals("MANAGER")||role.equals("EMPLOYEE")) {
-			request.addJoinConditions(new Join("user", "user_id", "employee", "employee_id", "="));
-			request.setJoinTableName("employee");
+			joinConditions.setTableName("employee");
+			joinConditions.putLeftTable("user");
+			joinConditions.putLeftColumn("user_id");
+			joinConditions.putRightTable("employee");
+			joinConditions.putRightColumn("employee_id");
+			joinConditions.putOperator("=");
+			request.addJoinConditions(joinConditions);
 		} else {
 			throw new CustomException("Role of the user is undefined.");
 		}
@@ -327,7 +343,6 @@ public class FunctionHandler {
 	    Long employeeId = (Long) branchDetails.get("employeeId");
 	    String address = (String) branchDetails.get("address");
 	    Long modifiedBy = (Long) branchDetails.get("modifiedBy");
-	    System.out.println(employeeId);
 	    Validator.checkInvalidInput(name, ifsc, address, employeeId, modifiedBy);
 	    Branch branch = new Branch();
 	    branch.setName(name);

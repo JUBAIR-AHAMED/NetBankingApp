@@ -188,23 +188,3 @@ pojo:
       transactionAccount: "transaction_account"
       modifiedBy: "modified_by"
       type: "type"
-
-relatedtable:
-  User:
-    table: "user"
-    tables: ["user"]
-  Customer: 
-    table: customer
-    tables: ["user", "customer"]
-  Employee:
-    table: user
-    tables: ["user", "employee"]
-  Account: 
-    table: "account"
-    tables: ["account"]
-  Transaction: 
-    table: "transaction"
-    tables: ["transaction"]
-  Branch: 
-    table: "branch"
-    tables: ["branch"]

@@ -1,12 +1,25 @@
 package com.netbanking.object;
 
-public class WhereCondition {
+public class Where {
 	private String field;
 	private String table;
 	private Object value;
-	public WhereCondition(String field, String table, Object value) {
+	
+	public Where(String field, String table, Object value) {
 		this.field=field;
 		this.table=table;
+		this.value=value;
+	}
+	
+	public void setField(String field) {
+		this.field=field;
+	}
+	
+	public void setTable(String table) {
+		this.table=table;
+	}
+	
+	public void setValue(Object value) {
 		this.value=value;
 	}
 	
