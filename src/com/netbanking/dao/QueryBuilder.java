@@ -3,7 +3,7 @@ package com.netbanking.dao;
 import java.util.Collection;
 import java.util.List;
 
-import com.netbanking.object.Join;
+import com.netbanking.daoObject.Join;
 
 public class QueryBuilder {
 	public StringBuilder sqlQuery = new StringBuilder();
@@ -75,8 +75,10 @@ public class QueryBuilder {
 	}
 	
 	public QueryBuilder join(List<Join> joins) {
-		
 		for(Join join:joins) {
+			if(join.getJoinType()!=null) {
+				sqlQuery.append(" ").append(join.getJoinType());
+			}
 			sqlQuery.append(" JOIN ").append(join.getTableName()).append(" ON ");
 			int joinLength = join.getLeftColumn().size();
 			for (int i = 0; i < joinLength; i++) {

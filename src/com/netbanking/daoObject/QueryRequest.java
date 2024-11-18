@@ -1,4 +1,4 @@
-package com.netbanking.object;
+package com.netbanking.daoObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +12,11 @@ public class QueryRequest {
     private List<Object> whereConditionsValues;
     private Map<String, Object> updates; 
     private List<String> updateField;
+    private List<Condition> updatesCondition;
     private List<Object> updateValue;
     private Boolean selectAllColumns;
     private List<String> selectColumns;
-    private List<Select> selects;
+    private List<Condition> selects;
     private List<String> orderByColumns;
     private List<String> orderDirections;
     private List<String> whereOperators;
@@ -37,12 +38,19 @@ public class QueryRequest {
     public List<Join> getJoinConditions() {
         return this.joinConditions;
     }
+    
+    public void setJoinConditions(List<Join> joinConditions) {
+        this.joinConditions = joinConditions;
+    }
 
-    public void addJoinConditions(Join condition) {
+    public void putJoinConditions(Join... condition) {
     	if (this.joinConditions == null) {
     		this.joinConditions = new ArrayList<>();
     	}
-    	this.joinConditions.add(condition);
+    	for(Join joins:condition)
+    	{
+    		this.joinConditions.add(joins);
+    	}
     }
 
     public List<String> getWhereConditions() {
@@ -161,23 +169,40 @@ public class QueryRequest {
         selectAllColumns = false;
     }
     
-    public List<Select> getSelects() {
+    public List<Condition> getSelects() {
         return selects;
     }
 
-    public void setSelects(List<Select> selects) {
+    public void setSelects(List<Condition> selects) {
         this.selects = selects;
         selectAllColumns = false;
     }
     
-    public void putSelects(Select... selects) {
+    public void putSelects(Condition... selects) {
         if(this.selects==null) {
-        	this.selects = new ArrayList<Select>();
+        	this.selects = new ArrayList<Condition>();
         }
-        for(Select select:selects) {
+        for(Condition select:selects) {
         	this.selects.add(select);
         }
         selectAllColumns = false;
+    }
+    
+    public List<Condition> getUpdatesCondition() {
+        return updatesCondition;
+    }
+
+    public void setUpdatesCondition(List<Condition> updatesCondition) {
+        this.updatesCondition = updatesCondition;
+    }
+    
+    public void putUpdatesCondition(Condition... updatesCondition) {
+        if(this.updatesCondition==null) {
+        	this.updatesCondition = new ArrayList<Condition>();
+        }
+        for(Condition updates:updatesCondition) {
+        	this.updatesCondition.add(updates);
+        }
     }
 
     public List<String> getOrderByColumns() {

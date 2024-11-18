@@ -1,4 +1,4 @@
-package com.netbanking.object;
+package com.netbanking.daoObject;
 
 public class Where {
 	private String field;

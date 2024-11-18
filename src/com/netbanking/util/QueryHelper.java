@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import com.netbanking.object.Join;
+import com.netbanking.daoObject.Join;
 
 public class QueryHelper {
 	  // Helper methods for building the SQL query

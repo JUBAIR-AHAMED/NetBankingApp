@@ -1,6 +1,6 @@
-package com.netbanking.object;
+package com.netbanking.daoObject;
 
-public class Select {
+public class Condition {
 	private String table;
 	private String field;
 	

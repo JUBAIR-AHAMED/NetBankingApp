@@ -144,7 +144,7 @@ public class ApiHandler {
 		}
 	}
 	
-	public List<Map<String, Object>> getStatement(HttpServletRequest request, Long userId, String role, Long branchId) throws CustomException {
+	public List<Map<String, Object>> getStatement(HttpServletRequest request, Long userId, String role, Long branchId) throws CustomException, Exception {
 		StringBuilder jsonBody = new StringBuilder();
 		String line;
 		try(BufferedReader reader = request.getReader())
@@ -217,7 +217,7 @@ public class ApiHandler {
 		}
 	}
 	
-	public Map<String, Object> getProfile(Long userId, String role) throws CustomException
+	public Map<String, Object> getProfile(Long userId, String role) throws CustomException, Exception
 	{
 		FunctionHandler functionHandler = new FunctionHandler();
 		return functionHandler.getProfile(userId, role);

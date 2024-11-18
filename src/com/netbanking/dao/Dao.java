@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import com.netbanking.object.QueryRequest;
+import com.netbanking.daoObject.QueryRequest;
 
 public interface Dao<T> {
     Long insert(String tableName, Map<String, Object> insertValues) throws SQLException;

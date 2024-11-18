@@ -4,18 +4,20 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import com.netbanking.daoObject.Condition;
+import com.netbanking.daoObject.Join;
+import com.netbanking.daoObject.QueryRequest;
+import com.netbanking.daoObject.Where;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Account;
 import com.netbanking.object.Branch;
 import com.netbanking.object.Customer;
 import com.netbanking.object.Employee;
-import com.netbanking.object.Join;
-import com.netbanking.object.QueryRequest;
 import com.netbanking.object.Role;
 import com.netbanking.object.Status;
 import com.netbanking.object.Transaction;
 import com.netbanking.object.User;
-import com.netbanking.object.Where;
 import com.netbanking.util.Encryption;
 import com.netbanking.util.Validator;
 
@@ -25,7 +27,7 @@ public class FunctionHandler {
 		DaoHandler<User> daoCaller = new DaoHandler<User>();
 		QueryRequest request = new QueryRequest();
 		request.setTableName("user");
-		request.setSelectAllColumns(true);
+		request.setSelectAllColumns(true);		
 		request.putWhereConditions("userId");
 		request.putWhereConditionsValues(user_id);
 		request.putWhereOperators("=");
@@ -48,7 +50,7 @@ public class FunctionHandler {
 		return accountMap.get(0);
 	}
 	
-	public Map<String, Object> getEmployee(Long employee_id) throws CustomException
+	public Map<String, Object> getEmployee(Long employee_id) throws Exception
 	{
 		Validator.checkInvalidInput(employee_id);
 		QueryRequest request = new QueryRequest();
@@ -63,7 +65,7 @@ public class FunctionHandler {
 		return accountMap.get(0);
 	}
 	
-	public Map<String, Object> getAccount(Long accountNumber) throws CustomException {
+	public Map<String, Object> getAccount(Long accountNumber) throws Exception {
 		Validator.checkInvalidInput(accountNumber);
 		QueryRequest request = new QueryRequest();
 		request.setSelectAllColumns(true);
@@ -107,7 +109,7 @@ public class FunctionHandler {
 			request.putWhereOperators("=");
 		}
 		request.setWhereConditionsType(whereConditionsType);
-		request.addJoinConditions(joinConditions);
+		request.putJoinConditions(joinConditions);
 		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
 		List<Map<String, Object>> accountMap = null;
 		accountMap = daoCaller.selectHandler(request);
@@ -130,7 +132,7 @@ public class FunctionHandler {
 		return transactionMap;
 	}
 	
-	public Map<String, Object> getProfile(Long userId, String role) throws CustomException
+	public Map<String, Object> getProfile(Long userId, String role) throws Exception
 	{
 		Validator.checkInvalidInput(userId, role);
 		QueryRequest request = new QueryRequest();
@@ -145,7 +147,7 @@ public class FunctionHandler {
 			joinConditions.putRightTable("customer");
 			joinConditions.putRightColumn("customerId");
 			joinConditions.putOperator("=");
-			request.addJoinConditions(joinConditions);
+			request.putJoinConditions(joinConditions);
 		} else if(role.equals("MANAGER")||role.equals("EMPLOYEE")) {
 			joinConditions.setTableName("employee");
 			joinConditions.putLeftTable("user");
@@ -153,7 +155,7 @@ public class FunctionHandler {
 			joinConditions.putRightTable("employee");
 			joinConditions.putRightColumn("employeeId");
 			joinConditions.putOperator("=");
-			request.addJoinConditions(joinConditions);
+			request.putJoinConditions(joinConditions);
 		} else {
 			throw new CustomException("Role of the user is undefined.");
 		}
@@ -235,6 +237,7 @@ public class FunctionHandler {
 			from_account_balance -= amount;
 		}
 		QueryRequest fromAccRequest = new QueryRequest();
+		fromAccRequest.setTableName("account");
 		fromAccRequest.putWhereConditions("accountNumber");
 		fromAccRequest.putWhereConditionsValues(from_account);
 		fromAccRequest.putWhereOperators("=");
@@ -242,21 +245,22 @@ public class FunctionHandler {
 		fromAccRequest.putUpdateValue(from_account_balance);
 		
 		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
-		daoCaller.updateHandler(fromAccRequest, Account.class);
+		daoCaller.updateHandler(fromAccRequest);
 		if(transactionType.equals("same-bank"))
 		{
 			QueryRequest toAccRequest = new QueryRequest();
+			toAccRequest.setTableName("account");
 			toAccRequest.putWhereConditions("accountNumber");
 			toAccRequest.putWhereConditionsValues(to_account);
 			toAccRequest.putWhereOperators("=");
 			toAccRequest.putUpdateField("balance");
 			toAccRequest.putUpdateValue(to_account_balance);
-			daoCaller.updateHandler(toAccRequest, Account.class);
+			daoCaller.updateHandler(toAccRequest);
 		}
 		storeTransaction(from_account, to_account, user_id, amount, from_account_balance, to_account_balance, transactionType);
 	}
 	
-	public List<Map<String, Object>> getTransactionStatement(Long accountNumber, Long fromDate, Long toDate, Integer limit) throws CustomException {
+	public List<Map<String, Object>> getTransactionStatement(Long accountNumber, Long fromDate, Long toDate, Integer limit) throws Exception {
 		Validator.checkInvalidInput(accountNumber);
 		DaoHandler<Transaction> transactionHandle = new DaoHandler<Transaction>();		
 		QueryRequest request = new QueryRequest();
@@ -298,12 +302,13 @@ public class FunctionHandler {
 		}
 		QueryRequest request = new QueryRequest();
 		DaoHandler<User> statusHandle = new DaoHandler<User>();
-        request.putUpdateField("status");
+        request.setTableName("account");
+		request.putUpdateField("status");
         request.putUpdateValue(status);
         request.putWhereConditions("accountNumber");
         request.putWhereConditionsValues(accountNumber);
         request.putWhereOperators("=");
-		statusHandle.updateHandler(request, Account.class);
+		statusHandle.updateHandler(request);
 	}
 	
 	public Long createCustomer(Map<String, Object> customerDetails) throws CustomException, Exception

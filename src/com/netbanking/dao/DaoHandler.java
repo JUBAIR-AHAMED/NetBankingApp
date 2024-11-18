@@ -5,14 +5,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.netbanking.daoObject.Join;
+import com.netbanking.daoObject.QueryRequest;
+import com.netbanking.daoObject.Condition;
+import com.netbanking.daoObject.Where;
 import com.netbanking.exception.CustomException;
 import com.netbanking.mapper.PojoValueMapper;
 import com.netbanking.mapper.YamlMapper;
 import com.netbanking.model.Model;
-import com.netbanking.object.Join;
-import com.netbanking.object.QueryRequest;
-import com.netbanking.object.Select;
-import com.netbanking.object.Where;
 
 public class DaoHandler<T extends Model>{
 	public Long insertHandler(T object) throws Exception {
@@ -30,7 +31,6 @@ public class DaoHandler<T extends Model>{
 			objectNames.add(0, superClass.getSimpleName());
 			superClass = superClass.getSuperclass();
 		}
-		System.out.println(objectNames);
 		Map<String, Object> pojoValuesMap = null;
 		try {
 			pojoValuesMap = new PojoValueMapper<T>().getMap(object);
@@ -50,7 +50,6 @@ public class DaoHandler<T extends Model>{
 			{
 				autoinc = (String) objectData.get("autoincrement_field");
 			}
-			System.out.println("..."+autoinc);
 			for(Map.Entry<String, Object> tempMap : objectFieldData.entrySet())
 			{
 				String key = tempMap.getKey();
@@ -80,87 +79,72 @@ public class DaoHandler<T extends Model>{
 		return refrenceKey;
 	}
 
-	public void updateHandler(QueryRequest request, Class<?> clazz) throws SQLException {
+	public void updateHandler(QueryRequest request) throws Exception {
 		DaoImpl<T> dao = new DaoImpl<T>();
         List<String> whereConditions = request.getWhereConditions();
-        List<Object> whereConditionsValues = request.getWhereConditionsValues();
-        List<String> whereOperators = request.getWhereOperators();
-        List<String> whereLogicalOperators = request.getWhereLogicalOperators();
         List<String> updateField = request.getUpdateField();
-		List<Object> updateValue = request.getUpdateValue();
-        int updatesLength = updateField.size();
-        //handling update values
-	    Class<?> superClass = clazz.getSuperclass();
-	    String objectName = clazz.getSimpleName();
-	    String tableName = YamlMapper.getTableName(objectName);
-
-	    if (superClass != null && !superClass.getSimpleName().equals("Object")) {
-	        try {
-	            updateHandler(request, superClass);
-	        } catch (ClassCastException e) {
-	            throw new SQLException("Failed to cast object to its superclass", e);
-	        }
-	    }
-	    Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMap(objectName);
-
-	    List<String> updateFields = new ArrayList<String>();
-	    List<Object> updateValues = new ArrayList<Object>();
-	    for(int i=0;i<updatesLength;i++)
-        {
-	    	String fieldName = updateField.get(i);
-	        Object fieldValue = updateValue.get(i);
-	        if (fieldToColumnMap.containsKey(fieldName)) {
-	        	if (fieldToColumnMap.containsKey(fieldName)) {
-		            updateFields.add(fieldToColumnMap.get(fieldName));
-		            updateValues.add(fieldValue);
-		        }
-	        }
-        }
-	    if (updateField.isEmpty()) return;
-
-	    List<String> currWhereConditions = new ArrayList<>();
-	    List<String> currWhereOperators = new ArrayList<>();
-	    List<String> currWhereLogicalOperators = new ArrayList<>();
-	    List<Object> currWhereValues = new ArrayList<>();
-	    int index = 0;
-	    for(int i=0; i<whereConditions.size();i++)
-	    {
-	    	String tempWhereCondition = whereConditions.get(i);
-	    	if (fieldToColumnMap.containsKey(tempWhereCondition)) {
-	    		if (index > 0) {
-	                currWhereLogicalOperators.add(whereLogicalOperators.remove(0));
-	            }
-	    		String tempField =fieldToColumnMap.get(tempWhereCondition);
-	    		currWhereConditions.add(tempField);
-	    		currWhereOperators.add(whereOperators.remove(0));
-	            currWhereValues.add(whereConditionsValues.remove(0));
-	            whereConditions.remove(i);
-	            i--;
-	            index++;
+        List<Condition> updatesCondition = request.getUpdatesCondition();
+		List<Join> joins = request.getJoinConditions();
+		List<Where> whereConditionsType = request.getWhereConditionsType();
+		String tableName = request.getTableName();	    		
+        
+        if(joins!=null && !joins.isEmpty()) {
+			for(Join join:joins) {
+				int joinConditionLength = join.getLeftTable().size();
+				List<String> leftTable=join.getLeftTable(), leftColumn=join.getLeftColumn(), rightTable=join.getRightTable(), rightColumn=join.getRightColumn();
+				for(int i=0;i<joinConditionLength;i++) {
+					String leftTableName = leftTable.get(i), leftColumnName = leftColumn.remove(i), rightTableName = rightTable.get(i), rightColumnName = rightColumn.remove(i);
+					leftColumn.add(i, convertField(leftTableName, leftColumnName));
+					rightColumn.add(i, convertField(rightTableName, rightColumnName));
+				}
+			}
+		}        
+	    
+	    if(updateField!=null && !updateField.isEmpty()) {
+	    	convertFields(tableName, updateField);
+	    } else if(updatesCondition!=null && !updatesCondition.isEmpty()) {
+	    	for(Condition updates:updatesCondition) {
+	    		String table = updates.getTable();
+	    		String field = updates.getField();
+	    		field = convertField(table, field);
+	    		request.putUpdateField(field);
 	    	}
+	    } else {
+	    	return;
 	    }
-	    QueryRequest sendRequest = new QueryRequest();
-	    sendRequest.setTableName(tableName);
-	    sendRequest.setWhereConditions(currWhereConditions);
-	    sendRequest.setUpdateField(updateFields);
-	    sendRequest.setUpdateValue(updateValues);
-	    sendRequest.setWhereConditionsValues(currWhereValues);
-	    sendRequest.setWhereOperators(currWhereOperators);
-	    sendRequest.setWhereLogicalOperators(currWhereLogicalOperators);
 
-	    dao.update(sendRequest);
+	    List<Object> currWhereConditionsValues = new ArrayList<>();
+	    if(whereConditions!=null && !whereConditions.isEmpty()) {
+	    	convertFields(tableName, whereConditions);
+	    } else if(whereConditionsType!=null) {
+			whereConditions = new ArrayList<String>();
+			for(Where entity: whereConditionsType) {
+				String whereTableName = entity.getTable();
+				String field = entity.getField();
+				Object value = entity.getValue();
+				field = convertField(whereTableName, field);
+				StringBuilder sb = new StringBuilder(whereTableName).append(".").append(field);
+				whereConditions.add(sb.toString());
+				currWhereConditionsValues.add(value);
+			}
+			request.setWhereConditions(whereConditions);
+			request.setWhereConditionsValues(currWhereConditionsValues);
+		}
+		request.setWhereConditions(whereConditions);
+
+	    dao.update(request);
 	}
 	
-	public List<Map<String, Object>> selectHandler(QueryRequest request) throws CustomException {
+	public List<Map<String, Object>> selectHandler(QueryRequest request) throws Exception {
 		DaoImpl<T> dao = new DaoImpl<T>();
 		List<Object> currWhereConditionsValues = new ArrayList<>();
 		List<String> whereConditions=request.getWhereConditions();
 		List<Where> whereConditionsType = request.getWhereConditionsType();
 		List<Join> joins = request.getJoinConditions();
-		List<Select> selects = request.getSelects();
+		List<Condition> selects = request.getSelects();
 		
 		if(selects!=null && !selects.isEmpty()) {
-			for(Select select:selects) {
+			for(Condition select:selects) {
 				String table = select.getTable();
 				String field = select.getField();
 				field = convertField(table, field);
@@ -184,25 +168,18 @@ public class DaoHandler<T extends Model>{
 			convertFields(request.getTableName(), whereConditions);
 		} else if(whereConditionsType!=null) {
 			whereConditions = new ArrayList<String>();
-			Map<String, Map<String, String>> fieldToColumnMap = new HashMap<>();
 			for(Where entity: whereConditionsType) {
 				String tableName = entity.getTable();
 				String field = entity.getField();
 				Object value = entity.getValue();
-				
-				if(!fieldToColumnMap.containsKey(tableName))
-				{
-					fieldToColumnMap.put(tableName, YamlMapper.getFieldToColumnMapByTableName(tableName));
-				}
-				String newFieldValue = fieldToColumnMap.get(tableName).get(field);
-				StringBuilder sb = new StringBuilder(tableName);
-				sb.append(".").append(newFieldValue);
+				field = convertField(tableName, field);
+				StringBuilder sb = new StringBuilder(tableName).append(".").append(field);
 				whereConditions.add(sb.toString());
 				currWhereConditionsValues.add(value);
 			}
+			request.setWhereConditions(whereConditions);
 			request.setWhereConditionsValues(currWhereConditionsValues);
 		}
-		request.setWhereConditions(whereConditions);
 		
 		try {
 			return dao.select(request);
@@ -228,8 +205,15 @@ public class DaoHandler<T extends Model>{
 		return fields;
 	}
 	
-	public String convertField(String tableName, String field) {
+	public String convertField(String tableName, String field) throws Exception {
 		Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(tableName);
-		return fieldToColumnMap.get(field);
+		if(fieldToColumnMap==null) {
+			throw new Exception("Table name is invalid");
+		}
+		String newField = fieldToColumnMap.get(field);
+		if(newField==null) {
+			throw new Exception("Field name is invalid.");
+		}
+		return newField;
 	}
 }

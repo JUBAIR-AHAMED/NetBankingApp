@@ -1,9 +1,10 @@
-package com.netbanking.object;
+package com.netbanking.daoObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Join {
+	private String joinType;
 	private String tableName;
     private List<String> leftTable;
     private List<String> leftColumn;
@@ -14,6 +15,10 @@ public class Join {
 
     public Join() {}
 
+    public String getJoinType() {
+        return joinType;
+    }
+    
     public String getTableName() {
         return tableName;
     }
@@ -43,6 +48,10 @@ public class Join {
     }
 
     // Setters
+    public void setJoinType(String joinType) {
+        this.joinType = joinType;
+    }
+    
     public void setTableName(String tableName) {
         this.tableName = tableName;
     }

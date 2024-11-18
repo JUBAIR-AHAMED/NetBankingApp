@@ -8,9 +8,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.netbanking.daoObject.Join;
+import com.netbanking.daoObject.QueryRequest;
 import com.netbanking.mapper.YamlMapper;
-import com.netbanking.object.Join;
-import com.netbanking.object.QueryRequest;
 import com.netbanking.util.DBConnection;
 
 public class DaoImpl<T> implements Dao<T> {
@@ -57,8 +58,17 @@ public class DaoImpl<T> implements Dao<T> {
 	//Update operation
 	public void update(QueryRequest request) throws SQLException {
         QueryBuilder qb = new QueryBuilder();
-        qb.update(request.getTableName()).set(request.getUpdateField());
+        qb.update(request.getTableName());
         List<String> whereConditions = request.getWhereConditions();
+        List<Join> joins = request.getJoinConditions();
+        List<String> updateFields = request.getUpdateField();
+        
+        if(joins!=null) {
+        	qb.join(request.getJoinConditions());
+        }
+        if(updateFields!=null && !updateFields.isEmpty()) {
+        	qb.set(request.getUpdateField());
+        }
         if (whereConditions != null && !whereConditions.isEmpty()) {
             qb.where(whereConditions, request.getWhereOperators(), request.getWhereLogicalOperators());
         }
