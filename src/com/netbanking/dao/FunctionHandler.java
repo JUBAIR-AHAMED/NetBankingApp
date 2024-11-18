@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Account;
 import com.netbanking.object.Branch;
@@ -89,9 +88,9 @@ public class FunctionHandler {
 		Join joinConditions = new Join();
 		joinConditions.setTableName("branch");
 		joinConditions.putLeftTable("account");
-		joinConditions.putLeftColumn("branch_id");
+		joinConditions.putLeftColumn("branchId");
 		joinConditions.putRightTable("branch");
-		joinConditions.putRightColumn("branch_id");
+		joinConditions.putRightColumn("branchId");
 		joinConditions.putOperator("=");
 		if(role.equals("CUSTOMER")) {
 			whereConditionsType.add(new Where("userId", "account", user_id));
@@ -142,17 +141,17 @@ public class FunctionHandler {
 		{
 			joinConditions.setTableName("customer");
 			joinConditions.putLeftTable("user");
-			joinConditions.putLeftColumn("user_id");
+			joinConditions.putLeftColumn("userId");
 			joinConditions.putRightTable("customer");
-			joinConditions.putRightColumn("customer_id");
+			joinConditions.putRightColumn("customerId");
 			joinConditions.putOperator("=");
 			request.addJoinConditions(joinConditions);
 		} else if(role.equals("MANAGER")||role.equals("EMPLOYEE")) {
 			joinConditions.setTableName("employee");
 			joinConditions.putLeftTable("user");
-			joinConditions.putLeftColumn("user_id");
+			joinConditions.putLeftColumn("userId");
 			joinConditions.putRightTable("employee");
-			joinConditions.putRightColumn("employee_id");
+			joinConditions.putRightColumn("employeeId");
 			joinConditions.putOperator("=");
 			request.addJoinConditions(joinConditions);
 		} else {

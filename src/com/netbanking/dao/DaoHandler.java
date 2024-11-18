@@ -9,7 +9,9 @@ import com.netbanking.exception.CustomException;
 import com.netbanking.mapper.PojoValueMapper;
 import com.netbanking.mapper.YamlMapper;
 import com.netbanking.model.Model;
+import com.netbanking.object.Join;
 import com.netbanking.object.QueryRequest;
+import com.netbanking.object.Select;
 import com.netbanking.object.Where;
 
 public class DaoHandler<T extends Model>{
@@ -19,16 +21,16 @@ public class DaoHandler<T extends Model>{
 		}
 		DaoImpl<T> dao = new DaoImpl<T>();		
 		Class<?> clazz = object.getClass();
-		Class<?> superClass = clazz.getClass().getSuperclass();
+		Class<?> superClass = clazz.getSuperclass();
 		
 		//Getting Table Names
-		List<String> tableNames = new ArrayList<String>();
-		tableNames.add(YamlMapper.getTableName(clazz.getSimpleName()));
+		List<String> objectNames = new ArrayList<String>();
+		objectNames.add(clazz.getSimpleName());
 		while(superClass!=null && !superClass.getSimpleName().equals("Object")) {
-			tableNames.add(0, YamlMapper.getTableName(superClass.getSimpleName()));
+			objectNames.add(0, superClass.getSimpleName());
 			superClass = superClass.getSuperclass();
 		}
-
+		System.out.println(objectNames);
 		Map<String, Object> pojoValuesMap = null;
 		try {
 			pojoValuesMap = new PojoValueMapper<T>().getMap(object);
@@ -37,34 +39,35 @@ public class DaoHandler<T extends Model>{
 		}
 				
 		Long refrenceKey = null;
-		for(String subTable : tableNames) {
-			Map<String, Object> tableData = YamlMapper.getTableMap(subTable);
+		for(String objectName : objectNames) {
+			String tableName = YamlMapper.getTableName(objectName);
+			Map<String, Object> objectData = YamlMapper.getObjectData(objectName);
 			@SuppressWarnings("unchecked")
-			Map<String, Object> tableFieldData= (Map<String, Object>) tableData.get("fields");
+			Map<String, Object> objectFieldData = (Map<String, Object>) objectData.get("table_field_name");
 			Map<String, Object> insertValues = new HashMap<String, Object>();
 			String autoinc = null;
-			if(tableData.containsKey("autoincrement_field"))
+			if(objectData.containsKey("autoincrement_field"))
 			{
-				autoinc = (String) tableData.get("autoincrement_field");
+				autoinc = (String) objectData.get("autoincrement_field");
 			}
-			for(Map.Entry<String, Object> tempMap : tableFieldData.entrySet())
+			System.out.println("..."+autoinc);
+			for(Map.Entry<String, Object> tempMap : objectFieldData.entrySet())
 			{
 				String key = tempMap.getKey();
+				String keyNameInTable  = (String)objectFieldData.get(key);
 				if(key.equals(autoinc))
 				{
 					continue;
 				} 
-				if(tableData.containsKey("refrenceingKey") && tableData.get("refrenceingKey").equals(key)) {
-					insertValues.put(key, refrenceKey);
+				if(objectData.containsKey("refrenceingKey") && objectData.get("refrenceingKey").equals(key)) {
+					insertValues.put(keyNameInTable, refrenceKey);
 					continue;
 				} 
-				@SuppressWarnings("unchecked")
-				String tempStr = (String) ((Map<String, String>) tempMap.getValue()).get("pojoname");
-				Object value = pojoValuesMap.get(tempStr);
-				insertValues.put(key, value);
+				Object value = pojoValuesMap.get(key);
+				insertValues.put(keyNameInTable, value);
 			}	
 			try {
-				Long tempRef = dao.insert(subTable, insertValues);
+				Long tempRef = dao.insert(tableName, insertValues);
 				if(refrenceKey==null)
 				{
 					refrenceKey =  tempRef;
@@ -98,7 +101,7 @@ public class DaoHandler<T extends Model>{
 	            throw new SQLException("Failed to cast object to its superclass", e);
 	        }
 	    }
-	    Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(YamlMapper.getTableName(objectName));
+	    Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMap(objectName);
 
 	    List<String> updateFields = new ArrayList<String>();
 	    List<Object> updateValues = new ArrayList<Object>();
@@ -153,6 +156,29 @@ public class DaoHandler<T extends Model>{
 		List<Object> currWhereConditionsValues = new ArrayList<>();
 		List<String> whereConditions=request.getWhereConditions();
 		List<Where> whereConditionsType = request.getWhereConditionsType();
+		List<Join> joins = request.getJoinConditions();
+		List<Select> selects = request.getSelects();
+		
+		if(selects!=null && !selects.isEmpty()) {
+			for(Select select:selects) {
+				String table = select.getTable();
+				String field = select.getField();
+				field = convertField(table, field);
+				request.putSelectColumns(field);
+			}
+		}
+		
+		if(joins!=null&&!joins.isEmpty()) {
+			for(Join join:joins) {
+				int joinConditionLength = join.getLeftTable().size();
+				List<String> leftTable=join.getLeftTable(), leftColumn=join.getLeftColumn(), rightTable=join.getRightTable(), rightColumn=join.getRightColumn();
+				for(int i=0;i<joinConditionLength;i++) {
+					String leftTableName = leftTable.get(i), leftColumnName = leftColumn.remove(i), rightTableName = rightTable.get(i), rightColumnName = rightColumn.remove(i);
+					leftColumn.add(i, convertField(leftTableName, leftColumnName));
+					rightColumn.add(i, convertField(rightTableName, rightColumnName));
+				}
+			}
+		}
 		
 		if(whereConditions!=null) {
 			convertFields(request.getTableName(), whereConditions);
@@ -200,5 +226,10 @@ public class DaoHandler<T extends Model>{
 	        }
 		}
 		return fields;
+	}
+	
+	public String convertField(String tableName, String field) {
+		Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(tableName);
+		return fieldToColumnMap.get(field);
 	}
 }

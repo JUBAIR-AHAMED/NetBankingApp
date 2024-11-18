@@ -14,7 +14,8 @@ public class QueryRequest {
     private List<String> updateField;
     private List<Object> updateValue;
     private Boolean selectAllColumns;
-    private List<String> selectColumns; 
+    private List<String> selectColumns;
+    private List<Select> selects;
     private List<String> orderByColumns;
     private List<String> orderDirections;
     private List<String> whereOperators;
@@ -147,6 +148,35 @@ public class QueryRequest {
 
     public void setSelectColumns(List<String> selectColumns) {
         this.selectColumns = selectColumns;
+        selectAllColumns = false;
+    }
+    
+    public void putSelectColumns(String... selectColumns) {
+        if(this.selectColumns==null) {
+        	this.selectColumns = new ArrayList<String>();
+        }
+        for(String select:selectColumns) {
+        	this.selectColumns.add(select);
+        }
+        selectAllColumns = false;
+    }
+    
+    public List<Select> getSelects() {
+        return selects;
+    }
+
+    public void setSelects(List<Select> selects) {
+        this.selects = selects;
+        selectAllColumns = false;
+    }
+    
+    public void putSelects(Select... selects) {
+        if(this.selects==null) {
+        	this.selects = new ArrayList<Select>();
+        }
+        for(Select select:selects) {
+        	this.selects.add(select);
+        }
         selectAllColumns = false;
     }
 

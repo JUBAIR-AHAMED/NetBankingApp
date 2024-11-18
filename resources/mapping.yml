@@ -1,127 +1,7 @@
-table:
-  user:
-    pojoName: "User"
-    autoincrement_field: "user_id"
-    primaryKey: "user_id"
-    fields:
-      user_id: 
-        pojoname: "userId"
-      password: 
-        pojoname: "password"
-      role: 
-        pojoname: "role"
-      name: 
-        pojoname: "name"
-      mobile: 
-        pojoname: "mobile"
-      email: 
-        pojoname: "email"
-      status: 
-        pojoname: "status"
-      date_of_birth: 
-        pojoname: "dateOfBirth"
-      creation_time: 
-        pojoname: "creationTime"
-      modified_time: 
-        pojoname: "modifiedTime"
-      modified_by: 
-        pojoname: "modifiedBy"
-  
-  customer:
-    pojoName: "Customer"
-    primaryKey: "customer_id"
-    refrenceingKey: "customer_id"
-    fields:
-      customer_id: 
-        pojoname: "customerId"
-      aadhar_number: 
-        pojoname: "aadharNumber"
-      pan_number: 
-        pojoname: "panNumber"
-  
-  employee:
-    pojoName: "Employee"
-    primaryKey: "employee_id"
-    refrenceingKey: "employee_id"
-    fields:
-      employee_id: 
-        pojoname: "employeeId"
-      branch_id: 
-        pojoname: "branchId"
-  
-  branch:
-    pojoName: "Branch"
-    primaryKey: "branch_id"
-    autoincrement_field: "branch_id"
-    fields:
-      branch_id: 
-        pojoname: "branchId"
-      ifsc: 
-        pojoname: "ifsc"
-      name: 
-        pojoname: "name"
-      employee_id: 
-        pojoname: "employeeId"
-      address: 
-        pojoname: "address"
-      creation_time: 
-        pojoname: "creationTime"
-      modified_time: 
-        pojoname: "modifiedTime"
-      modified_by: 
-        pojoname: "modifiedBy"
-  
-  account:
-    pojoName: "Account"
-    primaryKey: "account_number"
-    autoincrement_field: "account_number"
-    fields:
-      account_number: 
-        pojoname: "accountNumber"
-      user_id: 
-        pojoname: "userId"
-      branch_id: 
-        pojoname: "branchId"
-      account_type: 
-        pojoname: "accountType"
-      date_of_opening: 
-        pojoname: "dateOfOpening"
-      balance: 
-        pojoname: "balance"
-      status: 
-        pojoname: "status"
-      creation_time: 
-        pojoname: "creationTime"
-      modified_time: 
-        pojoname: "modifiedTime"
-      modified_by: 
-        pojoname: "modifiedBy"
-  
-  transaction:
-    pojoName: "Transaction"
-    fields:
-      reference_number: 
-        pojoname: "referenceNumber"
-      transaction_amount: 
-        pojoname: "transactionAmount"
-      timestamp: 
-        pojoname: "timestamp"
-      balance: 
-        pojoname: "balance"
-      account_number: 
-        pojoname: "accountNumber"
-      user_id: 
-        pojoname: "userId"
-      creation_time: 
-        pojoname: "creationTime"
-      transaction_account: 
-        pojoname: "transactionAccount"
-      modified_by: 
-        pojoname: "modifiedBy"
-      type:
-        pojoname: "type"
 pojo:
   User:
+    autoincrement_field: "userId"
+    primaryKey: "userId"
     tablename: "user"
     table_field_name:
       userId: "user_id"
@@ -137,6 +17,8 @@ pojo:
       modifiedBy: "modified_by"
 
   Customer:
+    primaryKey: "customerId"
+    refrenceingKey: "customerId"
     tablename: "customer"
     table_field_name:
       customerId: "customer_id"
@@ -144,12 +26,16 @@ pojo:
       panNumber: "pan_number"
 
   Employee:
+    primaryKey: "employeeId"
+    refrenceingKey: "employeeId"
     tablename: "employee"
     table_field_name:
       employeeId: "employee_id"
       branchId: "branch_id"
 
   Branch:
+    primaryKey: "branchId"
+    autoincrement_field: "branchId"
     tablename: "branch"
     table_field_name:
       branchId: "branch_id"
@@ -162,6 +48,8 @@ pojo:
       modifiedBy: "modified_by"
 
   Account:
+    primaryKey: "accountNumber"
+    autoincrement_field: "accountNumber"
     tablename: "account"
     table_field_name:
       accountNumber: "account_number"

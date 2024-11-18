@@ -3,13 +3,11 @@ package com.netbanking.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.netbanking.mapper.YamlMapper;
 import com.netbanking.object.Join;
 import com.netbanking.object.QueryRequest;
@@ -25,6 +23,7 @@ public class DaoImpl<T> implements Dao<T> {
     	    PreparedStatement stmt = connection.prepareStatement(sqlQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
 	    	
     	    DBConnection.setValuesInPstm(stmt, insertValues.values(), 1);
+    	    System.out.println(stmt);
     	    stmt.executeUpdate();
 
     	    Long generatedKeysList = null;
@@ -99,13 +98,14 @@ public class DaoImpl<T> implements Dao<T> {
             qb.limit(request.getLimit());
         }
         
-        Map<String, Object> tableField = YamlMapper.getTableField(tableName);
+        Map<String, String> tableField = new HashMap<String, String>(YamlMapper.getFieldToColumnMapByTableName(tableName));
         if(joins!=null) {
         	for(Join join:joins)
         	{
-        		tableField.putAll(YamlMapper.getTableField(join.getTableName()));
+        		tableField.putAll(YamlMapper.getFieldToColumnMapByTableName(join.getTableName()));
         	}
         }
+        System.out.println(tableField);
         List<Map<String, Object>> list = new ArrayList<>();;
         try (Connection connection = DBConnection.getConnection();
             PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
@@ -113,25 +113,21 @@ public class DaoImpl<T> implements Dao<T> {
         	DBConnection.setValuesInPstm(stmt, request.getWhereConditionsValues(), count);
         	System.out.println(stmt);
         	ResultSet rs = stmt.executeQuery();
+        	// Preparing map for the purpose of returning the selected values from the database
             while(rs.next())
             {
             	Map<String, Object> map = new HashMap<>();
             	if(request.getSelectColumns()!=null) {
             		for(String columnName : request.getSelectColumns())
             		{
-            			@SuppressWarnings("unchecked")
-						String fieldName = ((Map<String, String>) tableField.get(columnName)).get("pojoname");
-            			map.put(fieldName, rs.getObject(columnName));
+						String fieldName = tableField.get(columnName);
+            			map.put(columnName, rs.getObject(fieldName));
             		}
             	}
             	else {
-            		ResultSetMetaData metaData = rs.getMetaData();
-            	    int columnCount = metaData.getColumnCount();
-            	    for (int i = 1; i <= columnCount; i++) {
-            	        String columnName = metaData.getColumnName(i);
-            	        @SuppressWarnings("unchecked")
-						String fieldName = ((Map<String, String>) tableField.get(columnName)).get("pojoname");
-            	        map.put(fieldName, rs.getObject(columnName));
+            	    for(Map.Entry<String, String> entry:tableField.entrySet()) {
+            	    	String columnName = entry.getValue();
+            	    	map.put(entry.getKey(), rs.getObject(columnName));
             	    }
             	}
             	list.add(map);

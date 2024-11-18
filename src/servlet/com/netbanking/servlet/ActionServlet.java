@@ -66,7 +66,6 @@ public class ActionServlet extends HttpServlet{
 				responseMap.put("status", true);
                 responseMap.put("message", "Action completed successfully.");
 			} catch(CustomException e) {
-				System.out.println("adjnas");
 				e.printStackTrace();
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				responseMap.put("status", false);
