@@ -1,5 +1,7 @@
 package com.netbanking.dao;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,8 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.netbanking.daoObject.Join;
+import com.netbanking.daoObject.QueryBuilder;
 import com.netbanking.daoObject.QueryRequest;
 import com.netbanking.mapper.YamlMapper;
 import com.netbanking.util.DBConnection;
@@ -63,16 +65,11 @@ public class DaoImpl<T> implements Dao<T> {
         List<Join> joins = request.getJoinConditions();
         List<String> updateFields = request.getUpdateField();
         
-        if(joins!=null) {
-        	qb.join(request.getJoinConditions());
-        }
-        if(updateFields!=null && !updateFields.isEmpty()) {
-        	qb.set(request.getUpdateField());
-        }
-        if (whereConditions != null && !whereConditions.isEmpty()) {
-            qb.where(whereConditions, request.getWhereOperators(), request.getWhereLogicalOperators());
-        }
-        try (Connection connection = DBConnection.getConnection();
+    	qb.join(joins)
+    	.set(updateFields)
+    	.where(whereConditions, request.getWhereOperators(), request.getWhereLogicalOperators());
+        
+    	try (Connection connection = DBConnection.getConnection();
              PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
         	int count = 1;
         	count = DBConnection.setValuesInPstm(stmt, request.getUpdateValue(), count);
@@ -82,6 +79,48 @@ public class DaoImpl<T> implements Dao<T> {
         	stmt.executeUpdate();
         }
     }
+	
+	public void updateMany(List<QueryRequest> requests) throws SQLException {
+	    if (requests == null || requests.isEmpty()) {
+	        throw new IllegalArgumentException("Request list cannot be null or empty");
+	    }
+
+	    try (Connection connection = DBConnection.getConnection()) {
+	        connection.setAutoCommit(false); 
+
+	        try {
+	            for (QueryRequest request : requests) {
+	                QueryBuilder qb = new QueryBuilder();
+
+	                qb.update(request.getTableName())
+	                    .join(request.getJoinConditions())
+	                    .set(request.getUpdateField())
+	                    .where(request.getWhereConditions(), request.getWhereOperators(), request.getWhereLogicalOperators())
+	                    .endQuery();
+
+	                try (PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
+	                    int count = 1;
+
+	                    count = DBConnection.setValuesInPstm(stmt, request.getUpdateValue(), count);
+
+	                    if (request.getWhereConditionsValues() != null && !request.getWhereConditionsValues().isEmpty()) {
+	                        count = DBConnection.setValuesInPstm(stmt, request.getWhereConditionsValues(), count);
+	                    }
+
+	                    stmt.executeUpdate();
+	                }
+	            }
+
+	            connection.commit();
+	        } catch (SQLException e) {
+	            connection.rollback();
+	            throw new SQLException("Transaction failed. All changes rolled back.", e);
+	        }
+	    } catch (SQLException e) {
+	        throw new SQLException("Database connection error or transaction failure.", e);
+	    }
+	}
+
 
     //Select operation
     public List<Map<String, Object>> select(QueryRequest request) throws SQLException, Exception {
@@ -93,20 +132,11 @@ public class DaoImpl<T> implements Dao<T> {
         } else {
         	qb.select(request.getSelectColumns());
         }
-        qb.from(tableName);
         
-        if(joins!=null) {
-        	qb.join(request.getJoinConditions());
-        }
-        if(request.getWhereConditions() != null && !request.getWhereConditions().isEmpty()) {
-        	qb.where(request.getWhereConditions(), request.getWhereOperators(), request.getWhereLogicalOperators());
-        }
-        if(request.getOrderByColumns() != null && !request.getOrderByColumns().isEmpty()) {
-        	qb.order(request.getOrderByColumns(), request.getOrderDirections());
-        }
-        if (request.getLimit() != null) {
-            qb.limit(request.getLimit());
-        }
+    	qb.from(tableName).join(request.getJoinConditions())
+    		.where(request.getWhereConditions(), request.getWhereOperators(), request.getWhereLogicalOperators())
+        	.order(request.getOrderByColumns(), request.getOrderDirections())
+            .limit(request.getLimit());
         
         Map<String, String> tableField = new HashMap<String, String>(YamlMapper.getFieldToColumnMapByTableName(tableName));
         if(joins!=null) {
@@ -115,7 +145,6 @@ public class DaoImpl<T> implements Dao<T> {
         		tableField.putAll(YamlMapper.getFieldToColumnMapByTableName(join.getTableName()));
         	}
         }
-        System.out.println(tableField);
         List<Map<String, Object>> list = new ArrayList<>();;
         try (Connection connection = DBConnection.getConnection();
             PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
@@ -148,5 +177,44 @@ public class DaoImpl<T> implements Dao<T> {
         	e.printStackTrace();
 			throw new Exception("Failed getting the data.");
 		}
+    }
+    
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public T selectOneGetObject(QueryRequest request, Class<?> clazz) throws SQLException, Exception {
+		T pojoObject = (T) clazz.getDeclaredConstructor().newInstance();
+        Map<String, Object> pojoMap = select(request).get(0);
+
+        for (Map.Entry<String, Object> pojoEntry : pojoMap.entrySet()) {
+            Object value = pojoEntry.getValue();
+            String methodName = "set" + capitalizeFirstLetter(pojoEntry.getKey());
+            String fieldName = pojoEntry.getKey();
+
+            Field field = null;
+            try {
+                field = clazz.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                continue;
+            }
+
+            Class<?> fieldType = field.getType();
+
+            if (fieldType.isEnum()) {
+                value = Enum.valueOf((Class<Enum>) fieldType, value.toString());
+            }
+
+            if (fieldType != null) {
+                Method setMethod = clazz.getMethod(methodName, fieldType);
+                setMethod.invoke(pojoObject, value);
+            }
+        }
+        return pojoObject;
+    }
+
+    
+    public static String capitalizeFirstLetter(String input) {
+        if (input == null || input.isEmpty()) {
+            return input; // Return the original string if it's null or empty
+        }
+        return input.substring(0, 1).toUpperCase() + input.substring(1);
     }
 }

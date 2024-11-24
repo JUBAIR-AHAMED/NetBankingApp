@@ -24,6 +24,9 @@ public class DBConnection {
 	}
 	
 	public static int setValuesInPstm(PreparedStatement pstm, Collection<Object> values, int count) throws SQLException {
+		if(values==null || values.isEmpty()) {
+			return count;
+		}
 		for(Object value:values) {
 			pstm.setObject(count, value);
 			count++;

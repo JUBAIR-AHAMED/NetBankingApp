@@ -1,9 +1,7 @@
-package com.netbanking.dao;
+package com.netbanking.daoObject;
 
 import java.util.Collection;
 import java.util.List;
-
-import com.netbanking.daoObject.Join;
 
 public class QueryBuilder {
 	public StringBuilder sqlQuery = new StringBuilder();
@@ -25,6 +23,9 @@ public class QueryBuilder {
 	}
 	
 	public QueryBuilder insert(String tableName, Collection<String> fields) {
+		if(fields==null || fields.isEmpty()) {
+			return this;
+		}
 		sqlQuery.append("INSERT INTO ").append(tableName);
 		sqlQuery.append("(").append(String.join(", ", fields)).append(")");
 		sqlQuery.append(" VALUES (");
@@ -51,6 +52,9 @@ public class QueryBuilder {
 	}
 	
 	public QueryBuilder set(List<String> fields) {
+		if(fields==null || fields.isEmpty()) {
+			return this;
+		}
 		sqlQuery.append(" SET ");
 		sqlQuery.append(String.join(" = ?,", fields));
 		sqlQuery.append(" = ? ");
@@ -58,6 +62,9 @@ public class QueryBuilder {
 	}
 	
 	public QueryBuilder where(Collection<String> fields, List<String> operators, List<String> logicOperators) {
+		if(fields==null || fields.isEmpty()) {
+			return this;
+		}
 		sqlQuery.append(" WHERE ");
 		int index = 0;
         for (String field : fields) {
@@ -75,6 +82,9 @@ public class QueryBuilder {
 	}
 	
 	public QueryBuilder join(List<Join> joins) {
+		if(joins==null || joins.isEmpty()) {
+			return this;
+		}
 		for(Join join:joins) {
 			if(join.getJoinType()!=null) {
 				sqlQuery.append(" ").append(join.getJoinType());
@@ -102,6 +112,9 @@ public class QueryBuilder {
 	}
 	
 	public QueryBuilder order(List<String> orderColumns, List<String> sortingOrders) {
+		if(orderColumns==null || orderColumns.isEmpty()) {
+			return this;
+		}
 		sqlQuery.append(" ORDER BY");
         for (int i = 0; i < orderColumns.size(); i++) {
             String column = orderColumns.get(i);
@@ -114,7 +127,15 @@ public class QueryBuilder {
 	}
 	
 	public QueryBuilder limit(Integer limit) {
+		if(limit==null) {
+			return this;
+		}
 		sqlQuery.append(" LIMIT ").append(limit);
+		return this;
+	}
+	
+	public QueryBuilder endQuery() {
+		sqlQuery.append("; ");
 		return this;
 	}
 	

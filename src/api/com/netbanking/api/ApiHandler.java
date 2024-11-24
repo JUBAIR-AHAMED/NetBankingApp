@@ -3,6 +3,7 @@ package com.netbanking.api;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -51,10 +52,19 @@ public class ApiHandler {
 		}
 	}
 	
-	public List<Map<String, Object>> getUserAccounts(String findField, Long findData, Long userId, String role, Long branchId) throws Exception
+	public List<Map<String, Object>> getUserAccounts(Long userId, String role, Long branchId, List<String> filterFields, List<Object> filterValues) throws Exception
 	{
 		FunctionHandler functionHandler = new FunctionHandler();
-		return functionHandler.getAccounts(userId, role, branchId, findField, findData);
+		if(role.equals("CUSTOMER")) {
+			if(filterFields!=null && !filterFields.isEmpty()) {
+				throw new Exception("Filter fields is not allowed for the customer");
+			}
+			filterFields = new ArrayList<String>();
+			filterFields.add("userId");
+			filterValues.add(userId);
+			return functionHandler.getAccounts(filterFields, filterValues, false);
+		}
+		return functionHandler.getAccounts(filterFields, filterValues, true);
 	}
 	
 	public void initiateTransaction(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception, CustomException {

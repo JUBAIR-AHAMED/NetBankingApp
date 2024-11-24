@@ -1,6 +1,6 @@
 package com.netbanking.object;
 
-import java.util.Date;
+import java.sql.Date;
 
 import com.netbanking.model.Model;
 
@@ -18,7 +18,7 @@ public class User implements Model {
     protected Long modifiedBy;
     
   //user getter and setters
-    public void setUserId(long userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
     
@@ -86,7 +86,7 @@ public class User implements Model {
         return creationTime;
     }
 
-    public void setCreationTime(long creationTime) {
+    public void setCreationTime(Long creationTime) {
         this.creationTime = creationTime;
     }
 
@@ -94,7 +94,7 @@ public class User implements Model {
         return modifiedTime;
     }
 
-    public void setModifiedTime(long modifiedTime) {
+    public void setModifiedTime(Long modifiedTime) {
         this.modifiedTime = modifiedTime;
     }
 
@@ -102,7 +102,7 @@ public class User implements Model {
         return modifiedBy;
     }
 
-    public void setModifiedBy(long modifiedBy) {
+    public void setModifiedBy(Long modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
 

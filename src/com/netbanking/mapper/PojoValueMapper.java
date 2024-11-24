@@ -1,6 +1,7 @@
 package com.netbanking.mapper;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import com.netbanking.model.Model;
@@ -17,15 +18,9 @@ public class PojoValueMapper<T> implements GenericMapper<T> {
             Field[] fields = clazz.getDeclaredFields();
 
             for (Field field : fields) {
-                field.setAccessible(true);
-                Object value = null;
-
-                try {
-                    value = field.get(entity);
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                    e.printStackTrace();
-                    throw new Exception(e.toString());
-                }
+            	String getMethodString = "get"+capitalizeFirstLetter(field.getName());
+            	Method getMethod = clazz.getDeclaredMethod(getMethodString);
+            	Object value = getMethod.invoke(entity);
 
                 if (value != null) {
                     if (field.getType().isEnum()) {
@@ -39,5 +34,12 @@ public class PojoValueMapper<T> implements GenericMapper<T> {
         }
 
         return valueMap;
+    }
+    
+    public static String capitalizeFirstLetter(String input) {
+        if (input == null || input.isEmpty()) {
+            return input; // Return the original string if it's null or empty
+        }
+        return input.substring(0, 1).toUpperCase() + input.substring(1);
     }
 }

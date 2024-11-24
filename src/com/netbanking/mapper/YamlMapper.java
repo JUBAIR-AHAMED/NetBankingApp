@@ -1,7 +1,6 @@
 package com.netbanking.mapper;
 
 import java.io.InputStream;
-import java.util.List;
 import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
@@ -26,16 +25,16 @@ public class YamlMapper {
 		}
 	}
 	
-	public static String getTableName(String objectName) {
-        return (String) getObjectData(objectName).get("tablename");  // Return null if no mapping is found
-    }
-	
 	@SuppressWarnings("unchecked")
 	public static Map<String, Object> getObjectData(String objectName) {
-        if (map == null) {
-            new YamlMapper();
-        }
-        return (Map<String, Object>) ((Map<String, Object>) map.get("pojo")).get(objectName);
+		if (map == null) {
+			new YamlMapper();
+		}
+		return (Map<String, Object>) ((Map<String, Object>) map.get("pojo")).get(objectName);
+	}
+	
+	public static String getTableName(String objectName) {
+        return (String) getObjectData(objectName).get("tablename");  // Return null if no mapping is found
     }
 	
 	@SuppressWarnings("unchecked")
@@ -49,7 +48,6 @@ public class YamlMapper {
 		if (map == null) {
             new YamlMapper();
         }
-
 		Map<String, Object> pojo =(Map<String, Object>) map.get("pojo");
 	    for (Map.Entry<String, Object> entry : pojo.entrySet()) {
 			Map<String, Object> tableData = (Map<String, Object>) entry.getValue();  // This will be the map for the object
@@ -58,7 +56,6 @@ public class YamlMapper {
 	            return (Map<String, String>) tableData.get("table_field_name");
 	        }
 	    }
-	    
 	    return null;
 	}
 }

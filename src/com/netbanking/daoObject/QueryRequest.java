@@ -12,7 +12,7 @@ public class QueryRequest {
     private List<Object> whereConditionsValues;
     private Map<String, Object> updates; 
     private List<String> updateField;
-    private List<Condition> updatesCondition;
+    private List<Condition> updatesType;
     private List<Object> updateValue;
     private Boolean selectAllColumns;
     private List<String> selectColumns;
@@ -188,20 +188,20 @@ public class QueryRequest {
         selectAllColumns = false;
     }
     
-    public List<Condition> getUpdatesCondition() {
-        return updatesCondition;
+    public List<Condition> getUpdatesType() {
+        return updatesType;
     }
 
-    public void setUpdatesCondition(List<Condition> updatesCondition) {
-        this.updatesCondition = updatesCondition;
+    public void setUpdatesType(List<Condition> updatesType) {
+        this.updatesType = updatesType;
     }
     
-    public void putUpdatesCondition(Condition... updatesCondition) {
-        if(this.updatesCondition==null) {
-        	this.updatesCondition = new ArrayList<Condition>();
+    public void putUpdatesType(Condition... updatesType) {
+        if(this.updatesType==null) {
+        	this.updatesType = new ArrayList<Condition>();
         }
-        for(Condition updates:updatesCondition) {
-        	this.updatesCondition.add(updates);
+        for(Condition updates:updatesType) {
+        	this.updatesType.add(updates);
         }
     }
 

@@ -1,11 +1,9 @@
 package com.netbanking.dao;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 import java.util.Map;
-
-import com.netbanking.daoObject.Condition;
 import com.netbanking.daoObject.Join;
 import com.netbanking.daoObject.QueryRequest;
 import com.netbanking.daoObject.Where;
@@ -67,26 +65,18 @@ public class FunctionHandler {
 	
 	public Map<String, Object> getAccount(Long accountNumber) throws Exception {
 		Validator.checkInvalidInput(accountNumber);
-		QueryRequest request = new QueryRequest();
-		request.setSelectAllColumns(true);
-		request.setTableName("account");
-		request.putWhereConditions("accountNumber");
-		request.putWhereConditionsValues(accountNumber);
-		request.putWhereOperators("=");				
-		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
-		List<Map<String, Object>> accountList = null;
-		accountList = daoCaller.selectHandler(request);
-		return  (accountList==null||accountList.isEmpty())? null : accountList.get(0);
+		List<String> filterFields = new ArrayList<String>();
+		List<Object> filterValues = new ArrayList<Object>();
+		filterFields.add("accountNumber");
+		filterValues.add(accountNumber);
+		return  getAccounts(filterFields, filterValues, true).get(0);
 	}
 	
-	//pending
-	public List<Map<String, Object>> getAccounts(Long user_id, String role, Long branch_id, String findField, Long findData) throws Exception
+	public List<Map<String, Object>> getAccounts(List<String> filterFields, List<Object> filterValues, Boolean inactiveReq) throws Exception
 	{
-		Validator.checkInvalidInput(user_id, role);
 		QueryRequest request = new QueryRequest();
 		request.setSelectAllColumns(true);
 		request.setTableName("account");
-		List<Where> whereConditionsType = new ArrayList<Where>();
 		Join joinConditions = new Join();
 		joinConditions.setTableName("branch");
 		joinConditions.putLeftTable("account");
@@ -94,19 +84,26 @@ public class FunctionHandler {
 		joinConditions.putRightTable("branch");
 		joinConditions.putRightColumn("branchId");
 		joinConditions.putOperator("=");
-		if(role.equals("CUSTOMER")) {
-			whereConditionsType.add(new Where("userId", "account", user_id));
-			whereConditionsType.add(new Where("status", "account", "INACTIVE"));
-			request.putWhereOperators("=", "!=");
-			request.putWhereLogicalOperators("AND");
-		} else if(role.equals("EMPLOYEE")||role.equals("MANAGER")) {
+
+		List<Where> whereConditionsType = new ArrayList<Where>();
+		
+		for(int i=0;i<filterFields.size();i++) {
+			if(i>0) {
+				request.putWhereLogicalOperators("AND");
+			}
+			String filterField = filterFields.get(i);
 			String tableName = "account";
-			if(findField.equals("branchId"))
+			if(filterField.equals("branchId"))
 			{
 				tableName = "branch";
 			}
-			whereConditionsType.add(new Where(findField, tableName, findData));
+			whereConditionsType.add(new Where(filterField, tableName, filterValues.get(i)));
 			request.putWhereOperators("=");
+		}
+		if(!inactiveReq) {
+			whereConditionsType.add(new Where("status", "account", "INACTIVE"));
+			request.putWhereLogicalOperators("AND");
+			request.putWhereOperators("!=");
 		}
 		request.setWhereConditionsType(whereConditionsType);
 		request.putJoinConditions(joinConditions);
@@ -132,6 +129,7 @@ public class FunctionHandler {
 		return transactionMap;
 	}
 	
+	//Remove
 	public Map<String, Object> getProfile(Long userId, String role) throws Exception
 	{
 		Validator.checkInvalidInput(userId, role);
@@ -214,9 +212,9 @@ public class FunctionHandler {
 		}
 	}
 	
-	public void makeTransaction(Long from_account, Long to_account, Long user_id, Float amount, String transactionType) throws Exception {
-		Validator.checkInvalidInput(from_account, user_id, amount);
-		Map<String, Object> fromAccountMap = getAccount(from_account), toAccountMap = getAccount(to_account);;
+	public void makeTransaction(Long from_account_number, Long to_account_number, Long user_id, Float amount, String transactionType) throws Exception {
+		Validator.checkInvalidInput(from_account_number, user_id, amount);
+		Map<String, Object> fromAccountMap = getAccount(from_account_number), toAccountMap = getAccount(to_account_number);;
 		Float from_account_balance = (Float) fromAccountMap.get("balance");
 		Float to_account_balance = null;
 		
@@ -226,7 +224,7 @@ public class FunctionHandler {
 		
 		if(transactionType.equals("same-bank"))
 		{
-			Validator.checkInvalidInput(to_account);
+			Validator.checkInvalidInput(to_account_number);
 			to_account_balance = (Float) toAccountMap.get("balance");
 			to_account_balance += amount;
 		}
@@ -239,25 +237,29 @@ public class FunctionHandler {
 		QueryRequest fromAccRequest = new QueryRequest();
 		fromAccRequest.setTableName("account");
 		fromAccRequest.putWhereConditions("accountNumber");
-		fromAccRequest.putWhereConditionsValues(from_account);
+		fromAccRequest.putWhereConditionsValues(from_account_number);
 		fromAccRequest.putWhereOperators("=");
-		fromAccRequest.putUpdateField("balance");
-		fromAccRequest.putUpdateValue(from_account_balance);
-		
+//		fromAccRequest.putUpdateField("balance");
+//		fromAccRequest.putUpdateValue(from_account_balance);
+		Account from_account = new Account();
+		from_account.setBalance(from_account_balance);
 		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
-		daoCaller.updateHandler(fromAccRequest);
-		if(transactionType.equals("same-bank"))
+		if(!transactionType.equals("same-bank")) {
+			daoCaller.updateHandler(from_account, fromAccRequest);
+		}
+		else if(transactionType.equals("same-bank"))
 		{
 			QueryRequest toAccRequest = new QueryRequest();
 			toAccRequest.setTableName("account");
 			toAccRequest.putWhereConditions("accountNumber");
-			toAccRequest.putWhereConditionsValues(to_account);
+			toAccRequest.putWhereConditionsValues(to_account_number);
 			toAccRequest.putWhereOperators("=");
-			toAccRequest.putUpdateField("balance");
-			toAccRequest.putUpdateValue(to_account_balance);
-			daoCaller.updateHandler(toAccRequest);
+			List<QueryRequest> request = new ArrayList<QueryRequest>();
+			request.add(fromAccRequest);
+			request.add(toAccRequest);
+			daoCaller.updateHandler(request);
 		}
-		storeTransaction(from_account, to_account, user_id, amount, from_account_balance, to_account_balance, transactionType);
+		storeTransaction(from_account_number, to_account_number, user_id, amount, from_account_balance, to_account_balance, transactionType);
 	}
 	
 	public List<Map<String, Object>> getTransactionStatement(Long accountNumber, Long fromDate, Long toDate, Integer limit) throws Exception {
@@ -287,6 +289,7 @@ public class FunctionHandler {
 		return transactionHandle.selectHandler(request);
 	}
 	
+	//remove
 	public void actionHandler(String type, String entity, Long accountNumber) throws Exception
 	{
 		Validator.checkInvalidInput(type, entity, accountNumber);

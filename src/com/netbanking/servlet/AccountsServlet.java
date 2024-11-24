@@ -1,6 +1,7 @@
 package com.netbanking.servlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,8 +78,8 @@ public class AccountsServlet extends HttpServlet {
                 return;
             }
             
-            String findField=null;
-            Long findData=null;
+            List<String> filterFields=new ArrayList<String>();
+            List<Object> filterValues=new ArrayList<Object>();
             if ("CUSTOMER".equals(role)) {
                 if (request.getParameter("accountNumber") != null || request.getParameter("userId") != null || request.getParameter("branchId") != null) {
                 	ServletHelper.responseWriter(response, false, HttpServletResponse.SC_BAD_REQUEST, "No parameters allowed for CUSTOMER role.", responseMap);
@@ -90,29 +91,26 @@ public class AccountsServlet extends HttpServlet {
                 String userIdStr = request.getParameter("userId");
                 String branchIdStr = request.getParameter("branchId");
                 
-                if(accountNumberStr!=null) {
-                	accountNumberStr = accountNumberStr.isEmpty()? null:accountNumberStr;
-                	findField = "accountNumber";
+                if(accountNumberStr!=null&&!accountNumberStr.isEmpty()) {
+                	filterFields.add("accountNumber");
                 	try {
-                		findData = accountNumberStr == null || accountNumberStr.isEmpty()? null:Long.parseLong(accountNumberStr);
+                		filterValues.add(Long.parseLong(accountNumberStr));
                 	} catch (NumberFormatException e) {
                 		e.printStackTrace();
                 	}
                 }
-                if(userIdStr!=null) {
-                	userIdStr = userIdStr.isEmpty()? null:userIdStr;
-                	findField = "userId";
+                if(userIdStr!=null&&!userIdStr.isEmpty()) {
+                	filterFields.add("userId");
                 	try {
-                		findData = userIdStr == null || userIdStr.isEmpty()? null:Long.parseLong(userIdStr);
+                		filterValues.add(Long.parseLong(userIdStr));
                 	} catch (NumberFormatException e) {
                 		e.printStackTrace();
                 	}
                 }
-                if(branchIdStr!=null) {
-                	branchIdStr = branchIdStr.isEmpty()? null:branchIdStr;
-                	findField = "branchId";
+                if(branchIdStr!=null&&!branchIdStr.isEmpty()) {
+                	filterFields.add("branchId");
                 	try {
-                		findData = branchIdStr == null || branchIdStr.isEmpty()? null:Long.parseLong(branchIdStr);
+                		filterValues.add(Long.parseLong(branchIdStr));
                 	} catch (NumberFormatException e) {
                 		e.printStackTrace();
                 	}
@@ -123,7 +121,7 @@ public class AccountsServlet extends HttpServlet {
                     return;
                 }
             }
-            List<Map<String, Object>> accounts = apiHandler.getUserAccounts(findField, findData, userId, role, branchId);
+            List<Map<String, Object>> accounts = apiHandler.getUserAccounts(userId, role, branchId, filterFields, filterValues);
             ServletHelper.responseWriter(response, true, HttpServletResponse.SC_OK, "Accounts fetched successfully", responseMap);
             responseMap.put("accounts", accounts);
         } catch (CustomException e) {
