@@ -6,9 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import com.netbanking.model.Model;
 
-public class PojoValueMapper<T> implements GenericMapper<T> {
-
-    @Override
+public class PojoValueMapper<T extends Model> {
     public Map<String, Object> getMap(T entity) throws Exception {
         Map<String, Object> valueMap = new HashMap<>();
 

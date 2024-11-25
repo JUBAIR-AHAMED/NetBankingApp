@@ -15,6 +15,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.netbanking.dao.FunctionHandler;
 import com.netbanking.exception.CustomException;
+import com.netbanking.object.Account;
+import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Encryption;
 import com.netbanking.util.Parser;
 import com.netbanking.util.Validator;
@@ -392,6 +394,53 @@ public class ApiHandler {
 	    }
 	}
 	
+//	public long createAccount(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
+//		StringBuilder jsonBody = new StringBuilder();
+//		String line;
+//		try(BufferedReader reader = request.getReader())
+//		{
+//			while((line = reader.readLine()) != null)
+//			{
+//				jsonBody.append(line);
+//			}
+//		} catch(Exception e) {
+//			e.printStackTrace();
+//		}
+//		
+//		JsonObject jsonObject = JsonParser.parseString(jsonBody.toString()).getAsJsonObject();
+//		
+//		Long accountUserId = null;
+//	    Long accountBranchId = null;
+//	    String accountType = null;
+//	    Float balance = null;
+//	    String status = null;
+//	    
+//	    Map<String, Object> branchMap = new HashMap<String, Object>();
+//	    try {
+//	    	accountUserId = jsonObject.get("userId").getAsLong();
+//	    	accountBranchId = jsonObject.get("branchId").getAsLong();
+//	    	accountType = jsonObject.get("accountType").getAsString();
+//	    	balance = jsonObject.get("balance").getAsFloat();
+//	    	status = jsonObject.get("status").getAsString();
+//		    
+//		    branchMap.put("userId", accountUserId);
+//		    branchMap.put("branchId", accountBranchId);
+//		    branchMap.put("accountType", accountType);
+//		    branchMap.put("balance", balance);
+//		    branchMap.put("status", status);
+//		    branchMap.put("modifiedBy", userId);
+//        } catch (Exception e) {
+//			throw new CustomException("Enter proper details for the required fields.");
+//		}
+//	    
+//	    FunctionHandler functionHandler = new FunctionHandler();
+//	    try {
+//			return functionHandler.createAccount(branchMap);
+//		} catch (Exception e) {
+//			throw new Exception("Failed to create account");
+//		}
+//	}
+	
 	public long createAccount(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
 		StringBuilder jsonBody = new StringBuilder();
 		String line;
@@ -404,36 +453,36 @@ public class ApiHandler {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		
-		JsonObject jsonObject = JsonParser.parseString(jsonBody.toString()).getAsJsonObject();
-		
-		Long accountUserId = null;
-	    Long accountBranchId = null;
-	    String accountType = null;
-	    Float balance = null;
-	    String status = null;
-	    
-	    Map<String, Object> branchMap = new HashMap<String, Object>();
-	    try {
-	    	accountUserId = jsonObject.get("userId").getAsLong();
-	    	accountBranchId = jsonObject.get("branchId").getAsLong();
-	    	accountType = jsonObject.get("accountType").getAsString();
-	    	balance = jsonObject.get("balance").getAsFloat();
-	    	status = jsonObject.get("status").getAsString();
-		    
-		    branchMap.put("userId", accountUserId);
-		    branchMap.put("branchId", accountBranchId);
-		    branchMap.put("accountType", accountType);
-		    branchMap.put("balance", balance);
-		    branchMap.put("status", status);
-		    branchMap.put("modifiedBy", userId);
-        } catch (Exception e) {
-			throw new CustomException("Enter proper details for the required fields.");
-		}
-	    
+		Account account = ApiHelper.getPojoFromRequest(jsonBody, Account.class);
+//		JsonObject jsonObject = JsonParser.parseString(jsonBody.toString()).getAsJsonObject();
+//		
+//		Long accountUserId = null;
+//	    Long accountBranchId = null;
+//	    String accountType = null;
+//	    Float balance = null;
+//	    String status = null;
+//	    
+//	    Map<String, Object> branchMap = new HashMap<String, Object>();
+//	    try {
+//	    	accountUserId = jsonObject.get("userId").getAsLong();
+//	    	accountBranchId = jsonObject.get("branchId").getAsLong();
+//	    	accountType = jsonObject.get("accountType").getAsString();
+//	    	balance = jsonObject.get("balance").getAsFloat();
+//	    	status = jsonObject.get("status").getAsString();
+//		    
+//		    branchMap.put("userId", accountUserId);
+//		    branchMap.put("branchId", accountBranchId);
+//		    branchMap.put("accountType", accountType);
+//		    branchMap.put("balance", balance);
+//		    branchMap.put("status", status);
+//		    branchMap.put("modifiedBy", userId);
+//        } catch (Exception e) {
+//			throw new CustomException("Enter proper details for the required fields.");
+//		}
+//	    
 	    FunctionHandler functionHandler = new FunctionHandler();
 	    try {
-			return functionHandler.createAccount(branchMap);
+			return functionHandler.create(account);
 		} catch (Exception e) {
 			throw new Exception("Failed to create account");
 		}

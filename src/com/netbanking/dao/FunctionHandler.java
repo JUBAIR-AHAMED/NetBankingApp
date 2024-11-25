@@ -8,6 +8,7 @@ import com.netbanking.daoObject.Join;
 import com.netbanking.daoObject.QueryRequest;
 import com.netbanking.daoObject.Where;
 import com.netbanking.exception.CustomException;
+import com.netbanking.model.Model;
 import com.netbanking.object.Account;
 import com.netbanking.object.Branch;
 import com.netbanking.object.Customer;
@@ -413,5 +414,10 @@ public class FunctionHandler {
 
 	    DataAccessObject<Account> accountDao = new DataAccessObject<>();
         return accountDao.insertHandler(account);
+	}
+	
+	public Long create(Model object) throws Exception {
+	    DataAccessObject<Model> accountDao = new DataAccessObject<>();
+        return accountDao.insertHandler(object);
 	}
 }

@@ -15,9 +15,10 @@ import com.netbanking.daoObject.QueryRequest;
 import com.netbanking.daoObject.Where;
 import com.netbanking.mapper.PojoValueMapper;
 import com.netbanking.mapper.YamlMapper;
+import com.netbanking.model.Model;
 import com.netbanking.util.DBConnection;
 
-public class DataAccessObject<T> implements Dao<T> {
+public class DataAccessObject<T extends Model> implements Dao<T> {
 	//Insert operation
 	public Long insertHandler(T object) throws Exception {
 		if(object==null) {
@@ -221,9 +222,7 @@ public class DataAccessObject<T> implements Dao<T> {
 			}
 		}
 		    	
-		//sbdbadc
     	QueryBuilder qb = new QueryBuilder();
-//        List<Join> joins = request.getJoinConditions();
     	if(request.getSelectAllColumns()) {
         	qb.select();
         } else {
