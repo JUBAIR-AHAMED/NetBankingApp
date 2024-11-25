@@ -22,7 +22,7 @@ import com.netbanking.util.Validator;
 public class FunctionHandler {
 	public Map<String, Object> getUser(Long user_id) throws CustomException, Exception {
 		Validator.checkInvalidInput(user_id);
-		DaoImpl<User> daoCaller = new DaoImpl<User>();
+		DataAccessObject<User> daoCaller = new DataAccessObject<User>();
 		QueryRequest request = new QueryRequest();
 		request.setTableName("user");
 		request.setSelectAllColumns(true);		
@@ -42,7 +42,7 @@ public class FunctionHandler {
 		request.putWhereConditions("customerId");
 		request.putWhereConditionsValues(customer_id);
 		request.putWhereOperators("=");
-		DaoImpl<Account> daoCaller = new DaoImpl<Account>();
+		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
 		List<Map<String, Object>> accountMap = null;
 		accountMap = daoCaller.select(request);
 		return accountMap.get(0);
@@ -57,7 +57,7 @@ public class FunctionHandler {
 		request.putWhereConditions("employeeId");
 		request.putWhereConditionsValues(employee_id);
 		request.putWhereOperators("=");
-		DaoImpl<Account> daoCaller = new DaoImpl<Account>();
+		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
 		List<Map<String, Object>> accountMap = null;
 		accountMap = daoCaller.select(request);
 		return accountMap.get(0);
@@ -107,7 +107,7 @@ public class FunctionHandler {
 		}
 		request.setWhereConditionsType(whereConditionsType);
 		request.putJoinConditions(joinConditions);
-		DaoImpl<Account> daoCaller = new DaoImpl<Account>();
+		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
 		List<Map<String, Object>> accountMap = null;
 		accountMap = daoCaller.select(request);
 		return accountMap;
@@ -123,7 +123,7 @@ public class FunctionHandler {
 		request.putWhereConditionsValues(account_number, from_time, to_time);
 		request.putWhereLogicalOperators("=", ">=", "<=");
 		request.putWhereOperators("AND", "AND");		
-		DaoImpl<Account> daoCaller = new DaoImpl<Account>();
+		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
 		List<Map<String, Object>> transactionMap = null;
 		transactionMap = daoCaller.select(request);
 		return transactionMap;
@@ -160,7 +160,7 @@ public class FunctionHandler {
 		request.putWhereConditions("userId");
 		request.putWhereConditionsValues(userId);
 		request.putWhereOperators("=");
-		DaoImpl<Account> daoCaller = new DaoImpl<Account>();
+		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
 		List<Map<String, Object>> transactionMap = null;
 		transactionMap = daoCaller.select(request);
 		return transactionMap.get(0);
@@ -169,7 +169,7 @@ public class FunctionHandler {
 	private void storeTransaction(Long from_account, Long to_account, Long user_id, Float amount, Float from_account_balance, Float to_account_balance, String transactionType) throws Exception
 	{
 		Validator.checkInvalidInput(from_account, user_id, amount);
-		DaoImpl<Transaction> transactionHandle = new DaoImpl<Transaction>();
+		DataAccessObject<Transaction> transactionHandle = new DataAccessObject<Transaction>();
 		if(transactionType.equals("same-bank"))
 		{
 			Validator.checkInvalidInput(to_account, to_account_balance);
@@ -245,7 +245,7 @@ public class FunctionHandler {
 //		fromAccRequest.putUpdateValue(from_account_balance);
 		Account from_account = new Account();
 		from_account.setBalance(from_account_balance);
-		DaoImpl<Account> daoCaller = new DaoImpl<Account>();
+		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
 		daoCaller.update(from_account, fromAccRequest);
 		if(transactionType.equals("same-bank"))
 		{
@@ -263,7 +263,7 @@ public class FunctionHandler {
 	
 	public List<Map<String, Object>> getTransactionStatement(Long accountNumber, Long fromDate, Long toDate, Integer limit) throws Exception {
 		Validator.checkInvalidInput(accountNumber);
-		DaoImpl<Transaction> transactionHandle = new DaoImpl<Transaction>();		
+		DataAccessObject<Transaction> transactionHandle = new DataAccessObject<Transaction>();		
 		QueryRequest request = new QueryRequest();
 		request.setTableName("transaction");
 		request.setSelectAllColumns(true);
@@ -339,7 +339,7 @@ public class FunctionHandler {
 		customer.setAadharNumber(aadharNumber);
 		customer.setPanNumber(panNumber);
 		
-		DaoImpl<Customer> customerDao = new DaoImpl<Customer>();
+		DataAccessObject<Customer> customerDao = new DataAccessObject<Customer>();
 		return customerDao.insertHandler(customer);
 	}
 	
@@ -357,7 +357,7 @@ public class FunctionHandler {
 	    branch.setAddress(address);
 	    branch.setCreationTime(System.currentTimeMillis());
 	    branch.setModifiedBy(modifiedBy);
-	    DaoImpl<Branch> branchDao = new DaoImpl<>();
+	    DataAccessObject<Branch> branchDao = new DataAccessObject<>();
         return branchDao.insertHandler(branch);
 	}
 	
@@ -384,7 +384,7 @@ public class FunctionHandler {
 	    employee.setCreationTime(System.currentTimeMillis());
 	    employee.setBranchId(branchId);
 
-	    DaoImpl<Employee> employeeDao = new DaoImpl<>();
+	    DataAccessObject<Employee> employeeDao = new DataAccessObject<>();
         return employeeDao.insertHandler(employee);
 	}
 	
@@ -411,7 +411,7 @@ public class FunctionHandler {
 	    account.setCreationTime(System.currentTimeMillis());
 	    account.setModifiedBy(modifiedBy);
 
-	    DaoImpl<Account> accountDao = new DaoImpl<>();
+	    DataAccessObject<Account> accountDao = new DataAccessObject<>();
         return accountDao.insertHandler(account);
 	}
 }

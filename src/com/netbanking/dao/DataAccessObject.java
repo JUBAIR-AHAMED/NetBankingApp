@@ -17,7 +17,7 @@ import com.netbanking.mapper.PojoValueMapper;
 import com.netbanking.mapper.YamlMapper;
 import com.netbanking.util.DBConnection;
 
-public class DaoImpl<T> implements Dao<T> {
+public class DataAccessObject<T> implements Dao<T> {
 	//Insert operation
 	public Long insertHandler(T object) throws Exception {
 		if(object==null) {
