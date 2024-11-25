@@ -22,14 +22,14 @@ import com.netbanking.util.Validator;
 public class FunctionHandler {
 	public Map<String, Object> getUser(Long user_id) throws CustomException, Exception {
 		Validator.checkInvalidInput(user_id);
-		DaoHandler<User> daoCaller = new DaoHandler<User>();
+		DaoImpl<User> daoCaller = new DaoImpl<User>();
 		QueryRequest request = new QueryRequest();
 		request.setTableName("user");
 		request.setSelectAllColumns(true);		
 		request.putWhereConditions("userId");
 		request.putWhereConditionsValues(user_id);
 		request.putWhereOperators("=");
-		List<Map<String, Object>> listOfMap = daoCaller.selectHandler(request);
+		List<Map<String, Object>> listOfMap = daoCaller.select(request);
 		return listOfMap == null? null : listOfMap.get(0);
 	}
 	
@@ -42,9 +42,9 @@ public class FunctionHandler {
 		request.putWhereConditions("customerId");
 		request.putWhereConditionsValues(customer_id);
 		request.putWhereOperators("=");
-		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
+		DaoImpl<Account> daoCaller = new DaoImpl<Account>();
 		List<Map<String, Object>> accountMap = null;
-		accountMap = daoCaller.selectHandler(request);
+		accountMap = daoCaller.select(request);
 		return accountMap.get(0);
 	}
 	
@@ -57,9 +57,9 @@ public class FunctionHandler {
 		request.putWhereConditions("employeeId");
 		request.putWhereConditionsValues(employee_id);
 		request.putWhereOperators("=");
-		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
+		DaoImpl<Account> daoCaller = new DaoImpl<Account>();
 		List<Map<String, Object>> accountMap = null;
-		accountMap = daoCaller.selectHandler(request);
+		accountMap = daoCaller.select(request);
 		return accountMap.get(0);
 	}
 	
@@ -107,9 +107,9 @@ public class FunctionHandler {
 		}
 		request.setWhereConditionsType(whereConditionsType);
 		request.putJoinConditions(joinConditions);
-		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
+		DaoImpl<Account> daoCaller = new DaoImpl<Account>();
 		List<Map<String, Object>> accountMap = null;
-		accountMap = daoCaller.selectHandler(request);
+		accountMap = daoCaller.select(request);
 		return accountMap;
 	}
 
@@ -123,9 +123,9 @@ public class FunctionHandler {
 		request.putWhereConditionsValues(account_number, from_time, to_time);
 		request.putWhereLogicalOperators("=", ">=", "<=");
 		request.putWhereOperators("AND", "AND");		
-		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
+		DaoImpl<Account> daoCaller = new DaoImpl<Account>();
 		List<Map<String, Object>> transactionMap = null;
-		transactionMap = daoCaller.selectHandler(request);
+		transactionMap = daoCaller.select(request);
 		return transactionMap;
 	}
 	
@@ -160,16 +160,16 @@ public class FunctionHandler {
 		request.putWhereConditions("userId");
 		request.putWhereConditionsValues(userId);
 		request.putWhereOperators("=");
-		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
+		DaoImpl<Account> daoCaller = new DaoImpl<Account>();
 		List<Map<String, Object>> transactionMap = null;
-		transactionMap = daoCaller.selectHandler(request);
+		transactionMap = daoCaller.select(request);
 		return transactionMap.get(0);
 	}
 
 	private void storeTransaction(Long from_account, Long to_account, Long user_id, Float amount, Float from_account_balance, Float to_account_balance, String transactionType) throws Exception
 	{
 		Validator.checkInvalidInput(from_account, user_id, amount);
-		DaoHandler<Transaction> transactionHandle = new DaoHandler<Transaction>();
+		DaoImpl<Transaction> transactionHandle = new DaoImpl<Transaction>();
 		if(transactionType.equals("same-bank"))
 		{
 			Validator.checkInvalidInput(to_account, to_account_balance);
@@ -232,7 +232,9 @@ public class FunctionHandler {
 		{
 			from_account_balance += amount;
 		} else {
+			System.out.println(from_account_balance);
 			from_account_balance -= amount;
+			System.out.println(from_account_balance);
 		}
 		QueryRequest fromAccRequest = new QueryRequest();
 		fromAccRequest.setTableName("account");
@@ -243,28 +245,25 @@ public class FunctionHandler {
 //		fromAccRequest.putUpdateValue(from_account_balance);
 		Account from_account = new Account();
 		from_account.setBalance(from_account_balance);
-		DaoHandler<Account> daoCaller = new DaoHandler<Account>();
-		if(!transactionType.equals("same-bank")) {
-			daoCaller.updateHandler(from_account, fromAccRequest);
-		}
-		else if(transactionType.equals("same-bank"))
+		DaoImpl<Account> daoCaller = new DaoImpl<Account>();
+		daoCaller.update(from_account, fromAccRequest);
+		if(transactionType.equals("same-bank"))
 		{
+			Account to_account = new Account();
+			to_account.setBalance(to_account_balance);
 			QueryRequest toAccRequest = new QueryRequest();
 			toAccRequest.setTableName("account");
 			toAccRequest.putWhereConditions("accountNumber");
 			toAccRequest.putWhereConditionsValues(to_account_number);
 			toAccRequest.putWhereOperators("=");
-			List<QueryRequest> request = new ArrayList<QueryRequest>();
-			request.add(fromAccRequest);
-			request.add(toAccRequest);
-			daoCaller.updateHandler(request);
+			daoCaller.update(to_account, toAccRequest);
 		}
 		storeTransaction(from_account_number, to_account_number, user_id, amount, from_account_balance, to_account_balance, transactionType);
 	}
 	
 	public List<Map<String, Object>> getTransactionStatement(Long accountNumber, Long fromDate, Long toDate, Integer limit) throws Exception {
 		Validator.checkInvalidInput(accountNumber);
-		DaoHandler<Transaction> transactionHandle = new DaoHandler<Transaction>();		
+		DaoImpl<Transaction> transactionHandle = new DaoImpl<Transaction>();		
 		QueryRequest request = new QueryRequest();
 		request.setTableName("transaction");
 		request.setSelectAllColumns(true);
@@ -286,33 +285,33 @@ public class FunctionHandler {
 		{
 			request.setLimit(limit);			
 		}
-		return transactionHandle.selectHandler(request);
+		return transactionHandle.select(request);
 	}
 	
 	//remove
-	public void actionHandler(String type, String entity, Long accountNumber) throws Exception
-	{
-		Validator.checkInvalidInput(type, entity, accountNumber);
-		String status = null;
-		if(type.equals("DELETE")) {
-			status = "INACTIVE";
-		} else if(type.equals("BLOCK")) {
-			status = "BLOCKED";
-		} else if(type.equals("UNBLOCK")){
-			status = "ACTIVE";
-		} else {
-			throw new Exception("Wrong Type");
-		}
-		QueryRequest request = new QueryRequest();
-		DaoHandler<User> statusHandle = new DaoHandler<User>();
-        request.setTableName("account");
-		request.putUpdateField("status");
-        request.putUpdateValue(status);
-        request.putWhereConditions("accountNumber");
-        request.putWhereConditionsValues(accountNumber);
-        request.putWhereOperators("=");
-		statusHandle.updateHandler(request);
-	}
+//	public void actionHandler(String type, String entity, Long accountNumber) throws Exception
+//	{
+//		Validator.checkInvalidInput(type, entity, accountNumber);
+//		String status = null;
+//		if(type.equals("DELETE")) {
+//			status = "INACTIVE";
+//		} else if(type.equals("BLOCK")) {
+//			status = "BLOCKED";
+//		} else if(type.equals("UNBLOCK")){
+//			status = "ACTIVE";
+//		} else {
+//			throw new Exception("Wrong Type");
+//		}
+//		QueryRequest request = new QueryRequest();
+//		DaoImpl<User> statusHandle = new DaoImpl<User>();
+//        request.setTableName("account");
+//		request.putUpdateField("status");
+//        request.putUpdateValue(status);
+//        request.putWhereConditions("accountNumber");
+//        request.putWhereConditionsValues(accountNumber);
+//        request.putWhereOperators("=");
+//		statusHandle.updateHandler(request);
+//	}
 	
 	public Long createCustomer(Map<String, Object> customerDetails) throws CustomException, Exception
 	{
@@ -340,7 +339,7 @@ public class FunctionHandler {
 		customer.setAadharNumber(aadharNumber);
 		customer.setPanNumber(panNumber);
 		
-		DaoHandler<Customer> customerDao = new DaoHandler<Customer>();
+		DaoImpl<Customer> customerDao = new DaoImpl<Customer>();
 		return customerDao.insertHandler(customer);
 	}
 	
@@ -358,7 +357,7 @@ public class FunctionHandler {
 	    branch.setAddress(address);
 	    branch.setCreationTime(System.currentTimeMillis());
 	    branch.setModifiedBy(modifiedBy);
-	    DaoHandler<Branch> branchDao = new DaoHandler<>();
+	    DaoImpl<Branch> branchDao = new DaoImpl<>();
         return branchDao.insertHandler(branch);
 	}
 	
@@ -385,7 +384,7 @@ public class FunctionHandler {
 	    employee.setCreationTime(System.currentTimeMillis());
 	    employee.setBranchId(branchId);
 
-	    DaoHandler<Employee> employeeDao = new DaoHandler<>();
+	    DaoImpl<Employee> employeeDao = new DaoImpl<>();
         return employeeDao.insertHandler(employee);
 	}
 	
@@ -412,7 +411,7 @@ public class FunctionHandler {
 	    account.setCreationTime(System.currentTimeMillis());
 	    account.setModifiedBy(modifiedBy);
 
-	    DaoHandler<Account> accountDao = new DaoHandler<>();
+	    DaoImpl<Account> accountDao = new DaoImpl<>();
         return accountDao.insertHandler(account);
 	}
 }

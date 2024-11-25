@@ -1,19 +1,10 @@
 package com.netbanking.runner;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.netbanking.dao.DaoHandler;
 import com.netbanking.dao.FunctionHandler;
-import com.netbanking.daoObject.QueryRequest;
-import com.netbanking.exception.CustomException;
-import com.netbanking.mapper.YamlMapper;
-import com.netbanking.object.Customer;
-import com.netbanking.util.Encryption;
 
 //import com.netbanking.api.Api;
 

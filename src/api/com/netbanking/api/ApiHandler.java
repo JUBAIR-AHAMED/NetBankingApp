@@ -284,7 +284,7 @@ public class ApiHandler {
         	throw new CustomException("Cannot perform any actions this account is inactive.");
         }
 		
-		functionHandler.actionHandler(actionType, "ACCOUNT", accountNumber);
+//		functionHandler.actionHandler(actionType, "ACCOUNT", accountNumber);
 	}
 	
 	public long createEmployee(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
