@@ -1,10 +1,13 @@
 package com.netbanking.util;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -119,6 +122,19 @@ public class ApiHelper {
 
         throw new IllegalArgumentException("Unsupported type conversion: " + targetType.getName());
     }
-
-
+    
+    public static StringBuilder getJsonBody(HttpServletRequest request) {
+    	StringBuilder jsonBody = new StringBuilder();
+		String line;
+		try(BufferedReader reader = request.getReader())
+		{
+			while((line = reader.readLine()) != null)
+			{
+				jsonBody.append(line);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return jsonBody;
+    }
 }

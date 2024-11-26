@@ -1,78 +1,33 @@
 package com.netbanking.dao;
 
 import java.util.ArrayList;
-import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 import com.netbanking.daoObject.Join;
 import com.netbanking.daoObject.QueryRequest;
 import com.netbanking.daoObject.Where;
+import com.netbanking.enumHelper.GetMetadata;
 import com.netbanking.exception.CustomException;
 import com.netbanking.model.Model;
 import com.netbanking.object.Account;
-import com.netbanking.object.Branch;
-import com.netbanking.object.Customer;
-import com.netbanking.object.Employee;
-import com.netbanking.object.Role;
-import com.netbanking.object.Status;
 import com.netbanking.object.Transaction;
-import com.netbanking.object.User;
-import com.netbanking.util.Encryption;
 import com.netbanking.util.Validator;
 
 public class FunctionHandler {
-	public Map<String, Object> getUser(Long user_id) throws CustomException, Exception {
-		Validator.checkInvalidInput(user_id);
-		DataAccessObject<User> daoCaller = new DataAccessObject<User>();
-		QueryRequest request = new QueryRequest();
-		request.setTableName("user");
-		request.setSelectAllColumns(true);		
-		request.putWhereConditions("userId");
-		request.putWhereConditionsValues(user_id);
-		request.putWhereOperators("=");
-		List<Map<String, Object>> listOfMap = daoCaller.select(request);
-		return listOfMap == null? null : listOfMap.get(0);
-	}
-	
-	public Map<String, Object> getCustomer(Long customer_id) throws CustomException, Exception
-	{
-		Validator.checkInvalidInput(customer_id);
+	public <T extends Model> Map<String, Object> getRecord(Long id, Class<T> type) throws CustomException, Exception {
+		Validator.checkInvalidInput(id);
+		GetMetadata metadata = GetMetadata.fromClass(type);
 		QueryRequest request = new QueryRequest();
 		request.setSelectAllColumns(true);
-		request.setTableName("customer");
-		request.putWhereConditions("customerId");
-		request.putWhereConditionsValues(customer_id);
+		request.setTableName(metadata.getTableName());
+		request.putWhereConditions(metadata.getPrimaryKeyColumn());
+		request.putWhereConditionsValues(id);
 		request.putWhereOperators("=");
-		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
-		List<Map<String, Object>> accountMap = null;
-		accountMap = daoCaller.select(request);
-		return accountMap.get(0);
+		DataAccessObject<T> daoCaller = new DataAccessObject<>();
+		List<Map<String, Object>> resultList = daoCaller.select(request);
+		return (resultList == null || resultList.isEmpty()) ? null : resultList.get(0);
 	}
-	
-	public Map<String, Object> getEmployee(Long employee_id) throws Exception
-	{
-		Validator.checkInvalidInput(employee_id);
-		QueryRequest request = new QueryRequest();
-		request.setSelectAllColumns(true);
-		request.setTableName("employee");
-		request.putWhereConditions("employeeId");
-		request.putWhereConditionsValues(employee_id);
-		request.putWhereOperators("=");
-		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
-		List<Map<String, Object>> accountMap = null;
-		accountMap = daoCaller.select(request);
-		return accountMap.get(0);
-	}
-	
-	public Map<String, Object> getAccount(Long accountNumber) throws Exception {
-		Validator.checkInvalidInput(accountNumber);
-		List<String> filterFields = new ArrayList<String>();
-		List<Object> filterValues = new ArrayList<Object>();
-		filterFields.add("accountNumber");
-		filterValues.add(accountNumber);
-		return  getAccounts(filterFields, filterValues, true).get(0);
-	}
-	
+		
 	public List<Map<String, Object>> getAccounts(List<String> filterFields, List<Object> filterValues, Boolean inactiveReq) throws Exception
 	{
 		QueryRequest request = new QueryRequest();
@@ -112,22 +67,6 @@ public class FunctionHandler {
 		List<Map<String, Object>> accountMap = null;
 		accountMap = daoCaller.select(request);
 		return accountMap;
-	}
-
-	public List<Map<String, Object>> getTransactions(Long account_number, Long from_time, Long to_time) throws CustomException, Exception
-	{
-		Validator.checkInvalidInput(account_number, from_time, to_time);
-		QueryRequest request = new QueryRequest();
-		request.setSelectAllColumns(true);
-		request.setTableName("transaction");
-		request.putWhereConditions("accountNumber", "timestamp", "timestamp");
-		request.putWhereConditionsValues(account_number, from_time, to_time);
-		request.putWhereLogicalOperators("=", ">=", "<=");
-		request.putWhereOperators("AND", "AND");		
-		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
-		List<Map<String, Object>> transactionMap = null;
-		transactionMap = daoCaller.select(request);
-		return transactionMap;
 	}
 	
 	//Remove
@@ -215,7 +154,7 @@ public class FunctionHandler {
 	
 	public void makeTransaction(Long from_account_number, Long to_account_number, Long user_id, Float amount, String transactionType) throws Exception {
 		Validator.checkInvalidInput(from_account_number, user_id, amount);
-		Map<String, Object> fromAccountMap = getAccount(from_account_number), toAccountMap = getAccount(to_account_number);;
+		Map<String, Object> fromAccountMap = getRecord(from_account_number, Account.class), toAccountMap = getRecord(to_account_number, Account.class);
 		Float from_account_balance = (Float) fromAccountMap.get("balance");
 		Float to_account_balance = null;
 		
@@ -285,106 +224,6 @@ public class FunctionHandler {
 			request.setLimit(limit);			
 		}
 		return transactionHandle.select(request);
-	}
-	
-	//remove
-//	public void actionHandler(String type, String entity, Long accountNumber) throws Exception
-//	{
-//		Validator.checkInvalidInput(type, entity, accountNumber);
-//		String status = null;
-//		if(type.equals("DELETE")) {
-//			status = "INACTIVE";
-//		} else if(type.equals("BLOCK")) {
-//			status = "BLOCKED";
-//		} else if(type.equals("UNBLOCK")){
-//			status = "ACTIVE";
-//		} else {
-//			throw new Exception("Wrong Type");
-//		}
-//		QueryRequest request = new QueryRequest();
-//		DaoImpl<User> statusHandle = new DaoImpl<User>();
-//        request.setTableName("account");
-//		request.putUpdateField("status");
-//        request.putUpdateValue(status);
-//        request.putWhereConditions("accountNumber");
-//        request.putWhereConditionsValues(accountNumber);
-//        request.putWhereOperators("=");
-//		statusHandle.updateHandler(request);
-//	}
-	
-	public Long createCustomer(Map<String, Object> customerDetails) throws CustomException, Exception
-	{
-		String password =Encryption.hashPassword((String) customerDetails.get("password"));
-		String name = (String) customerDetails.get("name");
-		String email = (String) customerDetails.get("email");
-		String mobile = (String) customerDetails.get("mobile");
-		Date dateOfBirth = (Date) customerDetails.get("dob");
-		Long modifiedBy = (Long) customerDetails.get("modifiedBy");
-		Long aadharNumber = (Long) customerDetails.get("aadharNumber");
-		String panNumber = (String) customerDetails.get("panNumber");
-
-		Validator.checkInvalidInput(password, name, email, mobile, dateOfBirth, modifiedBy, aadharNumber, panNumber);
-
-		Customer customer = new Customer();
-		customer.setPassword(password);
-		customer.setRole(Role.CUSTOMER);
-		customer.setName(name);
-		customer.setEmail(email);
-		customer.setMobile(mobile);
-		customer.setDateOfBirth(dateOfBirth);
-		customer.setStatus(Status.ACTIVE);
-		customer.setCreationTime(System.currentTimeMillis());
-		customer.setModifiedBy(modifiedBy);
-		customer.setAadharNumber(aadharNumber);
-		customer.setPanNumber(panNumber);
-		
-		DataAccessObject<Customer> customerDao = new DataAccessObject<Customer>();
-		return customerDao.insertHandler(customer);
-	}
-	
-	public Long createBranch(Map<String, Object> branchDetails) throws Exception {
-	    String name = (String) branchDetails.get("name");
-	    Long ifsc = (Long) branchDetails.get("ifsc");
-	    Long employeeId = (Long) branchDetails.get("employeeId");
-	    String address = (String) branchDetails.get("address");
-	    Long modifiedBy = (Long) branchDetails.get("modifiedBy");
-	    Validator.checkInvalidInput(name, ifsc, address, employeeId, modifiedBy);
-	    Branch branch = new Branch();
-	    branch.setName(name);
-	    branch.setIfsc(ifsc);
-	    branch.setEmployeeId(employeeId);
-	    branch.setAddress(address);
-	    branch.setCreationTime(System.currentTimeMillis());
-	    branch.setModifiedBy(modifiedBy);
-	    DataAccessObject<Branch> branchDao = new DataAccessObject<>();
-        return branchDao.insertHandler(branch);
-	}
-	
-	public Long createEmployee(Map<String, Object> employeeDetails) throws Exception {
-		String password = Encryption.hashPassword((String) employeeDetails.get("password"));
-	    String name = (String) employeeDetails.get("name");
-	    String email = (String) employeeDetails.get("email");
-	    String mobile = (String) employeeDetails.get("mobile");
-	    Date dateOfBirth = (Date) employeeDetails.get("dob");
-	    Long modifiedBy = (Long) employeeDetails.get("modifiedBy");
-	    Long branchId = (Long) employeeDetails.get("branchId");
-	    String employeeRole = (String) employeeDetails.get("role");
-	    Validator.checkInvalidInput(password, name, email, mobile, dateOfBirth, modifiedBy);
-
-	    Employee employee = new Employee();
-	    employee.setPassword(password);
-	    employee.setRole(Role.valueOf(employeeRole));
-	    employee.setName(name);
-	    employee.setEmail(email);
-	    employee.setMobile(mobile);
-	    employee.setDateOfBirth(dateOfBirth);
-	    employee.setStatus(Status.ACTIVE);
-	    employee.setModifiedBy(modifiedBy);
-	    employee.setCreationTime(System.currentTimeMillis());
-	    employee.setBranchId(branchId);
-
-	    DataAccessObject<Employee> employeeDao = new DataAccessObject<>();
-        return employeeDao.insertHandler(employee);
 	}
 	
 	public Long create(Model object) throws Exception {

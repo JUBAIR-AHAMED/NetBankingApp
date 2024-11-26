@@ -75,8 +75,5 @@ public class CreateCustomerServlet extends HttpServlet{
 	            responseMap.put("message", "Action failed.");
 	    	}
     	Parser.writeResponse(response, responseMap);
-
-		
-    	Parser.writeResponse(response, responseMap);
     }
 }

@@ -2,23 +2,21 @@ package com.netbanking.api;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.netbanking.dao.FunctionHandler;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Account;
+import com.netbanking.object.Branch;
 import com.netbanking.object.Customer;
+import com.netbanking.object.Employee;
 import com.netbanking.object.Role;
 import com.netbanking.object.Status;
+import com.netbanking.object.User;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Encryption;
 import com.netbanking.util.Parser;
@@ -30,11 +28,10 @@ public class ApiHandler {
 		try(BufferedReader reader = request.getReader())
 		{
 			JsonObject jsonObject = Parser.getJsonObject(reader);
-			
-			Long username = jsonObject.get("username").getAsLong();
+			Long userId = jsonObject.get("username").getAsLong();
 			String password = jsonObject.get("password").getAsString();
 			FunctionHandler fn = new FunctionHandler();
-			Map<String, Object> map = fn.getUser(username);
+			Map<String, Object> map = fn.getRecord(userId, User.class);
 			if(map != null && !map.isEmpty()) {
 				Boolean check=Encryption.verifyPassword(password, (String) map.get("password"));
 				if(!check) {
@@ -47,11 +44,11 @@ public class ApiHandler {
 			Long user_id = (Long) map.get("userId");
 			FunctionHandler functionalHandler = new FunctionHandler();
 			if(role.equals("EMPLOYEE")||role.equals("MANAGER")) {
-				map.putAll(functionalHandler.getEmployee(user_id));
+				map.putAll(functionalHandler.getRecord(user_id, Employee.class));
 			}
 			else if(role.equals("CUSTOMER"))
 			{
-				map.putAll(functionalHandler.getCustomer(user_id));
+				map.putAll(functionalHandler.getRecord(user_id, Customer.class));
 			}
 			return map;
 		}
@@ -100,8 +97,8 @@ public class ApiHandler {
 		}
 		FunctionHandler functionHandler = new FunctionHandler();
 				
-		Map<String, Object> fromAccountMap = functionHandler.getAccount(fromAccount);
-		Map<String, Object> toAccountMap = functionHandler.getAccount(toAccount);
+		Map<String, Object> fromAccountMap = functionHandler.getRecord(fromAccount, Account.class);
+		Map<String, Object> toAccountMap = functionHandler.getRecord(toAccount, Account.class);
 		
 		if(fromAccountMap == null || toAccountMap == null) {
 			throw new CustomException("Invalid accounts.");
@@ -189,7 +186,7 @@ public class ApiHandler {
                 : null;
 		FunctionHandler functionHandler = new FunctionHandler();
 		
-		Map<String, Object> accountMap = functionHandler.getAccount(accountNumber);
+		Map<String, Object> accountMap = functionHandler.getRecord(accountNumber, Account.class);
 		
 		if(accountMap == null) {
 			throw new CustomException("Invalid account.");
@@ -206,7 +203,7 @@ public class ApiHandler {
 			}
 		}
 		
-		String accountStatus =(String) functionHandler.getAccount(accountNumber).get("status");
+		String accountStatus =(String) functionHandler.getRecord(accountNumber, Account.class).get("status");
 		if(accountStatus.equals("BLOCKED")||accountStatus.equals("INACTIVE"))
 		{
 			throw new CustomException("Account is "+accountStatus+".");
@@ -264,7 +261,7 @@ public class ApiHandler {
 		
 		FunctionHandler functionHandler = new FunctionHandler();
 		
-		Map<String, Object> accountMap = functionHandler.getAccount(accountNumber);
+		Map<String, Object> accountMap = functionHandler.getRecord(accountNumber, Account.class);
 		
 		if(accountMap == null) {
 			throw new CustomException("Invalid account.");
@@ -293,60 +290,13 @@ public class ApiHandler {
 	}
 	
 	public long createEmployee(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
-		StringBuilder jsonBody = new StringBuilder();
-		String line;
-		try(BufferedReader reader = request.getReader())
-		{
-			while((line = reader.readLine()) != null)
-			{
-				jsonBody.append(line);
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		JsonObject jsonObject = JsonParser.parseString(jsonBody.toString()).getAsJsonObject();
-		
-		String name = null;
-	    String password = null;
-	    String email = null;
-	    String employeeRole = null;
-	    String mobile = null;
-	    Date dateOfBirth = null;
-	    String status = null;
-	    Long employeeBranchId = null;
-	    
-	    Map<String, Object> employeeMap = new HashMap<String, Object>();
-	    try {
-	    	name = jsonObject.get("username").getAsString();
-		    password = jsonObject.get("password").getAsString();
-		    email = jsonObject.get("email").getAsString();
-		    employeeRole = jsonObject.get("role").getAsString();
-		    mobile = jsonObject.get("mobile").getAsString();
-		    String dateString = jsonObject.get("dateOfBirth").getAsString();
-		    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-		    dateOfBirth = formatter.parse(dateString);
-		    status = jsonObject.get("status").getAsString();
-		    System.out.println("*");
-		    employeeBranchId = jsonObject.has("branchId") && !jsonObject.get("branchId").isJsonNull() 
-            		? jsonObject.get("branchId").getAsLong() : null;
-		    
-		    employeeMap.put("name", name);
-		    employeeMap.put("password", password);
-		    employeeMap.put("role", employeeRole);
-		    employeeMap.put("email", email);
-		    employeeMap.put("mobile", mobile);
-		    employeeMap.put("dob", dateOfBirth);
-		    employeeMap.put("modifiedBy", userId);
-		    employeeMap.put("status", status);
-		    employeeMap.put("branchId", employeeBranchId);
-        } catch (Exception e) {
-			throw new CustomException("Enter proper details for the required fields.");
-		}
-	    
+		Employee employee = ApiHelper.getPojoFromRequest(ApiHelper.getJsonBody(request), Employee.class);
+		employee.setStatus(Status.ACTIVE);
+		employee.setCreationTime(System.currentTimeMillis());
+		employee.setModifiedBy(userId);
 	    FunctionHandler functionHandler = new FunctionHandler();
 	    try {	    	
-	    	return functionHandler.createEmployee(employeeMap);
+	    	return functionHandler.create(employee);
 	    } catch (Exception e) {
 	    	e.printStackTrace();
 	    	throw new Exception("Failed Creating employee.");
@@ -354,109 +304,19 @@ public class ApiHandler {
 	}
 	
 	public long createBranch(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
-		StringBuilder jsonBody = new StringBuilder();
-		String line;
-		try(BufferedReader reader = request.getReader())
-		{
-			while((line = reader.readLine()) != null)
-			{
-				jsonBody.append(line);
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		JsonObject jsonObject = JsonParser.parseString(jsonBody.toString()).getAsJsonObject();
-		
-		String name = null;
-		Long ifsc = null;
-		Long employeeId = null;
-	    String address = null;
-	    
-	    Map<String, Object> branchMap = new HashMap<String, Object>();
-	    try {
-	    	name = jsonObject.get("name").getAsString();
-		    ifsc = jsonObject.get("ifsc").getAsLong();
-		    address = jsonObject.get("address").getAsString();
-		    employeeId = jsonObject.get("employeeId").getAsLong();
-		    
-		    branchMap.put("name", name);
-		    branchMap.put("ifsc", ifsc);
-		    branchMap.put("address", address);
-		    branchMap.put("employeeId", employeeId);
-		    branchMap.put("modifiedBy", userId);
-        } catch (Exception e) {
-			throw new CustomException("Enter proper details for the required fields.");
-		}
-	    
+		Branch branch = ApiHelper.getPojoFromRequest(ApiHelper.getJsonBody(request), Branch.class);
+		branch.setCreationTime(System.currentTimeMillis());
+	    branch.setModifiedBy(userId);
 	    FunctionHandler functionHandler = new FunctionHandler();
 	    try {
-	    	return functionHandler.createBranch(branchMap);
+	    	return functionHandler.create(branch);
 	    } catch (Exception e) {
 	    	throw new Exception("Failed creating branch.");
 	    }
 	}
 	
-//	public long createAccount(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
-//		StringBuilder jsonBody = new StringBuilder();
-//		String line;
-//		try(BufferedReader reader = request.getReader())
-//		{
-//			while((line = reader.readLine()) != null)
-//			{
-//				jsonBody.append(line);
-//			}
-//		} catch(Exception e) {
-//			e.printStackTrace();
-//		}
-//		
-//		JsonObject jsonObject = JsonParser.parseString(jsonBody.toString()).getAsJsonObject();
-//		
-//		Long accountUserId = null;
-//	    Long accountBranchId = null;
-//	    String accountType = null;
-//	    Float balance = null;
-//	    String status = null;
-//	    
-//	    Map<String, Object> branchMap = new HashMap<String, Object>();
-//	    try {
-//	    	accountUserId = jsonObject.get("userId").getAsLong();
-//	    	accountBranchId = jsonObject.get("branchId").getAsLong();
-//	    	accountType = jsonObject.get("accountType").getAsString();
-//	    	balance = jsonObject.get("balance").getAsFloat();
-//	    	status = jsonObject.get("status").getAsString();
-//		    
-//		    branchMap.put("userId", accountUserId);
-//		    branchMap.put("branchId", accountBranchId);
-//		    branchMap.put("accountType", accountType);
-//		    branchMap.put("balance", balance);
-//		    branchMap.put("status", status);
-//		    branchMap.put("modifiedBy", userId);
-//        } catch (Exception e) {
-//			throw new CustomException("Enter proper details for the required fields.");
-//		}
-//	    
-//	    FunctionHandler functionHandler = new FunctionHandler();
-//	    try {
-//			return functionHandler.createAccount(branchMap);
-//		} catch (Exception e) {
-//			throw new Exception("Failed to create account");
-//		}
-//	}
-	
 	public long createAccount(HttpServletRequest request, Long userId) throws Exception {
-		StringBuilder jsonBody = new StringBuilder();
-		String line;
-		try(BufferedReader reader = request.getReader())
-		{
-			while((line = reader.readLine()) != null)
-			{
-				jsonBody.append(line);
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		Account account = ApiHelper.getPojoFromRequest(jsonBody, Account.class);
+		Account account = ApiHelper.getPojoFromRequest(ApiHelper.getJsonBody(request), Account.class);
 		account.setDateOfOpening(System.currentTimeMillis());
 	    account.setCreationTime(System.currentTimeMillis());
 	    account.setModifiedBy(userId);
@@ -469,18 +329,7 @@ public class ApiHandler {
 	}
 	
 	public long createCustomer(HttpServletRequest request, Long userId) throws Exception {
-		StringBuilder jsonBody = new StringBuilder();
-		String line;
-		try(BufferedReader reader = request.getReader())
-		{
-			while((line = reader.readLine()) != null)
-			{
-				jsonBody.append(line);
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		Customer customer = ApiHelper.getPojoFromRequest(jsonBody, Customer.class);
+		Customer customer = ApiHelper.getPojoFromRequest(ApiHelper.getJsonBody(request), Customer.class);
 		customer.setCreationTime(System.currentTimeMillis());
 		customer.setModifiedBy(userId);
 		customer.setRole(Role.CUSTOMER);

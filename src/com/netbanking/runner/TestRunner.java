@@ -106,7 +106,7 @@ public class TestRunner {
         customerDetails.put("panNumber", "QRTYU6768L");
 
         try {
-            api.createCustomer(customerDetails);
+//            api.createCustomer(customerDetails);
             System.out.println("Customer created successfully.");
         } catch (Exception e) {
             e.printStackTrace();
