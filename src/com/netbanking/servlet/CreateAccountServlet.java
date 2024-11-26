@@ -59,7 +59,7 @@ public class CreateAccountServlet extends HttpServlet{
 			}
 			
 			try {
-				Long createdBranchId = apiHandler.createAccount(request, userId, role, branchId);	
+				Long createdBranchId = apiHandler.createAccount(request, userId);	
 				response.setStatus(HttpServletResponse.SC_OK);
 				responseMap.put("status", true);
                 responseMap.put("message", "Action completed successfully.");

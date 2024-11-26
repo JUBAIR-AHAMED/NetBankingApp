@@ -82,7 +82,7 @@ public class User implements Model {
         this.status = status;
     }
 
-    public long getCreationTime() {
+    public Long getCreationTime() {
         return creationTime;
     }
 
@@ -90,7 +90,7 @@ public class User implements Model {
         this.creationTime = creationTime;
     }
 
-    public long getModifiedTime() {
+    public Long getModifiedTime() {
         return modifiedTime;
     }
 
@@ -98,7 +98,7 @@ public class User implements Model {
         this.modifiedTime = modifiedTime;
     }
 
-    public long getModifiedBy() {
+    public Long getModifiedBy() {
         return modifiedBy;
     }
 

@@ -14,12 +14,13 @@ public class PojoValueMapper<T extends Model> {
 
         while (clazz != null) {
             Field[] fields = clazz.getDeclaredFields();
+            System.out.println(fields.toString());
 
             for (Field field : fields) {
             	String getMethodString = "get"+capitalizeFirstLetter(field.getName());
             	Method getMethod = clazz.getDeclaredMethod(getMethodString);
+            	System.out.println(getMethodString);
             	Object value = getMethod.invoke(entity);
-
                 if (value != null) {
                     if (field.getType().isEnum()) {
                         value = ((Enum<?>) value).name();

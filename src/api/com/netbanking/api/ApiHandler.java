@@ -16,6 +16,9 @@ import com.google.gson.JsonParser;
 import com.netbanking.dao.FunctionHandler;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Account;
+import com.netbanking.object.Customer;
+import com.netbanking.object.Role;
+import com.netbanking.object.Status;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Encryption;
 import com.netbanking.util.Parser;
@@ -441,7 +444,7 @@ public class ApiHandler {
 //		}
 //	}
 	
-	public long createAccount(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
+	public long createAccount(HttpServletRequest request, Long userId) throws Exception {
 		StringBuilder jsonBody = new StringBuilder();
 		String line;
 		try(BufferedReader reader = request.getReader())
@@ -454,32 +457,9 @@ public class ApiHandler {
 			e.printStackTrace();
 		}
 		Account account = ApiHelper.getPojoFromRequest(jsonBody, Account.class);
-//		JsonObject jsonObject = JsonParser.parseString(jsonBody.toString()).getAsJsonObject();
-//		
-//		Long accountUserId = null;
-//	    Long accountBranchId = null;
-//	    String accountType = null;
-//	    Float balance = null;
-//	    String status = null;
-//	    
-//	    Map<String, Object> branchMap = new HashMap<String, Object>();
-//	    try {
-//	    	accountUserId = jsonObject.get("userId").getAsLong();
-//	    	accountBranchId = jsonObject.get("branchId").getAsLong();
-//	    	accountType = jsonObject.get("accountType").getAsString();
-//	    	balance = jsonObject.get("balance").getAsFloat();
-//	    	status = jsonObject.get("status").getAsString();
-//		    
-//		    branchMap.put("userId", accountUserId);
-//		    branchMap.put("branchId", accountBranchId);
-//		    branchMap.put("accountType", accountType);
-//		    branchMap.put("balance", balance);
-//		    branchMap.put("status", status);
-//		    branchMap.put("modifiedBy", userId);
-//        } catch (Exception e) {
-//			throw new CustomException("Enter proper details for the required fields.");
-//		}
-//	    
+		account.setDateOfOpening(System.currentTimeMillis());
+	    account.setCreationTime(System.currentTimeMillis());
+	    account.setModifiedBy(userId);
 	    FunctionHandler functionHandler = new FunctionHandler();
 	    try {
 			return functionHandler.create(account);
@@ -488,7 +468,7 @@ public class ApiHandler {
 		}
 	}
 	
-	public long createCustomer(HttpServletRequest request) throws Exception {
+	public long createCustomer(HttpServletRequest request, Long userId) throws Exception {
 		StringBuilder jsonBody = new StringBuilder();
 		String line;
 		try(BufferedReader reader = request.getReader())
@@ -500,42 +480,12 @@ public class ApiHandler {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		
-		JsonObject jsonObject = JsonParser.parseString(jsonBody.toString()).getAsJsonObject();
-		
-		String password =null;
-		String name = null;
-		String email = null;
-		String mobile = null;
-		Date dateOfBirth = null;
-		Long modifiedBy = null;
-		Long aadharNumber = null;
-		String panNumber = null;
-	    
-	    Map<String, Object> customerMap = new HashMap<String, Object>();
-	    try {
-	    	password = jsonObject.get("password").getAsString();
-	    	name = jsonObject.get("name").getAsString();
-	    	email = jsonObject.get("email").getAsString();
-	    	mobile = jsonObject.get("mobile").getAsString();
-	    	String dateString = jsonObject.get("dateOfBirth").getAsString();
-		    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-		    dateOfBirth = formatter.parse(dateString);
-	    	aadharNumber = jsonObject.get("aadharNumber").getAsLong();
-	    	panNumber = jsonObject.get("panNumber").getAsString();
-		    
-	    	customerMap.put("password", password);
-	    	customerMap.put("name", name);
-	    	customerMap.put("email", email);
-	    	customerMap.put("mobile", mobile);
-	    	customerMap.put("dob", dateOfBirth);
-	    	customerMap.put("aadharNumber", aadharNumber);
-	    	customerMap.put("panNumber", panNumber);
-	    	customerMap.put("modifiedBy", 1L);
-        } catch (Exception e) {
-			throw new CustomException("Enter proper details for the required fields.");
-		}
-	    FunctionHandler functionHandler = new FunctionHandler();
-		return functionHandler.createCustomer(customerMap);
+		Customer customer = ApiHelper.getPojoFromRequest(jsonBody, Customer.class);
+		customer.setCreationTime(System.currentTimeMillis());
+		customer.setModifiedBy(userId);
+		customer.setRole(Role.CUSTOMER);
+		customer.setStatus(Status.ACTIVE);
+		FunctionHandler functionHandler = new FunctionHandler();
+		return functionHandler.create(customer);
 	}
 }

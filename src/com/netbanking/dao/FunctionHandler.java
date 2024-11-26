@@ -233,9 +233,7 @@ public class FunctionHandler {
 		{
 			from_account_balance += amount;
 		} else {
-			System.out.println(from_account_balance);
 			from_account_balance -= amount;
-			System.out.println(from_account_balance);
 		}
 		QueryRequest fromAccRequest = new QueryRequest();
 		fromAccRequest.setTableName("account");
@@ -387,33 +385,6 @@ public class FunctionHandler {
 
 	    DataAccessObject<Employee> employeeDao = new DataAccessObject<>();
         return employeeDao.insertHandler(employee);
-	}
-	
-	public Long createAccount(Map<String, Object> accountDetails) throws Exception {
-	    Long userId = (Long) accountDetails.get("userId");
-	    Long branchId = (Long) accountDetails.get("branchId");
-	    String accountType = (String) accountDetails.get("accountType");
-	    Float balance = (Float) accountDetails.get("balance");
-	    String status = (String) accountDetails.get("status");
-	    Long modifiedBy = (Long) accountDetails.get("modifiedBy");
-	    if(!accountType.equals("SAVINGS")&&!accountType.equals("CURRENT"))
-	    {
-	    	throw new CustomException("Account type is invalid.");
-	    }
-	    Validator.checkInvalidInput(userId, branchId, accountType, balance, status);
-	    Account account = new Account();
-	    account.setUserId(userId);
-	    account.setBranchId(branchId);
-	    account.setAccountType(accountType);
-	    account.setDateOfOpening(System.currentTimeMillis());
-	    account.setBalance(balance);
-	    account.setStatus(Status.valueOf(status));
-	    account.setDateOfOpening(System.currentTimeMillis());
-	    account.setCreationTime(System.currentTimeMillis());
-	    account.setModifiedBy(modifiedBy);
-
-	    DataAccessObject<Account> accountDao = new DataAccessObject<>();
-        return accountDao.insertHandler(account);
 	}
 	
 	public Long create(Model object) throws Exception {

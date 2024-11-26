@@ -1,12 +1,13 @@
 package com.netbanking.util;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class ApiHelper {
 	private static final Gson gson = new Gson();
@@ -40,6 +41,7 @@ public class ApiHelper {
                     setter.invoke(pojo, convertedValue);
                 }
             } catch (Exception e) {
+            	e.printStackTrace();
                 System.out.println("Failed to set value for " + key + ": " + e.getMessage());
             }
         }
@@ -56,13 +58,44 @@ public class ApiHelper {
         return null;
     }
 
-    private static Object convertValue(Object value, Class<?> targetType) {
+    @SuppressWarnings("unchecked")
+	private static Object convertValue(Object value, Class<?> targetType) {
         if (value == null) {
             return null;
         }
 
         if (targetType.isAssignableFrom(value.getClass())) {
             return value;
+        }
+        
+        if (targetType == java.sql.Date.class) {
+            if (value instanceof String) {
+                String dateString = (String) value;
+                try {
+                    // Convert String to java.sql.Date
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                    java.util.Date utilDate = formatter.parse(dateString); // Parse into util.Date first
+                    return new java.sql.Date(utilDate.getTime()); // Convert to sql.Date
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Invalid date format: " + value, e);
+                }
+            } else if (value instanceof java.util.Date) {
+                return new java.sql.Date(((java.util.Date) value).getTime());
+            } else {
+                throw new IllegalArgumentException("Cannot convert value to java.sql.Date: " + value);
+            }
+        }
+
+        if(targetType.isEnum()) {
+        	if (value instanceof String) {
+                try {
+                    return Enum.valueOf((Class<? extends Enum>) targetType, (String) value);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Invalid enum value: " + value + " for type " + targetType.getName(), e);
+                }
+            } else {
+                throw new IllegalArgumentException("Cannot convert non-string value to enum: " + targetType.getName());
+            }
         }
 
         // Handle primitive types and their wrappers
@@ -84,7 +117,6 @@ public class ApiHelper {
             throw new IllegalArgumentException("Failed to convert value: " + value + " to type " + targetType.getName(), e);
         }
 
-        // Add additional conversions if needed
         throw new IllegalArgumentException("Unsupported type conversion: " + targetType.getName());
     }
 
