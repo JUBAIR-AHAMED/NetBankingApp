@@ -1,0 +1,32 @@
+CUSTOMER:
+  /accounts:
+    - GET
+  /transaction:
+    - POST
+  /statement:
+    - POST
+  /profile:
+    - GET
+
+EMPLOYEE:
+  /accounts:
+    - GET
+    - POST
+  /transaction:
+    - POST
+  /statement:
+    - POST
+  /profile:
+    - GET
+
+MANAGER:
+  /accounts:
+    - GET
+    - PUT
+  /transaction:
+    - DELETE
+  /statement:
+    - POST
+  /profile:
+    - GET
+    - PUT

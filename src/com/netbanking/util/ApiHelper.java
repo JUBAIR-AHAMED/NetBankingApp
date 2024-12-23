@@ -19,7 +19,10 @@ public class ApiHelper {
         // Parse the JSON into a Map
         Type mapType = new TypeToken<Map<String, Object>>() {}.getType();
         Map<String, Object> data = gson.fromJson(jsonBuilder.toString(), mapType);
-
+        System.out.println("the data "+data);
+        if(data==null) {
+        	return null;
+        }
         // Create an instance of the POJO
         T pojo;
         try {
@@ -33,7 +36,7 @@ public class ApiHelper {
             String key = entry.getKey();
             Object value = entry.getValue();
             String setterName = "set" + key.substring(0, 1).toUpperCase() + key.substring(1);
-
+            boolean valuePresence = false;
             try {
                 // Find the setter method
                 Method setter = findSetterMethod(pojoClass, setterName);
@@ -42,7 +45,12 @@ public class ApiHelper {
                     // Convert the value to the expected type
                     Object convertedValue = convertValue(value, paramType);
                     setter.invoke(pojo, convertedValue);
+                    valuePresence = true;
                 }
+                if(!valuePresence) {
+                	return null;
+                }
+                
             } catch (Exception e) {
             	e.printStackTrace();
                 System.out.println("Failed to set value for " + key + ": " + e.getMessage());

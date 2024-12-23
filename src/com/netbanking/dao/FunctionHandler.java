@@ -14,6 +14,7 @@ import com.netbanking.object.Transaction;
 import com.netbanking.util.Validator;
 
 public class FunctionHandler {
+	// Get Methods
 	public <T extends Model> Map<String, Object> getRecord(Long id, Class<T> type) throws CustomException, Exception {
 		Validator.checkInvalidInput(id);
 		GetMetadata metadata = GetMetadata.fromClass(type);
@@ -28,7 +29,34 @@ public class FunctionHandler {
 		return (resultList == null || resultList.isEmpty()) ? null : resultList.get(0);
 	}
 		
-	public List<Map<String, Object>> getAccounts(List<String> filterFields, List<Object> filterValues, Boolean inactiveReq) throws Exception
+	public List<Map<String, Object>> getTransactionStatement(Long accountNumber, Long fromDate, Long toDate, Integer limit) throws Exception {
+		Validator.checkInvalidInput(accountNumber);
+		DataAccessObject<Transaction> transactionHandle = new DataAccessObject<Transaction>();		
+		QueryRequest request = new QueryRequest();
+		request.setTableName("transaction");
+		request.setSelectAllColumns(true);
+		List<String> orderByColumn = new ArrayList<String>(), orderDirections = new ArrayList<String>();
+		request.putWhereConditions("accountNumber");
+		request.putWhereOperators("=");
+		request.putWhereConditionsValues(accountNumber);
+		orderByColumn.add("timestamp");
+		orderDirections.add("DESC");
+		if(fromDate!=null) {
+			request.putWhereConditions("timestamp", "timestamp");
+			request.putWhereConditionsValues(fromDate, toDate);
+			request.putWhereOperators(">=", "<=");
+			request.putWhereLogicalOperators("AND", "AND");
+		}
+		request.setOrderByColumns(orderByColumn);
+		request.setOrderDirections(orderDirections);
+		if(limit!=null)
+		{
+			request.setLimit(limit);			
+		}
+		return transactionHandle.select(request);
+	}
+
+	public List<Map<String, Object>> getAccounts(List<String> filterFields, List<Object> filterValues, Boolean inactiveReq, Integer limit) throws Exception
 	{
 		QueryRequest request = new QueryRequest();
 		request.setSelectAllColumns(true);
@@ -61,6 +89,9 @@ public class FunctionHandler {
 			request.putWhereLogicalOperators("AND");
 			request.putWhereOperators("!=");
 		}
+		if(limit!=null) {
+			request.setLimit(limit);
+		}
 		request.setWhereConditionsType(whereConditionsType);
 		request.putJoinConditions(joinConditions);
 		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
@@ -69,7 +100,6 @@ public class FunctionHandler {
 		return accountMap;
 	}
 	
-	//Remove
 	public Map<String, Object> getProfile(Long userId, String role) throws Exception
 	{
 		Validator.checkInvalidInput(userId, role);
@@ -85,7 +115,6 @@ public class FunctionHandler {
 			joinConditions.putRightTable("customer");
 			joinConditions.putRightColumn("customerId");
 			joinConditions.putOperator("=");
-			request.putJoinConditions(joinConditions);
 		} else if(role.equals("MANAGER")||role.equals("EMPLOYEE")) {
 			joinConditions.setTableName("employee");
 			joinConditions.putLeftTable("user");
@@ -93,10 +122,10 @@ public class FunctionHandler {
 			joinConditions.putRightTable("employee");
 			joinConditions.putRightColumn("employeeId");
 			joinConditions.putOperator("=");
-			request.putJoinConditions(joinConditions);
 		} else {
 			throw new CustomException("Role of the user is undefined.");
 		}
+		request.putJoinConditions(joinConditions);
 		request.putWhereConditions("userId");
 		request.putWhereConditionsValues(userId);
 		request.putWhereOperators("=");
@@ -105,7 +134,41 @@ public class FunctionHandler {
 		transactionMap = daoCaller.select(request);
 		return transactionMap.get(0);
 	}
-
+	
+	//Create
+	public Long create(Model object) throws Exception {
+		DataAccessObject<Model> accountDao = new DataAccessObject<>();
+		return accountDao.insertHandler(object);
+	}
+	
+	//Update
+	public void update(Model object, Class<?> clazz, Long id) throws Exception {
+		DataAccessObject<Model> accountDao = new DataAccessObject<>();
+		GetMetadata metadata = GetMetadata.fromClass(clazz);
+		QueryRequest request = new QueryRequest();
+		request.setSelectAllColumns(true);
+		request.setTableName(metadata.getTableName());
+		request.putWhereConditions(metadata.getPrimaryKeyColumn());
+		request.putWhereConditionsValues(id);
+		request.putWhereOperators("=");
+		accountDao.update(object, request);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	private void storeTransaction(Long from_account, Long to_account, Long user_id, Float amount, Float from_account_balance, Float to_account_balance, String transactionType) throws Exception
 	{
 		Validator.checkInvalidInput(from_account, user_id, amount);
@@ -199,35 +262,5 @@ public class FunctionHandler {
 		storeTransaction(from_account_number, to_account_number, user_id, amount, from_account_balance, to_account_balance, transactionType);
 	}
 	
-	public List<Map<String, Object>> getTransactionStatement(Long accountNumber, Long fromDate, Long toDate, Integer limit) throws Exception {
-		Validator.checkInvalidInput(accountNumber);
-		DataAccessObject<Transaction> transactionHandle = new DataAccessObject<Transaction>();		
-		QueryRequest request = new QueryRequest();
-		request.setTableName("transaction");
-		request.setSelectAllColumns(true);
-	    List<String> orderByColumn = new ArrayList<String>(), orderDirections = new ArrayList<String>();
-	    request.putWhereConditions("accountNumber");
-	    request.putWhereOperators("=");
-	    request.putWhereConditionsValues(accountNumber);
-		orderByColumn.add("timestamp");
-		orderDirections.add("DESC");
-		if(fromDate!=null) {
-			request.putWhereConditions("timestamp", "timestamp");
-			request.putWhereConditionsValues(fromDate, toDate);
-			request.putWhereOperators(">=", "<=");
-			request.putWhereLogicalOperators("AND", "AND");
-		}
-		request.setOrderByColumns(orderByColumn);
-		request.setOrderDirections(orderDirections);
-		if(limit!=null)
-		{
-			request.setLimit(limit);			
-		}
-		return transactionHandle.select(request);
-	}
 	
-	public Long create(Model object) throws Exception {
-	    DataAccessObject<Model> accountDao = new DataAccessObject<>();
-        return accountDao.insertHandler(object);
-	}
 }

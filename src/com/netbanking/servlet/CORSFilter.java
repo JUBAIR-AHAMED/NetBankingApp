@@ -3,7 +3,7 @@ package com.netbanking.servlet;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 
@@ -17,12 +17,19 @@ public class CORSFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         System.out.println("CORSFilter is being applied");
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
+        
+
         
         httpResponse.setHeader("Access-Control-Allow-Origin", "*");
         httpResponse.setHeader("Access-Control-Allow-Methods", "*");
         httpResponse.setHeader("Access-Control-Allow-Headers", "*");
         httpResponse.setHeader("Access-Control-Allow-Credentials", "false");
+        if ("OPTIONS".equalsIgnoreCase(httpRequest.getMethod())) {
+        	chain.doFilter(request, response);
+        	return;
+        }
 //        httpResponse.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 //        httpResponse.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 //        httpResponse.setHeader("Access-Control-Allow-Credentials", "true");

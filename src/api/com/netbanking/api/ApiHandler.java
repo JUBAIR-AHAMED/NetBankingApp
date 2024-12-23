@@ -54,8 +54,9 @@ public class ApiHandler {
 		}
 	}
 	
-	public List<Map<String, Object>> getUserAccounts(Long userId, String role, Long branchId, List<String> filterFields, List<Object> filterValues) throws Exception
+	public List<Map<String, Object>> getUserAccounts(Long userId, String role, Long branchId, List<String> filterFields, List<Object> filterValues, Integer limit) throws Exception
 	{
+		
 		FunctionHandler functionHandler = new FunctionHandler();
 		if(role.equals("CUSTOMER")) {
 			if(filterFields!=null && !filterFields.isEmpty()) {
@@ -64,9 +65,9 @@ public class ApiHandler {
 			filterFields = new ArrayList<String>();
 			filterFields.add("userId");
 			filterValues.add(userId);
-			return functionHandler.getAccounts(filterFields, filterValues, false);
+			return functionHandler.getAccounts(filterFields, filterValues, false, limit);
 		}
-		return functionHandler.getAccounts(filterFields, filterValues, true);
+		return functionHandler.getAccounts(filterFields, filterValues, true, limit);
 	}
 	
 	public void initiateTransaction(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception, CustomException {
@@ -336,5 +337,38 @@ public class ApiHandler {
 		customer.setStatus(Status.ACTIVE);
 		FunctionHandler functionHandler = new FunctionHandler();
 		return functionHandler.create(customer);
+	}
+	
+	public void updateCustomer(StringBuilder jsonBody, Long userId) throws Exception {
+		Customer customer = ApiHelper.getPojoFromRequest(jsonBody, Customer.class);
+		if(customer==null) {
+			return;
+		}
+		customer.setCreationTime(System.currentTimeMillis());
+		customer.setModifiedBy(userId);
+		FunctionHandler functionHandler = new FunctionHandler();
+		functionHandler.update(customer, Customer.class, userId);
+	}
+	
+	public void updateEmployee(StringBuilder jsonBody, Long userId) throws Exception {
+		Employee employee = ApiHelper.getPojoFromRequest(jsonBody, Employee.class);
+		if(employee==null) {
+			return;
+		}
+		employee.setCreationTime(System.currentTimeMillis());
+		employee.setModifiedBy(userId);
+		FunctionHandler functionHandler = new FunctionHandler();
+		functionHandler.update(employee, Employee.class, userId);
+	}
+	
+	public void updateUser(StringBuilder jsonBody, Long userId) throws Exception {
+		User user = ApiHelper.getPojoFromRequest(jsonBody, User.class);
+		if(user==null) {
+			return;
+		}
+		user.setCreationTime(System.currentTimeMillis());
+		user.setModifiedBy(userId);
+		FunctionHandler functionHandler = new FunctionHandler();
+		functionHandler.update(user, User.class, userId);
 	}
 }

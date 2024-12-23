@@ -4,12 +4,14 @@ import com.netbanking.object.Account;
 import com.netbanking.object.Customer;
 import com.netbanking.object.Employee;
 import com.netbanking.object.User;
+import com.netbanking.object.Branch;
 
 public enum GetMetadata {
     USER(User.class, "user", "userId"),
     CUSTOMER(Customer.class, "customer", "customerId"),
     EMPLOYEE(Employee.class, "employee", "employeeId"),
-	ACCOUNT(Account.class, "account", "accountNumber");
+	ACCOUNT(Account.class, "account", "accountNumber"),
+	BRANCH(Branch.class, "branch", "branchId");
 
     private final Class<?> pojoClass;
     private final String tableName;

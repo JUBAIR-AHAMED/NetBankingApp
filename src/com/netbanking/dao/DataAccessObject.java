@@ -167,6 +167,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
     	try (Connection connection = DBConnection.getConnection();
              PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
         	int count = 1;
+        	System.out.println(updateValues);
         	count = DBConnection.setValuesInPstm(stmt, updateValues, count);
         	if(whereConditions != null && !whereConditions.isEmpty()) {
         		DBConnection.setValuesInPstm(stmt, whereConditionsValues, count);
@@ -275,21 +276,22 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 		}
     }
     
-    public static String capitalizeFirstLetter(String input) {
-        if (input == null || input.isEmpty()) {
-            return input; // Return the original string if it's null or empty
-        }
-        return input.substring(0, 1).toUpperCase() + input.substring(1);
-    }
+//    public static String capitalizeFirstLetter(String input) {
+//        if (input == null || input.isEmpty()) {
+//            return input; // Return the original string if it's null or empty
+//        }
+//        return input.substring(0, 1).toUpperCase() + input.substring(1);
+//    }
     
-    public void convertFields(String tableName, List<String> fields) {
+    public void convertFields(String tableName, List<String> fields) throws Exception {
 		Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(tableName);
+		if(fieldToColumnMap==null) {
+			throw new Exception("Table name is invalid");
+		}
 		for(int i=0;i<fields.size();i++) {
 			String fieldName = fields.remove(i);
 	        if (fieldToColumnMap.containsKey(fieldName)) {
-	        	if (fieldToColumnMap.containsKey(fieldName)) {
-		            fields.add(i, fieldToColumnMap.get(fieldName));
-		        }
+	            fields.add(i, fieldToColumnMap.get(fieldName));
 	        }
 		}
 	}
