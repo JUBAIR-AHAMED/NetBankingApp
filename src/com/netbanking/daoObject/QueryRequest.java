@@ -22,6 +22,8 @@ public class QueryRequest {
     private List<String> whereOperators;
     private List<String> whereLogicalOperators;
     private Integer limit;
+    private Integer offset;
+    private Boolean count=false;
 
     // Constructors
     public QueryRequest() {}
@@ -265,5 +267,21 @@ public class QueryRequest {
 
     public void setLimit(Integer limit) {
         this.limit = limit;
+    }
+    
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+    
+    public Boolean getCount() {
+        return count;
+    }
+
+    public void setCount(Boolean count) {
+        this.count = count;
     }
 }

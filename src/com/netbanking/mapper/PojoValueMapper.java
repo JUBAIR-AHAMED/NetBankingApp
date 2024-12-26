@@ -14,12 +14,9 @@ public class PojoValueMapper<T extends Model> {
 
         while (clazz != null) {
             Field[] fields = clazz.getDeclaredFields();
-            System.out.println(fields.toString());
-
             for (Field field : fields) {
             	String getMethodString = "get"+capitalizeFirstLetter(field.getName());
             	Method getMethod = clazz.getDeclaredMethod(getMethodString);
-            	System.out.println(getMethodString);
             	Object value = getMethod.invoke(entity);
                 if (value != null) {
                     if (field.getType().isEnum()) {
@@ -30,6 +27,27 @@ public class PojoValueMapper<T extends Model> {
             }
 
             clazz = clazz.getSuperclass();
+        }
+
+        return valueMap;
+    }
+    
+    public Map<String, Object> getMapExcludingParent(T entity) throws Exception {
+        Map<String, Object> valueMap = new HashMap<>();
+        
+        Class<?> clazz = entity.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+
+        for (Field field : fields) {
+        	String getMethodString = "get"+capitalizeFirstLetter(field.getName());
+        	Method getMethod = clazz.getDeclaredMethod(getMethodString);
+        	Object value = getMethod.invoke(entity);
+            if (value != null) {
+                if (field.getType().isEnum()) {
+                    value = ((Enum<?>) value).name();
+                }
+                valueMap.put(field.getName(), value);
+            }
         }
 
         return valueMap;

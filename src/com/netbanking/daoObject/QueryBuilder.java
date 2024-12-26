@@ -6,8 +6,13 @@ import java.util.List;
 public class QueryBuilder {
 	public StringBuilder sqlQuery = new StringBuilder();
 	
-	public QueryBuilder select() {
-		sqlQuery.append("SELECT * ");
+	public QueryBuilder select(Boolean count) {
+		sqlQuery.append("SELECT ");
+		if(count) {
+			sqlQuery.append("COUNT(*) AS count ");
+		} else {
+			sqlQuery.append("* ");
+		}
 		return this;
 	}
 	
@@ -131,6 +136,14 @@ public class QueryBuilder {
 			return this;
 		}
 		sqlQuery.append(" LIMIT ").append(limit);
+		return this;
+	}
+	
+	public QueryBuilder offset(Integer offset) {
+		if(offset==null) {
+			return this;
+		}
+		sqlQuery.append(" OFFSET ").append(offset);
 		return this;
 	}
 	

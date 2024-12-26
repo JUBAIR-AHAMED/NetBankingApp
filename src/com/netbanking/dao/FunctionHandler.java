@@ -29,7 +29,7 @@ public class FunctionHandler {
 		return (resultList == null || resultList.isEmpty()) ? null : resultList.get(0);
 	}
 		
-	public List<Map<String, Object>> getTransactionStatement(Long accountNumber, Long fromDate, Long toDate, Integer limit) throws Exception {
+	public List<Map<String, Object>> getTransactionStatement(Long accountNumber, Long fromDate, Long toDate, Integer limit, Integer offset, Boolean count) throws Exception {
 		Validator.checkInvalidInput(accountNumber);
 		DataAccessObject<Transaction> transactionHandle = new DataAccessObject<Transaction>();		
 		QueryRequest request = new QueryRequest();
@@ -53,34 +53,53 @@ public class FunctionHandler {
 		{
 			request.setLimit(limit);			
 		}
+		if(offset!=null) {
+			request.setOffset(offset);
+		}
+		if(count!=null) {
+			request.setCount(count);
+		}
 		return transactionHandle.select(request);
 	}
 
-	public List<Map<String, Object>> getAccounts(List<String> filterFields, List<Object> filterValues, Boolean inactiveReq, Integer limit) throws Exception
+	public List<Map<String, Object>> getAccounts(List<String> filterFields, List<Object> filterValues, Boolean inactiveReq, Integer limit, Integer offset) throws Exception
 	{
 		QueryRequest request = new QueryRequest();
 		request.setSelectAllColumns(true);
 		request.setTableName("account");
-		Join joinConditions = new Join();
-		joinConditions.setTableName("branch");
-		joinConditions.putLeftTable("account");
-		joinConditions.putLeftColumn("branchId");
-		joinConditions.putRightTable("branch");
-		joinConditions.putRightColumn("branchId");
-		joinConditions.putOperator("=");
-
+//		Join joinConditions = new Join();
+//		joinConditions.setTableName("branch");
+//		joinConditions.putLeftTable("account");
+//		joinConditions.putLeftColumn("branchId");
+//		joinConditions.putRightTable("branch");
+//		joinConditions.putRightColumn("branchId");
+//		joinConditions.putOperator("=");
+//		
+		int countIndex = filterFields.indexOf("count");
+		System.out.println(countIndex);
+		if(countIndex!=-1) {
+			request.setCount((Boolean) filterValues.get(countIndex));
+		}
+		
+		if(offset!=null) {
+			request.setOffset(offset);
+		}
+		
 		List<Where> whereConditionsType = new ArrayList<Where>();
 		
 		for(int i=0;i<filterFields.size();i++) {
 			if(i>0) {
 				request.putWhereLogicalOperators("AND");
 			}
+			if(filterFields.get(i).equals("count")) {
+				continue;
+			}
 			String filterField = filterFields.get(i);
 			String tableName = "account";
-			if(filterField.equals("branchId"))
-			{
-				tableName = "branch";
-			}
+//			if(filterField.equals("branchId"))
+//			{
+//				tableName = "branch";
+//			}
 			whereConditionsType.add(new Where(filterField, tableName, filterValues.get(i)));
 			request.putWhereOperators("=");
 		}
@@ -93,7 +112,7 @@ public class FunctionHandler {
 			request.setLimit(limit);
 		}
 		request.setWhereConditionsType(whereConditionsType);
-		request.putJoinConditions(joinConditions);
+//		request.putJoinConditions(joinConditions);
 		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
 		List<Map<String, Object>> accountMap = null;
 		accountMap = daoCaller.select(request);
@@ -153,21 +172,6 @@ public class FunctionHandler {
 		request.putWhereOperators("=");
 		accountDao.update(object, request);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	private void storeTransaction(Long from_account, Long to_account, Long user_id, Float amount, Float from_account_balance, Float to_account_balance, String transactionType) throws Exception
 	{
@@ -261,6 +265,4 @@ public class FunctionHandler {
 		}
 		storeTransaction(from_account_number, to_account_number, user_id, amount, from_account_balance, to_account_balance, transactionType);
 	}
-	
-	
 }

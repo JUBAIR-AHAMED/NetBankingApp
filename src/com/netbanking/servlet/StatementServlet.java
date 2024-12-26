@@ -24,11 +24,15 @@ public class StatementServlet extends HttpServlet {
 			Long branchId = (Long) request.getAttribute("branchId");
 			
             List<Map<String, Object>> statement = apiHandler.getStatement(request, userId, role, branchId);
-            
             response.setStatus(HttpServletResponse.SC_OK);
             responseMap.put("status", true);
             responseMap.put("message", "Statement fetched successfully");
-            responseMap.put("statement", statement);
+            Long count = (Long) statement.get(0).getOrDefault("count", null);
+            if(count!=null) {
+            	responseMap.put("count", count);
+            } else {
+            	responseMap.put("statement", statement);
+            }
             Parser.writeResponse(response, responseMap);
             return;
 		} catch(CustomException e) {			

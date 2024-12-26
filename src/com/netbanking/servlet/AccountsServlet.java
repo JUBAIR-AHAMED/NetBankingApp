@@ -40,13 +40,19 @@ public class AccountsServlet extends HttpServlet {
             } else if ("EMPLOYEE".equals(role) || "MANAGER".equals(role)) {
                 handleEmployeeOrManagerFilters(request, filterFields, filterValues);
             }
-            Function<String, Integer> parseIntFunction = Integer::parseInt;
+            Function<String, Integer> parser = Integer::parseInt;
             String limitParam = request.getParameter("limit");
-            Integer limit = limitParam!=null? parseIntFunction.apply(request.getParameter("limit")):null;
-            
-            List<Map<String, Object>> accounts = apiHandler.getUserAccounts(userId, role, branchId, filterFields, filterValues, limit);
+            Integer limit = limitParam!=null? parser.apply(request.getParameter("limit")):null;
+            String currentPageString = request.getParameter("currentPage");
+            Integer currentPage = currentPageString!=null && !currentPageString.isEmpty()? parser.apply(currentPageString):null;
+            List<Map<String, Object>> accounts = apiHandler.getUserAccounts(userId, role, branchId, filterFields, filterValues, limit, currentPage);
             ServletHelper.responseWriter(response, true, HttpServletResponse.SC_OK, "Accounts fetched successfully", responseMap);
-            responseMap.put("accounts", accounts);
+            Long count = (Long) accounts.get(0).getOrDefault("count", null);
+            if(count!=null) {
+            	responseMap.put("count", count);
+            } else {
+            	responseMap.put("accounts", accounts);
+            }
             Parser.writeResponse(response, responseMap);
         } catch (Exception e) {
             handleException(response, e, responseMap);
@@ -57,6 +63,7 @@ public class AccountsServlet extends HttpServlet {
         addFilterIfPresent(request, "accountNumber", filterFields, filterValues, Long::parseLong);
         addFilterIfPresent(request, "userId", filterFields, filterValues, Long::parseLong);
         addFilterIfPresent(request, "branchId", filterFields, filterValues, Long::parseLong);
+        addFilterIfPresent(request, "count", filterFields, filterValues, Boolean::parseBoolean);
     }
 
     private <T> void addFilterIfPresent(HttpServletRequest request, String param, List<String> fields, List<Object> values, Function<String, T> parser) {

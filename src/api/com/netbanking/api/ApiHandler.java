@@ -1,5 +1,4 @@
 package com.netbanking.api;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,8 +29,8 @@ public class ApiHandler {
 			JsonObject jsonObject = Parser.getJsonObject(reader);
 			Long userId = jsonObject.get("username").getAsLong();
 			String password = jsonObject.get("password").getAsString();
-			FunctionHandler fn = new FunctionHandler();
-			Map<String, Object> map = fn.getRecord(userId, User.class);
+			FunctionHandler functionHandler = new FunctionHandler();
+			Map<String, Object> map = functionHandler.getRecord(userId, User.class);
 			if(map != null && !map.isEmpty()) {
 				Boolean check=Encryption.verifyPassword(password, (String) map.get("password"));
 				if(!check) {
@@ -54,10 +53,11 @@ public class ApiHandler {
 		}
 	}
 	
-	public List<Map<String, Object>> getUserAccounts(Long userId, String role, Long branchId, List<String> filterFields, List<Object> filterValues, Integer limit) throws Exception
+	public List<Map<String, Object>> getUserAccounts(Long userId, String role, Long branchId, List<String> filterFields, List<Object> filterValues, Integer limit, Integer currentPage) throws Exception
 	{
 		
 		FunctionHandler functionHandler = new FunctionHandler();
+		Integer offset = currentPage!=null? (currentPage - 1) * limit:null;
 		if(role.equals("CUSTOMER")) {
 			if(filterFields!=null && !filterFields.isEmpty()) {
 				throw new Exception("Filter fields is not allowed for the customer");
@@ -65,9 +65,9 @@ public class ApiHandler {
 			filterFields = new ArrayList<String>();
 			filterFields.add("userId");
 			filterValues.add(userId);
-			return functionHandler.getAccounts(filterFields, filterValues, false, limit);
+//			return functionHandler.getAccounts(filterFields, filterValues, false, limit, offset);
 		}
-		return functionHandler.getAccounts(filterFields, filterValues, true, limit);
+		return functionHandler.getAccounts(filterFields, filterValues, true, limit, offset);
 	}
 	
 	public void initiateTransaction(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception, CustomException {
@@ -185,6 +185,17 @@ public class ApiHandler {
 		Integer limit = jsonObject.has("limit") && !jsonObject.get("limit").isJsonNull() 
                 ? jsonObject.get("limit").getAsInt() 
                 : null;
+                
+	    Integer currentPage = jsonObject.has("currentPage") && !jsonObject.get("currentPage").isJsonNull() 
+	            ? jsonObject.get("currentPage").getAsInt() 
+	            : null;
+
+        Boolean count = jsonObject.has("count") && !jsonObject.get("count").isJsonNull() 
+	            ? jsonObject.get("count").getAsBoolean() 
+	            : null;
+	            
+        Integer offset = currentPage!=null? (currentPage - 1) * limit:null;
+	            
 		FunctionHandler functionHandler = new FunctionHandler();
 		
 		Map<String, Object> accountMap = functionHandler.getRecord(accountNumber, Account.class);
@@ -223,7 +234,7 @@ public class ApiHandler {
 		}
 		
 		try {
-			return functionHandler.getTransactionStatement(accountNumber, fromDate, toDate, limit);
+			return functionHandler.getTransactionStatement(accountNumber, fromDate, toDate, limit, offset, count);
 		} catch (CustomException e) {
 			e.printStackTrace();
 			throw e;
@@ -363,6 +374,7 @@ public class ApiHandler {
 	
 	public void updateUser(StringBuilder jsonBody, Long userId) throws Exception {
 		User user = ApiHelper.getPojoFromRequest(jsonBody, User.class);
+		System.out.println(user);
 		if(user==null) {
 			return;
 		}

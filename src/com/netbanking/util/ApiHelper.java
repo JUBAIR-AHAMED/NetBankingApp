@@ -30,7 +30,6 @@ public class ApiHelper {
         } catch (Exception e) {
             throw new RuntimeException("Failed to create instance of " + pojoClass.getName(), e);
         }
-
         // Use reflection to set values via setters
         for (Map.Entry<String, Object> entry : data.entrySet()) {
             String key = entry.getKey();

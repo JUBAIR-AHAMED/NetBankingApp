@@ -125,7 +125,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 	public void update(T object, QueryRequest request) throws Exception {
 		Map<String, Object> pojoValuesMap = null;
 		try {
-			pojoValuesMap = new PojoValueMapper<T>().getMap(object);
+			pojoValuesMap = new PojoValueMapper<T>().getMapExcludingParent(object);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -167,11 +167,11 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
     	try (Connection connection = DBConnection.getConnection();
              PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
         	int count = 1;
-        	System.out.println(updateValues);
         	count = DBConnection.setValuesInPstm(stmt, updateValues, count);
         	if(whereConditions != null && !whereConditions.isEmpty()) {
         		DBConnection.setValuesInPstm(stmt, whereConditionsValues, count);
         	}
+        	System.out.println(stmt);
         	stmt.executeUpdate();
         }
     }
@@ -216,16 +216,17 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 				String whereTableName = entity.getTable();
 				String field = entity.getField();
 				Object value = entity.getValue();
+				System.out.println(field);
 				field = convertField(whereTableName, field);
 				StringBuilder sb = new StringBuilder(whereTableName).append(".").append(field);
 				whereConditions.add(sb.toString());
 				whereConditionsValues.add(value);
 			}
 		}
-		    	
+
     	QueryBuilder qb = new QueryBuilder();
-    	if(request.getSelectAllColumns()) {
-        	qb.select();
+    	if(request.getCount()||request.getSelectAllColumns()) {
+        	qb.select(request.getCount());
         } else {
         	qb.select(selectList);
         }
@@ -233,7 +234,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
     	qb.from(tableName).join(joins)
     		.where(whereConditions, request.getWhereOperators(), request.getWhereLogicalOperators())
         	.order(request.getOrderByColumns(), request.getOrderDirections())
-            .limit(request.getLimit());
+            .limit(request.getLimit()).offset(request.getOffset());
         
         Map<String, String> tableField = new HashMap<String, String>(YamlMapper.getFieldToColumnMapByTableName(tableName));
         if(joins!=null) {
@@ -250,6 +251,14 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
         	System.out.println(stmt);
         	ResultSet rs = stmt.executeQuery();
         	// Preparing map for the purpose of returning the selected values from the database
+        	if(request.getCount()) {
+        		if(rs.next()) {
+        			Map<String, Object> map = new HashMap<>();
+        			map.put("count", rs.getObject("count"));
+        			list.add(map);
+        			return list;
+        		}
+        	}
             while(rs.next())
             {
             	Map<String, Object> map = new HashMap<>();
@@ -268,6 +277,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
             	}
             	list.add(map);
             }
+            System.out.println(list);
             return list;
         }
         catch (Exception e) {
