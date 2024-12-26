@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netbanking.api.ApiHandler;
 import com.netbanking.exception.CustomException;
+import com.netbanking.object.User;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Parser;
 
@@ -25,7 +26,7 @@ public class ProfileServlet extends HttpServlet {
             Long userId = (Long) request.getAttribute("userId");
 			String role = (String) request.getAttribute("role");
             
-            Map<String, Object> profile = apiHandler.getProfile(userId, role);
+            Map<String, Object> profile = apiHandler.get(userId, User.class);
 
             response.setStatus(HttpServletResponse.SC_OK);
             responseMap.put("status", true);
@@ -53,7 +54,7 @@ public class ProfileServlet extends HttpServlet {
             Long userId = (Long) request.getAttribute("userId");
             StringBuilder jsonBody = ApiHelper.getJsonBody(request);
             apiHandler.updateUser(jsonBody, userId);
-            apiHandler.updateCustomer(jsonBody, userId);
+//            apiHandler.updateCustomer(jsonBody, userId);
             
             response.setStatus(HttpServletResponse.SC_OK);
             responseMap.put("status", true);

@@ -285,14 +285,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 			throw new Exception("Failed getting the data.");
 		}
     }
-    
-//    public static String capitalizeFirstLetter(String input) {
-//        if (input == null || input.isEmpty()) {
-//            return input; // Return the original string if it's null or empty
-//        }
-//        return input.substring(0, 1).toUpperCase() + input.substring(1);
-//    }
-    
+
     public void convertFields(String tableName, List<String> fields) throws Exception {
 		Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(tableName);
 		if(fieldToColumnMap==null) {

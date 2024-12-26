@@ -67,14 +67,6 @@ public class FunctionHandler {
 		QueryRequest request = new QueryRequest();
 		request.setSelectAllColumns(true);
 		request.setTableName("account");
-//		Join joinConditions = new Join();
-//		joinConditions.setTableName("branch");
-//		joinConditions.putLeftTable("account");
-//		joinConditions.putLeftColumn("branchId");
-//		joinConditions.putRightTable("branch");
-//		joinConditions.putRightColumn("branchId");
-//		joinConditions.putOperator("=");
-//		
 		int countIndex = filterFields.indexOf("count");
 		System.out.println(countIndex);
 		if(countIndex!=-1) {
@@ -96,10 +88,6 @@ public class FunctionHandler {
 			}
 			String filterField = filterFields.get(i);
 			String tableName = "account";
-//			if(filterField.equals("branchId"))
-//			{
-//				tableName = "branch";
-//			}
 			whereConditionsType.add(new Where(filterField, tableName, filterValues.get(i)));
 			request.putWhereOperators("=");
 		}
@@ -112,7 +100,6 @@ public class FunctionHandler {
 			request.setLimit(limit);
 		}
 		request.setWhereConditionsType(whereConditionsType);
-//		request.putJoinConditions(joinConditions);
 		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
 		List<Map<String, Object>> accountMap = null;
 		accountMap = daoCaller.select(request);
@@ -125,26 +112,26 @@ public class FunctionHandler {
 		QueryRequest request = new QueryRequest();
 		request.setSelectAllColumns(true);
 		request.setTableName("user");
-		Join joinConditions = new Join();
-		if(role.equals("CUSTOMER"))
-		{
-			joinConditions.setTableName("customer");
-			joinConditions.putLeftTable("user");
-			joinConditions.putLeftColumn("userId");
-			joinConditions.putRightTable("customer");
-			joinConditions.putRightColumn("customerId");
-			joinConditions.putOperator("=");
-		} else if(role.equals("MANAGER")||role.equals("EMPLOYEE")) {
-			joinConditions.setTableName("employee");
-			joinConditions.putLeftTable("user");
-			joinConditions.putLeftColumn("userId");
-			joinConditions.putRightTable("employee");
-			joinConditions.putRightColumn("employeeId");
-			joinConditions.putOperator("=");
-		} else {
-			throw new CustomException("Role of the user is undefined.");
-		}
-		request.putJoinConditions(joinConditions);
+//		Join joinConditions = new Join();
+//		if(role.equals("CUSTOMER"))
+//		{
+//			joinConditions.setTableName("customer");
+//			joinConditions.putLeftTable("user");
+//			joinConditions.putLeftColumn("userId");
+//			joinConditions.putRightTable("customer");
+//			joinConditions.putRightColumn("customerId");
+//			joinConditions.putOperator("=");
+//		} else if(role.equals("MANAGER")||role.equals("EMPLOYEE")) {
+//			joinConditions.setTableName("employee");
+//			joinConditions.putLeftTable("user");
+//			joinConditions.putLeftColumn("userId");
+//			joinConditions.putRightTable("employee");
+//			joinConditions.putRightColumn("employeeId");
+//			joinConditions.putOperator("=");
+//		} else {
+//			throw new CustomException("Role of the user is undefined.");
+//		}
+//		request.putJoinConditions(joinConditions);
 		request.putWhereConditions("userId");
 		request.putWhereConditionsValues(userId);
 		request.putWhereOperators("=");

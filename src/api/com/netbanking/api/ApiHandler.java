@@ -1,4 +1,5 @@
 package com.netbanking.api;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.netbanking.dao.FunctionHandler;
 import com.netbanking.exception.CustomException;
+import com.netbanking.model.Model;
 import com.netbanking.object.Account;
 import com.netbanking.object.Branch;
 import com.netbanking.object.Customer;
@@ -19,9 +21,12 @@ import com.netbanking.object.User;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Encryption;
 import com.netbanking.util.Parser;
+import com.netbanking.util.Redis;
 import com.netbanking.util.Validator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ApiHandler {
+	// redis ok
 	public Map<String, Object> loginHandler(HttpServletRequest request) throws IOException, CustomException, Exception
 	{
 		try(BufferedReader reader = request.getReader())
@@ -29,8 +34,7 @@ public class ApiHandler {
 			JsonObject jsonObject = Parser.getJsonObject(reader);
 			Long userId = jsonObject.get("username").getAsLong();
 			String password = jsonObject.get("password").getAsString();
-			FunctionHandler functionHandler = new FunctionHandler();
-			Map<String, Object> map = functionHandler.getRecord(userId, User.class);
+			Map<String, Object> map = get(userId, User.class);
 			if(map != null && !map.isEmpty()) {
 				Boolean check=Encryption.verifyPassword(password, (String) map.get("password"));
 				if(!check) {
@@ -40,24 +44,30 @@ public class ApiHandler {
 				throw new CustomException("Invalid user / customer id.");
 			}
 			String role = (String) map.get("role");
-			Long user_id = (Long) map.get("userId");
-			FunctionHandler functionalHandler = new FunctionHandler();
+			Long user_id;
+			if(map.get("userId").getClass().getSimpleName().equals("Integer")) {
+				user_id = ((Integer) map.get("userId")).longValue();
+			} else {
+				user_id = (Long) map.get("userId");
+			}
 			if(role.equals("EMPLOYEE")||role.equals("MANAGER")) {
-				map.putAll(functionalHandler.getRecord(user_id, Employee.class));
+				map.putAll(get(user_id, Employee.class));
 			}
 			else if(role.equals("CUSTOMER"))
 			{
-				map.putAll(functionalHandler.getRecord(user_id, Customer.class));
+				map.putAll(get(user_id, Customer.class));
 			}
 			return map;
 		}
 	}
 	
+	// redis partially ok
 	public List<Map<String, Object>> getUserAccounts(Long userId, String role, Long branchId, List<String> filterFields, List<Object> filterValues, Integer limit, Integer currentPage) throws Exception
 	{
 		
 		FunctionHandler functionHandler = new FunctionHandler();
 		Integer offset = currentPage!=null? (currentPage - 1) * limit:null;
+		Boolean isInActiveRequired = true;
 		if(role.equals("CUSTOMER")) {
 			if(filterFields!=null && !filterFields.isEmpty()) {
 				throw new Exception("Filter fields is not allowed for the customer");
@@ -65,9 +75,22 @@ public class ApiHandler {
 			filterFields = new ArrayList<String>();
 			filterFields.add("userId");
 			filterValues.add(userId);
-//			return functionHandler.getAccounts(filterFields, filterValues, false, limit, offset);
+			isInActiveRequired = false;
 		}
-		return functionHandler.getAccounts(filterFields, filterValues, true, limit, offset);
+		List<Map<String, Object>> list = functionHandler.getAccounts(filterFields, filterValues, isInActiveRequired, limit, offset);
+		for(Map<String, Object> map:list) {
+			// As count is also maintained in this function
+			if(filterFields.contains("count")) {
+				break;
+			}
+			Long accountNumber =(Long) map.get("accountNumber");
+			String cacheKey = "ACCOUNT$ACCOUNT_NUMBER:"+accountNumber;
+			if(Redis.exists(cacheKey)) {
+				continue;
+			}
+			Redis.setex(cacheKey, map);
+		}
+		return list;
 	}
 	
 	public void initiateTransaction(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception, CustomException {
@@ -240,67 +263,32 @@ public class ApiHandler {
 			throw e;
 		}
 	}
-	
-	public Map<String, Object> getProfile(Long userId, String role) throws CustomException, Exception
+
+	// redis ok
+	@SuppressWarnings("unchecked")
+	public <T extends Model> Map<String, Object> get(Long userId, Class<T> clazz) throws CustomException, Exception
 	{
+		String cacheKey=null;
+		if(clazz.equals(User.class)) {
+			cacheKey = "USER$USER_ID:";
+		} else if (clazz.equals(Customer.class)) {
+			cacheKey = "CUSTOMER$USER_ID:";
+		} else if (clazz.equals(Employee.class)) {
+			cacheKey = "EMPLOYEE$USER_ID:";
+		}
+		cacheKey=cacheKey+userId;
+		ObjectMapper objectMapper = new ObjectMapper();
 		FunctionHandler functionHandler = new FunctionHandler();
-		return functionHandler.getProfile(userId, role);
+		String cachedData = Redis.get(cacheKey);
+		if(cachedData!=null) {
+			return objectMapper.readValue(cachedData, Map.class);
+		} 
+		Map<String, Object> map = functionHandler.getRecord(userId, clazz);
+		Redis.setex(cacheKey, map);
+		return map;
 	}
 	
-	public void initiateAction(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception, CustomException {
-		StringBuilder jsonBody = new StringBuilder();
-		String line;
-		try(BufferedReader reader = request.getReader())
-		{
-			while((line = reader.readLine()) != null)
-			{
-				jsonBody.append(line);
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		JsonObject jsonObject = JsonParser.parseString(jsonBody.toString()).getAsJsonObject();
-		Long accountNumber=null;
-		String actionType = null;
-		
-		try {
-			accountNumber = jsonObject.get("accountNumber").getAsLong();
-            actionType = jsonObject.has("actionType") && !jsonObject.get("actionType").isJsonNull() 
-            		? jsonObject.get("actionType").getAsString() : null;
-        } catch (Exception e) {
-			throw new CustomException("Enter numeric values for account number.");
-		}
-		
-		FunctionHandler functionHandler = new FunctionHandler();
-		
-		Map<String, Object> accountMap = functionHandler.getRecord(accountNumber, Account.class);
-		
-		if(accountMap == null) {
-			throw new CustomException("Invalid account.");
-		}
-		
-		if(role.equals("CUSTOMER"))
-		{
-			if(userId != (Long) accountMap.get("userId")) {
-				throw new CustomException("You don't have permission to access this account.");
-			}
-		} else if(role.equals("EMPLOYEE")) {
-			if(branchId != (Long) accountMap.get("branchId")) {
-				throw new CustomException("You don't have permission to access this account.");
-			}
-		}
-		
-		if(!actionType.equals("BLOCK")&&!actionType.equals("UNBLOCK")&&!actionType.equals("DELETE")) {
-			throw new CustomException("Invalid action type.");
-		}
-		
-        if(accountMap.get("status").equals("INACTIVE")) {
-        	throw new CustomException("Cannot perform any actions this account is inactive.");
-        }
-		
-//		functionHandler.actionHandler(actionType, "ACCOUNT", accountNumber);
-	}
-	
+	// no redis
 	public long createEmployee(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
 		Employee employee = ApiHelper.getPojoFromRequest(ApiHelper.getJsonBody(request), Employee.class);
 		employee.setStatus(Status.ACTIVE);
@@ -315,6 +303,7 @@ public class ApiHandler {
 		}
 	}
 	
+	// no redis
 	public long createBranch(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
 		Branch branch = ApiHelper.getPojoFromRequest(ApiHelper.getJsonBody(request), Branch.class);
 		branch.setCreationTime(System.currentTimeMillis());
@@ -327,6 +316,7 @@ public class ApiHandler {
 	    }
 	}
 	
+	// no redis
 	public long createAccount(HttpServletRequest request, Long userId) throws Exception {
 		Account account = ApiHelper.getPojoFromRequest(ApiHelper.getJsonBody(request), Account.class);
 		account.setDateOfOpening(System.currentTimeMillis());
@@ -340,6 +330,7 @@ public class ApiHandler {
 		}
 	}
 	
+	// no redis
 	public long createCustomer(HttpServletRequest request, Long userId) throws Exception {
 		Customer customer = ApiHelper.getPojoFromRequest(ApiHelper.getJsonBody(request), Customer.class);
 		customer.setCreationTime(System.currentTimeMillis());
@@ -350,10 +341,15 @@ public class ApiHandler {
 		return functionHandler.create(customer);
 	}
 	
+	// redis ok
 	public void updateCustomer(StringBuilder jsonBody, Long userId) throws Exception {
 		Customer customer = ApiHelper.getPojoFromRequest(jsonBody, Customer.class);
 		if(customer==null) {
 			return;
+		}
+		String cacheKey = "CUSTOMER$USER_ID:"+userId;
+		if(Redis.exists(cacheKey)) {
+			Redis.delete(cacheKey);
 		}
 		customer.setCreationTime(System.currentTimeMillis());
 		customer.setModifiedBy(userId);
@@ -361,10 +357,15 @@ public class ApiHandler {
 		functionHandler.update(customer, Customer.class, userId);
 	}
 	
+	// redis ok
 	public void updateEmployee(StringBuilder jsonBody, Long userId) throws Exception {
 		Employee employee = ApiHelper.getPojoFromRequest(jsonBody, Employee.class);
 		if(employee==null) {
 			return;
+		}
+		String cacheKey = "EMPLOYEE$USER_ID:"+userId;
+		if(Redis.exists(cacheKey)) {
+			Redis.delete(cacheKey);
 		}
 		employee.setCreationTime(System.currentTimeMillis());
 		employee.setModifiedBy(userId);
@@ -372,11 +373,15 @@ public class ApiHandler {
 		functionHandler.update(employee, Employee.class, userId);
 	}
 	
+	// redis ok
 	public void updateUser(StringBuilder jsonBody, Long userId) throws Exception {
 		User user = ApiHelper.getPojoFromRequest(jsonBody, User.class);
-		System.out.println(user);
 		if(user==null) {
 			return;
+		}
+		String cacheKey = "USER$USER_ID:"+userId;
+		if(Redis.exists(cacheKey)) {
+			Redis.delete(cacheKey);
 		}
 		user.setCreationTime(System.currentTimeMillis());
 		user.setModifiedBy(userId);
