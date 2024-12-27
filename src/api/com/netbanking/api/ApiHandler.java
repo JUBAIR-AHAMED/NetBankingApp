@@ -426,7 +426,7 @@ public class ApiHandler {
 		functionHandler.update(user, User.class, userId);
 	}
 	
-	// redis and impl
+	// redis and impl needed
 	public void updateAccount(StringBuilder jsonBody, Long userId) {
 	}
 }
