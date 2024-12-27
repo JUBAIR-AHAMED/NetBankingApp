@@ -62,15 +62,13 @@ public class FunctionHandler {
 		return transactionHandle.select(request);
 	}
 
-	public List<Map<String, Object>> getAccounts(List<String> filterFields, List<Object> filterValues, Boolean inactiveReq, Integer limit, Integer offset) throws Exception
+	public List<Map<String, Object>> getAccounts(Map<String, Object> filters, Boolean inactiveReq, Integer limit, Integer offset) throws Exception
 	{
 		QueryRequest request = new QueryRequest();
 		request.setSelectAllColumns(true);
 		request.setTableName("account");
-		int countIndex = filterFields.indexOf("count");
-		System.out.println(countIndex);
-		if(countIndex!=-1) {
-			request.setCount((Boolean) filterValues.get(countIndex));
+		if(filters.containsKey("count")) {
+			request.setCount((Boolean) filters.get("count"));
 		}
 		
 		if(offset!=null) {
@@ -78,18 +76,17 @@ public class FunctionHandler {
 		}
 		
 		List<Where> whereConditionsType = new ArrayList<Where>();
-		
-		for(int i=0;i<filterFields.size();i++) {
+		int i=0;
+		for(Map.Entry<String, Object> filter:filters.entrySet()) {
 			if(i>0) {
 				request.putWhereLogicalOperators("AND");
 			}
-			if(filterFields.get(i).equals("count")) {
+			if(filter.getKey().equals("count")) {
 				continue;
 			}
-			String filterField = filterFields.get(i);
-			String tableName = "account";
-			whereConditionsType.add(new Where(filterField, tableName, filterValues.get(i)));
+			whereConditionsType.add(new Where(filter.getKey(), "account", filter.getValue()));
 			request.putWhereOperators("=");
+			i++;
 		}
 		if(!inactiveReq) {
 			whereConditionsType.add(new Where("status", "account", "INACTIVE"));
@@ -104,41 +101,6 @@ public class FunctionHandler {
 		List<Map<String, Object>> accountMap = null;
 		accountMap = daoCaller.select(request);
 		return accountMap;
-	}
-	
-	public Map<String, Object> getProfile(Long userId, String role) throws Exception
-	{
-		Validator.checkInvalidInput(userId, role);
-		QueryRequest request = new QueryRequest();
-		request.setSelectAllColumns(true);
-		request.setTableName("user");
-//		Join joinConditions = new Join();
-//		if(role.equals("CUSTOMER"))
-//		{
-//			joinConditions.setTableName("customer");
-//			joinConditions.putLeftTable("user");
-//			joinConditions.putLeftColumn("userId");
-//			joinConditions.putRightTable("customer");
-//			joinConditions.putRightColumn("customerId");
-//			joinConditions.putOperator("=");
-//		} else if(role.equals("MANAGER")||role.equals("EMPLOYEE")) {
-//			joinConditions.setTableName("employee");
-//			joinConditions.putLeftTable("user");
-//			joinConditions.putLeftColumn("userId");
-//			joinConditions.putRightTable("employee");
-//			joinConditions.putRightColumn("employeeId");
-//			joinConditions.putOperator("=");
-//		} else {
-//			throw new CustomException("Role of the user is undefined.");
-//		}
-//		request.putJoinConditions(joinConditions);
-		request.putWhereConditions("userId");
-		request.putWhereConditionsValues(userId);
-		request.putWhereOperators("=");
-		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
-		List<Map<String, Object>> transactionMap = null;
-		transactionMap = daoCaller.select(request);
-		return transactionMap.get(0);
 	}
 	
 	//Create
@@ -206,27 +168,44 @@ public class FunctionHandler {
 		}
 	}
 	
-	public void makeTransaction(Long from_account_number, Long to_account_number, Long user_id, Float amount, String transactionType) throws Exception {
-		Validator.checkInvalidInput(from_account_number, user_id, amount);
-		Map<String, Object> fromAccountMap = getRecord(from_account_number, Account.class), toAccountMap = getRecord(to_account_number, Account.class);
-		Float from_account_balance = (Float) fromAccountMap.get("balance");
-		Float to_account_balance = null;
-		
-		if(!transactionType.equals("deposit")&&from_account_balance < amount) {
+	public void makeTransaction(Map<String, Object> fromAccountMap, Map<String, Object> toAccountMap, Long user_id, Float amount, String transactionType) throws Exception {
+		Long from_account_number = (Long) fromAccountMap.get("accountNumber"), to_account_number = (Long) toAccountMap.get("accountNumber");
+		Float fromAccountBalance, toAccountBalance = null;
+		Object frombalance = fromAccountMap.get ("balance");
+
+		if (frombalance instanceof Double) {
+		    fromAccountBalance = ((Double) frombalance).floatValue();
+		} else if (frombalance instanceof Float) {
+		    fromAccountBalance = (Float) frombalance;
+		} else {
+		    throw new IllegalArgumentException("Unexpected type for balance: " + (frombalance != null ? frombalance.getClass().getName() : "null"));
+		}
+
+		if(!transactionType.equals("deposit")&&fromAccountBalance < amount) {
 			throw new CustomException("Balance Not Enough");
 		}
 		
 		if(transactionType.equals("same-bank"))
 		{
 			Validator.checkInvalidInput(to_account_number);
-			to_account_balance = (Float) toAccountMap.get("balance");
-			to_account_balance += amount;
+			Object toBalance = toAccountMap.get("balance");
+
+			if (toBalance instanceof Double) {
+			    toAccountBalance = ((Double) toBalance).floatValue();
+			} else if (toBalance instanceof Float) {
+			    toAccountBalance = (Float) toBalance;
+			} else {
+			    throw new IllegalArgumentException("Unexpected type for balance: " + 
+			                                       (toBalance != null ? toBalance.getClass().getName() : "null"));
+			}
+
+			toAccountBalance += amount;
 		}
 		if(transactionType.equals("deposit"))
 		{
-			from_account_balance += amount;
+			fromAccountBalance += amount;
 		} else {
-			from_account_balance -= amount;
+			fromAccountBalance -= amount;
 		}
 		QueryRequest fromAccRequest = new QueryRequest();
 		fromAccRequest.setTableName("account");
@@ -236,13 +215,13 @@ public class FunctionHandler {
 //		fromAccRequest.putUpdateField("balance");
 //		fromAccRequest.putUpdateValue(from_account_balance);
 		Account from_account = new Account();
-		from_account.setBalance(from_account_balance);
+		from_account.setBalance(fromAccountBalance);
 		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
 		daoCaller.update(from_account, fromAccRequest);
 		if(transactionType.equals("same-bank"))
 		{
 			Account to_account = new Account();
-			to_account.setBalance(to_account_balance);
+			to_account.setBalance(toAccountBalance);
 			QueryRequest toAccRequest = new QueryRequest();
 			toAccRequest.setTableName("account");
 			toAccRequest.putWhereConditions("accountNumber");
@@ -250,6 +229,6 @@ public class FunctionHandler {
 			toAccRequest.putWhereOperators("=");
 			daoCaller.update(to_account, toAccRequest);
 		}
-		storeTransaction(from_account_number, to_account_number, user_id, amount, from_account_balance, to_account_balance, transactionType);
+		storeTransaction(from_account_number, to_account_number, user_id, amount, fromAccountBalance, toAccountBalance, transactionType);
 	}
 }

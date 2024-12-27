@@ -29,23 +29,21 @@ public class AccountsServlet extends HttpServlet {
             Long branchId = (Long) request.getAttribute("branchId");
 
             // Role-based logic
-            List<String> filterFields = new ArrayList<>();
-            List<Object> filterValues = new ArrayList<>();
-
+            Map<String, Object> filters = new HashMap<String, Object>();
             if ("CUSTOMER".equals(role)) {
                 if (request.getParameter("accountNumber") != null || request.getParameter("userId") != null || request.getParameter("branchId") != null) {
                     ServletHelper.responseWriter(response, false, HttpServletResponse.SC_BAD_REQUEST, "No parameters allowed for CUSTOMER role.", responseMap);
                     return;
                 }
             } else if ("EMPLOYEE".equals(role) || "MANAGER".equals(role)) {
-                handleEmployeeOrManagerFilters(request, filterFields, filterValues);
+                handleEmployeeOrManagerFilters(request, filters);
             }
             Function<String, Integer> parser = Integer::parseInt;
             String limitParam = request.getParameter("limit");
             Integer limit = limitParam!=null? parser.apply(request.getParameter("limit")):null;
             String currentPageString = request.getParameter("currentPage");
             Integer currentPage = currentPageString!=null && !currentPageString.isEmpty()? parser.apply(currentPageString):null;
-            List<Map<String, Object>> accounts = apiHandler.getUserAccounts(userId, role, branchId, filterFields, filterValues, limit, currentPage);
+            List<Map<String, Object>> accounts = apiHandler.getUserAccounts(userId, role, branchId, filters, limit, currentPage);
             ServletHelper.responseWriter(response, true, HttpServletResponse.SC_OK, "Accounts fetched successfully", responseMap);
             Long count = (Long) accounts.get(0).getOrDefault("count", null);
             if(count!=null) {
@@ -59,18 +57,17 @@ public class AccountsServlet extends HttpServlet {
         }
     }
 
-    private void handleEmployeeOrManagerFilters(HttpServletRequest request, List<String> filterFields, List<Object> filterValues) {
-        addFilterIfPresent(request, "accountNumber", filterFields, filterValues, Long::parseLong);
-        addFilterIfPresent(request, "userId", filterFields, filterValues, Long::parseLong);
-        addFilterIfPresent(request, "branchId", filterFields, filterValues, Long::parseLong);
-        addFilterIfPresent(request, "count", filterFields, filterValues, Boolean::parseBoolean);
+    private void handleEmployeeOrManagerFilters(HttpServletRequest request, Map<String, Object> filters) {
+        addFilterIfPresent(request, "accountNumber", filters, Long::parseLong);
+        addFilterIfPresent(request, "userId", filters, Long::parseLong);
+        addFilterIfPresent(request, "branchId", filters, Long::parseLong);
+        addFilterIfPresent(request, "count", filters, Boolean::parseBoolean);
     }
 
-    private <T> void addFilterIfPresent(HttpServletRequest request, String param, List<String> fields, List<Object> values, Function<String, T> parser) {
+    private <T> void addFilterIfPresent(HttpServletRequest request, String param, Map<String, Object> filters, Function<String, T> parser) {
         String paramValue = request.getParameter(param);
         if (paramValue != null && !paramValue.isEmpty()) {
-            fields.add(param);
-            values.add(parser.apply(paramValue));
+            filters.put(param, parser.apply(paramValue));
         }
     }
 

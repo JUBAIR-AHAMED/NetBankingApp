@@ -3,6 +3,7 @@ package com.netbanking.api;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -61,26 +62,34 @@ public class ApiHandler {
 		}
 	}
 	
-	// redis partially ok
-	public List<Map<String, Object>> getUserAccounts(Long userId, String role, Long branchId, List<String> filterFields, List<Object> filterValues, Integer limit, Integer currentPage) throws Exception
+	// redis ok
+	public List<Map<String, Object>> getUserAccounts(Long userId, String role, Long branchId, Map<String, Object> filters, Integer limit, Integer currentPage) throws Exception
 	{
 		
 		FunctionHandler functionHandler = new FunctionHandler();
 		Integer offset = currentPage!=null? (currentPage - 1) * limit:null;
 		Boolean isInActiveRequired = true;
 		if(role.equals("CUSTOMER")) {
-			if(filterFields!=null && !filterFields.isEmpty()) {
+			if(filters!=null && !filters.isEmpty()) {
 				throw new Exception("Filter fields is not allowed for the customer");
 			}
-			filterFields = new ArrayList<String>();
-			filterFields.add("userId");
-			filterValues.add(userId);
+			filters = new HashMap<>();
+			filters.put("userId", userId);
 			isInActiveRequired = false;
 		}
-		List<Map<String, Object>> list = functionHandler.getAccounts(filterFields, filterValues, isInActiveRequired, limit, offset);
+		String cacheKeyForRetrieval = "ACCOUNT$ACCOUNT_NUMBER:"+filters.get("accountNumber");
+		if(filters.containsKey("accountNumber")&&filters.size()==1&&Redis.exists(cacheKeyForRetrieval)) {
+			ObjectMapper objectMapper = new ObjectMapper();
+			@SuppressWarnings("unchecked")
+			Map<String, Object> map = objectMapper.readValue(Redis.get(cacheKeyForRetrieval), Map.class);
+			List<Map<String, Object>> list = new ArrayList<>();
+			list.add(map);
+			return list;
+		}
+		List<Map<String, Object>> list = functionHandler.getAccounts(filters, isInActiveRequired, limit, offset);
 		for(Map<String, Object> map:list) {
 			// As count is also maintained in this function
-			if(filterFields.contains("count")) {
+			if(filters.containsKey("count")) {
 				break;
 			}
 			Long accountNumber =(Long) map.get("accountNumber");
@@ -93,6 +102,7 @@ public class ApiHandler {
 		return list;
 	}
 	
+	// redis ok
 	public void initiateTransaction(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception, CustomException {
 		StringBuilder jsonBody = new StringBuilder();
 		String line;
@@ -121,10 +131,13 @@ public class ApiHandler {
 		}
 		FunctionHandler functionHandler = new FunctionHandler();
 				
-		Map<String, Object> fromAccountMap = functionHandler.getRecord(fromAccount, Account.class);
-		Map<String, Object> toAccountMap = functionHandler.getRecord(toAccount, Account.class);
+		Map<String, Object> fromAccountMap = get(fromAccount, Account.class);
+		Map<String, Object> toAccountMap=null;
+		if(toAccount!=null) {
+			toAccountMap = get(toAccount, Account.class);
+		}
 		
-		if(fromAccountMap == null || toAccountMap == null) {
+		if(fromAccountMap == null) {
 			throw new CustomException("Invalid accounts.");
 		}
 		if(role.equals("CUSTOMER"))
@@ -134,18 +147,19 @@ public class ApiHandler {
 			}
 		} else if(role.equals("EMPLOYEE")) {
 			if(branchId != (Long) fromAccountMap.get("branchId")) {
+				System.out.println("hgsd");
 				throw new CustomException("You don't have permission to access this account.");
 			}
 		}
 		
 		String fromAccountStatus = (String) fromAccountMap.get("status");
-		String toAccountStatus = (String) toAccountMap.get("status");
+		String toAccountStatus = toAccountMap!=null? (String) toAccountMap.get("status"):null;
 		
 		if(!fromAccountStatus.equals("ACTIVE"))
 		{
 			throw new CustomException("Sender Account is "+ fromAccountStatus);
 		}
-		if(!toAccountStatus.equals("ACTIVE"))
+		if(toAccountStatus!=null&&!toAccountStatus.equals("ACTIVE"))
 		{
 			throw new CustomException("Reciever Account is "+ toAccountStatus);
 		}
@@ -167,19 +181,25 @@ public class ApiHandler {
 		{
 			throw new CustomException("Can have only 2 digits after the decimal.");
 		}
-		if(transactionType.equals("same-bank")||transactionType.equals("other-bank"))
-		{
-			if(toAccount==null)
-			{				
-				throw new CustomException("Reciever account is required.");
-			}
-			functionHandler.makeTransaction(fromAccount, toAccount, userId, amount, transactionType);
-			return;
-		} else {
-			functionHandler.makeTransaction(fromAccount, null, userId, amount, transactionType);
+		String cacheKeyFromAcc = "ACCOUNT$ACCOUNT_NUMBER:"+fromAccount;
+		String cacheKeyToAcc = "ACCOUNT$ACCOUNT_NUMBER:"+toAccount;
+		String cacheKeyFromAccTran = "TRANSACTION$ACCOUNT_NUMBER:"+fromAccount;
+		String cacheKeyToAccTran = "TRANSACTION$ACCOUNT_NUMBER:"+toAccount;
+		if((transactionType.equals("same-bank")||transactionType.equals("other-bank"))&&toAccount==null)
+		{				
+			throw new CustomException("Reciever account is required.");
+		}
+		functionHandler.makeTransaction(fromAccountMap, toAccountMap, userId, amount, transactionType);
+		Redis.delete(cacheKeyFromAcc);
+		Redis.delete(cacheKeyToAcc);
+		Redis.deleteKeysWithStartString(cacheKeyFromAccTran);
+		if(cacheKeyToAccTran!=null) {
+			Redis.deleteKeysWithStartString(cacheKeyToAccTran);
 		}
 	}
 	
+	// redis ok
+	@SuppressWarnings("unchecked")
 	public List<Map<String, Object>> getStatement(HttpServletRequest request, Long userId, String role, Long branchId) throws CustomException, Exception {
 		StringBuilder jsonBody = new StringBuilder();
 		String line;
@@ -216,12 +236,12 @@ public class ApiHandler {
         Boolean count = jsonObject.has("count") && !jsonObject.get("count").isJsonNull() 
 	            ? jsonObject.get("count").getAsBoolean() 
 	            : null;
-	            
+	    
         Integer offset = currentPage!=null? (currentPage - 1) * limit:null;
 	            
 		FunctionHandler functionHandler = new FunctionHandler();
 		
-		Map<String, Object> accountMap = functionHandler.getRecord(accountNumber, Account.class);
+		Map<String, Object> accountMap = get(accountNumber, Account.class);
 		
 		if(accountMap == null) {
 			throw new CustomException("Invalid account.");
@@ -238,7 +258,7 @@ public class ApiHandler {
 			}
 		}
 		
-		String accountStatus =(String) functionHandler.getRecord(accountNumber, Account.class).get("status");
+		String accountStatus = (String) accountMap.get("status");
 		if(accountStatus.equals("BLOCKED")||accountStatus.equals("INACTIVE"))
 		{
 			throw new CustomException("Account is "+accountStatus+".");
@@ -257,7 +277,22 @@ public class ApiHandler {
 		}
 		
 		try {
-			return functionHandler.getTransactionStatement(accountNumber, fromDate, toDate, limit, offset, count);
+			StringBuilder sb = new StringBuilder("TRANSACTION");
+		    sb.append("$ACCOUNT_NUMBER:").append(accountNumber)
+		    .append("$FROM_DATE:").append(fromDate)
+		    .append("$TO_DATE:").append(toDate)
+		    .append("$LIMIT:").append(limit)
+		    .append("$CURRENT_PAGE:").append(currentPage)
+		    .append("$COUNT:").append(count);
+		    String cacheKey = sb.toString();
+		    if(Redis.exists(cacheKey)) {
+		    	String cachedDate = Redis.get(cacheKey);
+		    	ObjectMapper objectMapper = new ObjectMapper();
+		    	return objectMapper.readValue(cachedDate, List.class);
+		    }
+			List<Map<String, Object>> list = functionHandler.getTransactionStatement(accountNumber, fromDate, toDate, limit, offset, count);
+			Redis.setex(cacheKey, list);
+			return list;
 		} catch (CustomException e) {
 			e.printStackTrace();
 			throw e;
@@ -275,6 +310,8 @@ public class ApiHandler {
 			cacheKey = "CUSTOMER$USER_ID:";
 		} else if (clazz.equals(Employee.class)) {
 			cacheKey = "EMPLOYEE$USER_ID:";
+		} else if (clazz.equals(Account.class)) {
+			cacheKey = "ACCOUNT$ACCOUNT_NUMBER:";
 		}
 		cacheKey=cacheKey+userId;
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -387,5 +424,9 @@ public class ApiHandler {
 		user.setModifiedBy(userId);
 		FunctionHandler functionHandler = new FunctionHandler();
 		functionHandler.update(user, User.class, userId);
+	}
+	
+	// redis and impl
+	public void updateAccount(StringBuilder jsonBody, Long userId) {
 	}
 }

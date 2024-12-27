@@ -26,6 +26,7 @@ MANAGER:
     - GET
     - PUT
   /transaction:
+    - POST
     - DELETE
   /statement:
     - POST

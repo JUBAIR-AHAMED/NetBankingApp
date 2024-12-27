@@ -27,7 +27,16 @@ public class StatementServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_OK);
             responseMap.put("status", true);
             responseMap.put("message", "Statement fetched successfully");
-            Long count = (Long) statement.get(0).getOrDefault("count", null);
+            Object countObj = statement.get(0).getOrDefault("count", null);
+            Long count = null;
+            if(countObj!=null) {
+            	if (countObj instanceof Integer) {
+            		count = ((Integer) countObj).longValue();
+            	} else if (countObj instanceof Long) {
+            		count = (Long) countObj;
+            	}
+            }
+
             if(count!=null) {
             	responseMap.put("count", count);
             } else {
