@@ -37,8 +37,6 @@ public class AuthFilter implements Filter {
         	return;
         }
         String path = httpRequest.getServletPath();
-        System.out.println("path"+path);
-        System.out.println("method "+httpRequest.getMethod());
         // Exclude login and other public endpoints from authentication
         if (path.equals("/userlogin")) { //|| path.startsWith("/public")
             chain.doFilter(request, response);

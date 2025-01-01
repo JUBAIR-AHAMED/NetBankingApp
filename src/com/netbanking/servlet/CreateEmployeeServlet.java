@@ -23,7 +23,6 @@ public class CreateEmployeeServlet extends HttpServlet {
     
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     	
-    	System.out.println("Create employees...");
     	Map<String, Object> responseMap = new HashMap<>();
     	try {
 			ApiHandler apiHandler = new ApiHandler();

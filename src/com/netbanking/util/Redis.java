@@ -13,8 +13,6 @@ public class Redis {
     	if(jedis==null) {
     		jedis = new Jedis("localhost", 6379);
     	}
-        //jedis.auth("yourpassword");
-        //System.out.println("Connection Successful");
     }
     
     public static String get(String cacheKey) {
@@ -52,7 +50,6 @@ public class Redis {
                 cursor = result.getCursor();
                 for (String key : result.getResult()) {
                     jedis.del(key);
-                    System.out.println("Deleted key: " + key);
                 }
             } while (!cursor.equals("0"));
         } catch (Exception e) {

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.netbanking.api.ApiHandler;
 import com.netbanking.exception.CustomException;
+import com.netbanking.object.Account;
 import com.netbanking.util.Parser;
 import com.netbanking.util.ServletHelper;
 	
@@ -20,32 +21,47 @@ public class AccountsServlet extends HttpServlet {
 
 	@Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Map<String, Object> responseMap = new HashMap<>();
+		Map<String, Object> responseMap = new HashMap<>();
         try {
             ApiHandler apiHandler = new ApiHandler();
 
             Long userId = (Long) request.getAttribute("userId");
             String role = (String) request.getAttribute("role");
             Long branchId = (Long) request.getAttribute("branchId");
-
-            // Role-based logic
-            Map<String, Object> filters = new HashMap<String, Object>();
+            Map<String, Object> filters = null;
             if ("CUSTOMER".equals(role)) {
                 if (request.getParameter("accountNumber") != null || request.getParameter("userId") != null || request.getParameter("branchId") != null) {
                     ServletHelper.responseWriter(response, false, HttpServletResponse.SC_BAD_REQUEST, "No parameters allowed for CUSTOMER role.", responseMap);
                     return;
                 }
             } else if ("EMPLOYEE".equals(role) || "MANAGER".equals(role)) {
-                handleEmployeeOrManagerFilters(request, filters);
+            	filters = ServletHelper.getQueryParams(request);
+            	ServletHelper.convertValue("accountNumber", filters, Long::parseLong);
+            	ServletHelper.convertValue("userId", filters, Long::parseLong);
+            	ServletHelper.convertValue("branchId", filters, Long::parseLong);
+            	ServletHelper.convertValue("count", filters, Boolean::parseBoolean);
+            	ServletHelper.convertValue("limit", filters, Integer::parseInt);
+            	ServletHelper.convertValue("currentPage", filters, Integer::parseInt);
             }
-            Function<String, Integer> parser = Integer::parseInt;
-            String limitParam = request.getParameter("limit");
-            Integer limit = limitParam!=null? parser.apply(request.getParameter("limit")):null;
-            String currentPageString = request.getParameter("currentPage");
-            Integer currentPage = currentPageString!=null && !currentPageString.isEmpty()? parser.apply(currentPageString):null;
-            List<Map<String, Object>> accounts = apiHandler.getUserAccounts(userId, role, branchId, filters, limit, currentPage);
+            Integer limit=null, currentPage=null;
+            System.out.println(role);
+            if(!role.equals("CUSTOMER")) {
+            	limit = filters.containsKey("limit") ? Integer.valueOf(filters.remove("limit").toString()) : null;
+            	currentPage = filters.containsKey("currentPage") ? Integer.valueOf(filters.remove("currentPage").toString()) : null;
+            }
+            List<Map<String, Object>> accounts = apiHandler.filteredGetAccount(userId, role, branchId, filters, limit, currentPage);
             ServletHelper.responseWriter(response, true, HttpServletResponse.SC_OK, "Accounts fetched successfully", responseMap);
-            Long count = (Long) accounts.get(0).getOrDefault("count", null);
+            Long count = null;
+
+            if (accounts.size() >= 1) {
+                Object countValue = accounts.get(0).getOrDefault("count", null);
+                if (countValue instanceof Integer) {
+                    count = ((Integer) countValue).longValue();
+                } else if (countValue instanceof Long) {
+                    count = (Long) countValue;
+                }
+            }
+
             if(count!=null) {
             	responseMap.put("count", count);
             } else {
@@ -53,32 +69,11 @@ public class AccountsServlet extends HttpServlet {
             }
             Parser.writeResponse(response, responseMap);
         } catch (Exception e) {
-            handleException(response, e, responseMap);
+        	ServletHelper.handleException(response, e, responseMap);
         }
-    }
-
-    private void handleEmployeeOrManagerFilters(HttpServletRequest request, Map<String, Object> filters) {
-        addFilterIfPresent(request, "accountNumber", filters, Long::parseLong);
-        addFilterIfPresent(request, "userId", filters, Long::parseLong);
-        addFilterIfPresent(request, "branchId", filters, Long::parseLong);
-        addFilterIfPresent(request, "count", filters, Boolean::parseBoolean);
-    }
-
-    private <T> void addFilterIfPresent(HttpServletRequest request, String param, Map<String, Object> filters, Function<String, T> parser) {
-        String paramValue = request.getParameter(param);
-        if (paramValue != null && !paramValue.isEmpty()) {
-            filters.put(param, parser.apply(paramValue));
-        }
-    }
-
-    private void handleException(HttpServletResponse response, Exception e, Map<String, Object> responseMap) throws IOException {
-        e.printStackTrace();
-        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        ServletHelper.responseWriter(response, false, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An unexpected error occurred.", responseMap);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    	System.out.println("came");
     	Map<String, Object> responseMap = new HashMap<>();
     	try {
     		ApiHandler apiHandler = new ApiHandler();

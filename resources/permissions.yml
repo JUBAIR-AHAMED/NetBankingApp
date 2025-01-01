@@ -25,6 +25,7 @@ MANAGER:
   /accounts:
     - GET
     - PUT
+    - POST
   /transaction:
     - POST
     - DELETE
@@ -35,3 +36,12 @@ MANAGER:
     - PUT
   /action:
     - POST
+  /branch:
+    - POST
+    - GET
+  /createEmployee:
+    - POST
+  /createCustomer:
+    - POST
+  /user:
+    - GET

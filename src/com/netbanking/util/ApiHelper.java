@@ -19,7 +19,7 @@ public class ApiHelper {
         // Parse the JSON into a Map
         Type mapType = new TypeToken<Map<String, Object>>() {}.getType();
         Map<String, Object> data = gson.fromJson(jsonBuilder.toString(), mapType);
-        System.out.println("the data "+data);
+        System.out.println("data: "+data);
         if(data==null) {
         	return null;
         }

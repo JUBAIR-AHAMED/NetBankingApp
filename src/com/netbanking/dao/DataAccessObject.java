@@ -277,7 +277,6 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
             	}
             	list.add(map);
             }
-            System.out.println(list);
             return list;
         }
         catch (Exception e) {

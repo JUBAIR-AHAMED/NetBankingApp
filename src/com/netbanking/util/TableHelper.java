@@ -7,4 +7,9 @@ public class TableHelper {
 	{
 		return entity.getClass().getSimpleName().toLowerCase();
 	}
+	
+	public static <T extends Model> String getTableName(Class<? extends Model> clazz)
+	{
+		return clazz.getSimpleName().toLowerCase();
+	}
 }

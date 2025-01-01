@@ -10,7 +10,10 @@ import com.netbanking.enumHelper.GetMetadata;
 import com.netbanking.exception.CustomException;
 import com.netbanking.model.Model;
 import com.netbanking.object.Account;
+import com.netbanking.object.Branch;
+import com.netbanking.object.Customer;
 import com.netbanking.object.Transaction;
+import com.netbanking.util.TableHelper;
 import com.netbanking.util.Validator;
 
 public class FunctionHandler {
@@ -62,11 +65,12 @@ public class FunctionHandler {
 		return transactionHandle.select(request);
 	}
 
-	public List<Map<String, Object>> getAccounts(Map<String, Object> filters, Boolean inactiveReq, Integer limit, Integer offset) throws Exception
+	public List<Map<String, Object>> getAccount(Map<String, Object> filters, Integer limit, Integer offset) throws Exception
 	{
+		String tableName = "account";
 		QueryRequest request = new QueryRequest();
 		request.setSelectAllColumns(true);
-		request.setTableName("account");
+		request.setTableName(tableName);
 		if(filters.containsKey("count")) {
 			request.setCount((Boolean) filters.get("count"));
 		}
@@ -76,6 +80,14 @@ public class FunctionHandler {
 		}
 		
 		List<Where> whereConditionsType = new ArrayList<Where>();
+
+		if(!(Boolean) filters.get("isInActiveRequired")) {
+			whereConditionsType.add(new Where("status", tableName, "INACTIVE"));
+			request.putWhereLogicalOperators("AND");
+			request.putWhereOperators("!=");
+		}
+		filters.remove("isInActiveRequired");
+		
 		int i=0;
 		for(Map.Entry<String, Object> filter:filters.entrySet()) {
 			if(i>0) {
@@ -84,14 +96,9 @@ public class FunctionHandler {
 			if(filter.getKey().equals("count")) {
 				continue;
 			}
-			whereConditionsType.add(new Where(filter.getKey(), "account", filter.getValue()));
-			request.putWhereOperators("=");
+			whereConditionsType.add(new Where(filter.getKey(), tableName, "%"+filter.getValue()+"%"));
+			request.putWhereOperators("LIKE");
 			i++;
-		}
-		if(!inactiveReq) {
-			whereConditionsType.add(new Where("status", "account", "INACTIVE"));
-			request.putWhereLogicalOperators("AND");
-			request.putWhereOperators("!=");
 		}
 		if(limit!=null) {
 			request.setLimit(limit);
@@ -102,6 +109,146 @@ public class FunctionHandler {
 		accountMap = daoCaller.select(request);
 		return accountMap;
 	}
+	
+	public List<Map<String, Object>> getBranch(Map<String, Object> filters, Integer limit, Integer offset) throws Exception
+	{
+		String tableName = "branch";
+		QueryRequest request = new QueryRequest();
+		request.setSelectAllColumns(true);
+		request.setTableName(tableName);
+		if(filters.containsKey("count")) {
+			request.setCount((Boolean) filters.get("count"));
+		}
+		
+		if(offset!=null) {
+			request.setOffset(offset);
+		}
+		
+		List<Where> whereConditionsType = new ArrayList<Where>();
+		
+		int i=0;
+		for(Map.Entry<String, Object> filter:filters.entrySet()) {
+			if(i>0) {
+				request.putWhereLogicalOperators("AND");
+			}
+			if(filter.getKey().equals("count")) {
+				continue;
+			}
+			whereConditionsType.add(new Where(filter.getKey(), tableName, filter.getValue()));
+			request.putWhereOperators("=");
+			i++;
+		}
+		if(limit!=null) {
+			request.setLimit(limit);
+		}
+		request.setWhereConditionsType(whereConditionsType);
+		DataAccessObject<Branch> daoCaller = new DataAccessObject<Branch>();
+		List<Map<String, Object>> branchMap = null;
+		branchMap = daoCaller.select(request);
+		return branchMap;
+	}
+	
+	public List<Map<String, Object>> getUser(Map<String, Object> filters, Integer limit, Integer offset, Class<? extends Model> clazz) throws Exception
+	{
+		String primaryTableName = "user";
+		String secondaryTableName = TableHelper.getTableName(clazz);
+		Boolean moreDetails = (Boolean) filters.remove("moreDetails");
+		QueryRequest request = new QueryRequest();
+		request.setSelectAllColumns(true);
+		request.setTableName(primaryTableName);
+		
+		if(moreDetails) {
+			Join join = new Join();
+			join.putLeftTable(primaryTableName);
+			join.putLeftColumn("userId");
+			join.putRightTable(secondaryTableName);
+			join.putRightColumn(clazz.equals(Customer.class)? "customerId" : "employeeId");
+			join.putOperator("=");
+			join.setTableName(secondaryTableName);
+			request.putJoinConditions(join);
+		}
+		
+		if(filters.containsKey("count")) {
+			request.setCount((Boolean) filters.get("count"));
+		}
+		
+		if(offset!=null) {
+			request.setOffset(offset);
+		}
+		
+		List<Where> whereConditionsType = new ArrayList<Where>();
+		
+		int i=0;
+		for(Map.Entry<String, Object> filter:filters.entrySet()) {
+			if(i>0) {
+				request.putWhereLogicalOperators("AND");
+			}
+			if(filter.getKey().equals("count")) {
+				continue;
+			}
+			whereConditionsType.add(new Where(filter.getKey(), primaryTableName, "%"+filter.getValue()+"%"));
+			request.putWhereOperators("LIKE");
+			i++;
+		}
+		whereConditionsType.add(new Where("role", primaryTableName, "CUSTOMER"));
+		if(clazz.equals(Customer.class)) {
+			request.putWhereOperators("=");
+		} else {
+			request.putWhereOperators("!=");
+		}
+		if(i>0) {
+			request.putWhereLogicalOperators("AND");
+		}
+		if(limit!=null) {
+			request.setLimit(limit);
+		}
+		request.setWhereConditionsType(whereConditionsType);
+		DataAccessObject<Customer> daoCaller = new DataAccessObject<>();
+		List<Map<String, Object>> map = null;
+		map = daoCaller.select(request);
+		return map;
+	}
+	
+//	public List<Map<String, Object>> getBranch(Map<String, Object> filters, Boolean inactiveReq, Integer limit, Integer offset) throws Exception
+//	{
+//		QueryRequest request = new QueryRequest();
+//		request.setSelectAllColumns(true);
+//		request.setTableName("branch");
+//		if(filters.containsKey("count")) {
+//			request.setCount((Boolean) filters.get("count"));
+//		}
+//		
+//		if(offset!=null) {
+//			request.setOffset(offset);
+//		}
+//		
+//		List<Where> whereConditionsType = new ArrayList<Where>();
+//		int i=0;
+//		for(Map.Entry<String, Object> filter:filters.entrySet()) {
+//			if(i>0) {
+//				request.putWhereLogicalOperators("AND");
+//			}
+//			if(filter.getKey().equals("count")) {
+//				continue;
+//			}
+//			whereConditionsType.add(new Where(filter.getKey(), "branch", filter.getValue()));
+//			request.putWhereOperators("=");
+//			i++;
+//		}
+//		if(!inactiveReq) {
+//			whereConditionsType.add(new Where("status", "account", "INACTIVE"));
+//			request.putWhereLogicalOperators("AND");
+//			request.putWhereOperators("!=");
+//		}
+//		if(limit!=null) {
+//			request.setLimit(limit);
+//		}
+//		request.setWhereConditionsType(whereConditionsType);
+//		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
+//		List<Map<String, Object>> accountMap = null;
+//		accountMap = daoCaller.select(request);
+//		return accountMap;
+//	}
 	
 	//Create
 	public Long create(Model object) throws Exception {

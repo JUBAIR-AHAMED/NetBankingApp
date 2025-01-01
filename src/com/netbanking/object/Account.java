@@ -6,7 +6,7 @@ public class Account implements Model {
     private Long accountNumber;
     private Long userId;
     private Long branchId;
-    private String accountType;  // Changed to String
+    private AccountType accountType;  // Changed to String
     private Long dateOfOpening;
     private Float balance;
     private Status status;  // Changed to String
@@ -39,11 +39,11 @@ public class Account implements Model {
         this.branchId = branchId;
     }
 
-    public String getAccountType() {
+    public AccountType getAccountType() {
         return accountType;
     }
 
-    public void setAccountType(String accountType) {
+    public void setAccountType(AccountType accountType) {
         this.accountType = accountType;
     }
 

@@ -50,6 +50,16 @@
 	    <url-pattern>/profile</url-pattern>
 	</servlet-mapping>
 	
+		<servlet>
+	    <servlet-name>UserServlet</servlet-name>
+	    <servlet-class>com.netbanking.servlet.UserServlet</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+	    <servlet-name>UserServlet</servlet-name>
+	    <url-pattern>/user</url-pattern>
+	</servlet-mapping>
+	
 	<servlet>
 		<servlet-name>ActionServlet</servlet-name>
 		<servlet-class>com.netbanking.servlet.ActionServlet</servlet-class>
@@ -71,13 +81,13 @@
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>CreateBranchServlet</servlet-name>
-		<servlet-class>com.netbanking.servlet.CreateBranchServlet</servlet-class>
+		<servlet-name>BranchServlet</servlet-name>
+		<servlet-class>com.netbanking.servlet.BranchServlet</servlet-class>
 	</servlet>
 	
 	<servlet-mapping>
-		<servlet-name>CreateBranchServlet</servlet-name>
-		<url-pattern>/createBranch</url-pattern>
+		<servlet-name>BranchServlet</servlet-name>
+		<url-pattern>/branch</url-pattern>
 	</servlet-mapping>
 		
 	<servlet>

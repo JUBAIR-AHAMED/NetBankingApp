@@ -27,7 +27,6 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Map<String, Object> responseMap = new HashMap<>();
-
         try {
             ApiHandler apiHandler = new ApiHandler();
             Map<String, Object> userDetails = apiHandler.loginHandler(request);
