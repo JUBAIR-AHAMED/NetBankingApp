@@ -1,10 +1,13 @@
 package com.netbanking.object;
 
+import javax.servlet.http.HttpServletResponse;
+
+import com.netbanking.exception.CustomException;
 import com.netbanking.model.Model;
 
 public class Branch implements Model {
     private Long branchId;
-    private Long ifsc;
+    private String ifsc;
     private String name;
     private Long employeeId;
     private String address;
@@ -16,7 +19,7 @@ public class Branch implements Model {
     public Branch() {
     }
 
-    public Branch(Long branchId, Long ifsc, String name, Long employeeId, String address,
+    public Branch(Long branchId, String ifsc, String name, Long employeeId, String address,
                   Long creationTime, Long modifiedTime, Long modifiedBy) {
         this.branchId = branchId;
         this.ifsc = ifsc;
@@ -33,15 +36,29 @@ public class Branch implements Model {
         return branchId;
     }
 
-    public void setBranchId(Long branchId) {
+    public void setBranchId(Long branchId) throws CustomException {
+    	String branchIdStr = String.valueOf(branchId);
+
+        if (branchIdStr != null && !branchIdStr.matches("\\d{1}")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Branch ID must be exactly 5 digits and contain only numeric characters."
+            );
+        }
         this.branchId = branchId;
     }
 
-    public Long getIfsc() {
+    public String getIfsc() {
         return ifsc;
     }
 
-    public void setIfsc(Long ifsc) {
+    public void setIfsc(String ifsc) throws CustomException {
+    	if (ifsc != null && !ifsc.matches("^[A-Z]{4}0\\d{6}$")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "IFSC code must start with 4 uppercase letters, followed by a 0, and then 6 digits."
+            );
+        }
         this.ifsc = ifsc;
     }
 
@@ -49,7 +66,13 @@ public class Branch implements Model {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(String name) throws CustomException {
+    	if (name != null && !name.matches("^[A-Za-z.]+$")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Name must contain only alphabets and dots (.)"
+            );
+        }
         this.name = name;
     }
 
@@ -57,7 +80,14 @@ public class Branch implements Model {
         return employeeId;
     }
 
-    public void setEmployeeId(Long employeeId) {
+    public void setEmployeeId(Long employeeId) throws CustomException {
+    	String userIdStr = String.valueOf(employeeId);
+        if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "User ID must be exactly 6 digits and contain only numeric characters."
+            );
+        }
         this.employeeId = employeeId;
     }
 
@@ -65,7 +95,13 @@ public class Branch implements Model {
         return address;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(String address) throws CustomException {
+    	if (address != null && address.matches("^[A-Za-z0-9,.'\\s-/]+$")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Address can only contain letters, numbers, spaces, and the following punctuation: , . ' - /"
+            );
+        }
         this.address = address;
     }
 
@@ -73,7 +109,16 @@ public class Branch implements Model {
         return creationTime;
     }
 
-    public void setCreationTime(Long creationTime) {
+    public void setCreationTime(Long creationTime) throws CustomException {
+    	long currentTime = System.currentTimeMillis();
+        long oneMinuteAgo = currentTime - 60 * 1000; 
+
+        if (creationTime != null && creationTime > oneMinuteAgo) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Creation Time is Invalid."
+            );
+        }
         this.creationTime = creationTime;
     }
 
@@ -81,7 +126,16 @@ public class Branch implements Model {
         return modifiedTime;
     }
 
-    public void setModifiedTime(Long modifiedTime) {
+    public void setModifiedTime(Long modifiedTime) throws CustomException {
+    	long currentTime = System.currentTimeMillis();
+        long oneMinuteAgo = currentTime - 60 * 1000; 
+
+        if (modifiedTime != null && modifiedTime > oneMinuteAgo) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Modified Time is Invalid."
+            );
+        }
         this.modifiedTime = modifiedTime;
     }
 
@@ -89,7 +143,14 @@ public class Branch implements Model {
         return modifiedBy;
     }
 
-    public void setModifiedBy(Long modifiedBy) {
+    public void setModifiedBy(Long modifiedBy) throws CustomException {
+    	String userIdStr = String.valueOf(modifiedBy);
+    	if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "User ID must be exactly 6 digits and contain only numeric characters."
+            );
+        }
         this.modifiedBy = modifiedBy;
     }
 }

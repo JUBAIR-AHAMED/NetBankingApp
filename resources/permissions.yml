@@ -1,8 +1,9 @@
 CUSTOMER:
-  /accounts:
+  /account:
     - GET
   /transaction:
     - POST
+    - GET
   /statement:
     - POST
   /profile:
@@ -10,11 +11,13 @@ CUSTOMER:
     - PUT
 
 EMPLOYEE:
-  /accounts:
+  /account:
     - GET
     - POST
+    - PUT
   /transaction:
     - POST
+    - GET
   /statement:
     - POST
   /profile:
@@ -22,11 +25,12 @@ EMPLOYEE:
     - PUT
 
 MANAGER:
-  /accounts:
+  /account:
     - GET
     - PUT
     - POST
   /transaction:
+    - GET
     - POST
     - DELETE
   /statement:
@@ -39,9 +43,10 @@ MANAGER:
   /branch:
     - POST
     - GET
-  /createEmployee:
+  /employee:
     - POST
-  /createCustomer:
+  /customer:
     - POST
   /user:
     - GET
+    - PUT

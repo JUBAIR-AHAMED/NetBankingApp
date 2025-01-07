@@ -1,7 +1,11 @@
 package com.netbanking.object;
 
 import java.sql.Date;
+import java.util.Calendar;
 
+import javax.servlet.http.HttpServletResponse;
+
+import com.netbanking.exception.CustomException;
 import com.netbanking.model.Model;
 
 public class User implements Model {
@@ -18,7 +22,14 @@ public class User implements Model {
     protected Long modifiedBy;
     
   //user getter and setters
-    public void setUserId(Long userId) {
+    public void setUserId(Long userId) throws CustomException {
+    	String userIdStr = String.valueOf(userId);
+        if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "User ID must be exactly 6 digits and contain only numeric characters."
+            );
+        }
         this.userId = userId;
     }
     
@@ -30,7 +41,13 @@ public class User implements Model {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(String password) throws CustomException {
+    	if (password != null && !password.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Password must be at least 8 characters long, include at least one uppercase letter, one lowercase letter, one digit, and one special character."
+            );
+        }
         this.password = password;
     }
 
@@ -46,7 +63,13 @@ public class User implements Model {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(String name) throws CustomException {
+    	if (name != null && !name.matches("^[A-Za-z.]+$")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Name must contain only alphabets and dots (.)"
+            );
+        }
         this.name = name;
     }
 
@@ -54,7 +77,13 @@ public class User implements Model {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(String email) throws CustomException {
+    	if (email != null && !email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Invalid email format. Please provide a valid email address."
+            );
+        }
         this.email = email;
     }
 
@@ -62,7 +91,14 @@ public class User implements Model {
         return mobile;
     }
 
-    public void setMobile(String mobile) {
+    public void setMobile(String mobile) throws CustomException {
+    	if (mobile != null && !mobile.matches("^[6-9]\\d{9}$")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Mobile number must be a 10-digit number starting with 6, 7, 8, or 9."
+            );
+        }
+
         this.mobile = mobile;
     }
 
@@ -70,7 +106,18 @@ public class User implements Model {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(Date dateOfBirth) throws CustomException {
+    	Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.YEAR, -18);
+        Date eighteenYearsAgo = (Date) calendar.getTime();
+
+        if (dateOfBirth != null && dateOfBirth.after(eighteenYearsAgo)) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "You must be at least 18 years old."
+            );
+        }
+
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -86,7 +133,16 @@ public class User implements Model {
         return creationTime;
     }
 
-    public void setCreationTime(Long creationTime) {
+    public void setCreationTime(Long creationTime) throws CustomException {
+    	long currentTime = System.currentTimeMillis();
+        long oneMinuteAgo = currentTime - 60 * 1000; 
+
+        if (creationTime != null && creationTime > oneMinuteAgo) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Creation Time is Invalid."
+            );
+        }
         this.creationTime = creationTime;
     }
 
@@ -94,7 +150,16 @@ public class User implements Model {
         return modifiedTime;
     }
 
-    public void setModifiedTime(Long modifiedTime) {
+    public void setModifiedTime(Long modifiedTime) throws CustomException {
+    	long currentTime = System.currentTimeMillis();
+        long oneMinuteAgo = currentTime - 60 * 1000; 
+
+        if (modifiedTime != null && modifiedTime > oneMinuteAgo) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Modified Time is Invalid."
+            );
+        }
         this.modifiedTime = modifiedTime;
     }
 
@@ -102,7 +167,14 @@ public class User implements Model {
         return modifiedBy;
     }
 
-    public void setModifiedBy(Long modifiedBy) {
+    public void setModifiedBy(Long modifiedBy) throws CustomException {
+    	String userIdStr = String.valueOf(modifiedBy);
+    	if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "User ID must be exactly 6 digits and contain only numeric characters."
+            );
+        }
         this.modifiedBy = modifiedBy;
     }
 

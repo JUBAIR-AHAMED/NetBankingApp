@@ -1,29 +1,18 @@
-package com.netbanking.servlet;
+package com.netbanking.handler;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import com.netbanking.api.ApiHandler;
 import com.netbanking.exception.CustomException;
 import com.netbanking.util.Parser;
+import com.netbanking.util.Writer;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-
-//@WebServlet("/createEmployee")
-public class CreateEmployeeServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-    
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    	
-    	Map<String, Object> responseMap = new HashMap<>();
+public class EmployeeHandler {
+	public static void handlePut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		Map<String, Object> responseMap = new HashMap<>();
     	try {
 			ApiHandler apiHandler = new ApiHandler();
 			Long userId = (Long) request.getAttribute("userId");
@@ -34,7 +23,7 @@ public class CreateEmployeeServlet extends HttpServlet {
 				response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 				responseMap.put("status", false);
 				responseMap.put("message", "Permission Denied.");
-				Parser.writeResponse(response, responseMap);
+				Writer.writeResponse(response, responseMap);
 				return;
 			}
 			
@@ -56,6 +45,6 @@ public class CreateEmployeeServlet extends HttpServlet {
 			responseMap.put("status", false);
             responseMap.put("message", "Action failed.");
     	}
-    	Parser.writeResponse(response, responseMap);
-    }
+    	Writer.writeResponse(response, responseMap);
+	}
 }

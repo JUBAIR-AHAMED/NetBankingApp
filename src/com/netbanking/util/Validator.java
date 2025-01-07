@@ -16,8 +16,16 @@ public class Validator {
 		for(Object obj:objects)
 		{		  
 			if (obj == null) {
-				throw new CustomException("Inputs cannot be null.");
+				throw new CustomException(400, "Inputs cannot be null.");
 			}
+		}
+	}
+	
+	public static void checkInvalidInput(Object object, String objectName) throws CustomException
+	{
+		if (object == null) {
+			System.out.println(objectName+" is null.");
+			throw new CustomException(400, objectName+" cannot be null.");
 		}
 	}
 	
@@ -25,14 +33,14 @@ public class Validator {
 	public static void checkInvalidInput(int length, int nValue) throws CustomException
 	{
 		if (nValue<0||nValue>=length) {
-			throw new CustomException("Invalid value for N or index.");
+//			throw new CustomException("Invalid value for N or index.");
 		}
 	}
 	
 	public static void checkInsertIndex(int length, int nValue) throws CustomException
 	{
 		if (nValue<0||nValue>length) {
-			throw new CustomException("Invalid value for insert index.");
+//			throw new CustomException("Invalid value for insert index.");
 		}
 	}
 	
@@ -45,7 +53,7 @@ public class Validator {
 	public static void checkFilePresence(File file) throws CustomException {
 		if(file.exists())
 		{
-			throw new CustomException("File already present");
+//			throw new CustomException("File already present");
 		}
 	}
 	
@@ -56,7 +64,7 @@ public class Validator {
 	public static void isTxtFile(String fileName) throws CustomException {
 		if(!fileName.endsWith(".txt"))
 		{
-			throw new CustomException("File name must be end with .txt");
+//			throw new CustomException("File name must be end with .txt");
 		}
 	}
 	
@@ -75,7 +83,6 @@ public class Validator {
     }
     
     public static boolean isValidAccountNumber(String accountNumber) {
-        // Regex to check if the accountNumber has exactly 16 digits
         String regex = "^\\d{16}$";
         return accountNumber != null && accountNumber.matches(regex);
     }

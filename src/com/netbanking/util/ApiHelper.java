@@ -1,61 +1,55 @@
 package com.netbanking.util;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class ApiHelper {
 	private static final Gson gson = new Gson();
-
-    public static <T> T getPojoFromRequest(StringBuilder jsonBuilder, Class<T> pojoClass) throws IOException {
-        // Parse the JSON into a Map
-        Type mapType = new TypeToken<Map<String, Object>>() {}.getType();
+	
+	public static Map<String, Object> getMapFromRequest(StringBuilder jsonBuilder) {
+		Type mapType = new TypeToken<Map<String, Object>>() {}.getType();
         Map<String, Object> data = gson.fromJson(jsonBuilder.toString(), mapType);
-        System.out.println("data: "+data);
+        return data;
+	}
+	
+    public static <T> T getPojoFromRequest(Map<String, Object> data, Class<T> pojoClass) throws IOException {
         if(data==null) {
         	return null;
         }
-        // Create an instance of the POJO
         T pojo;
         try {
             pojo = pojoClass.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw new RuntimeException("Failed to create instance of " + pojoClass.getName(), e);
         }
-        // Use reflection to set values via setters
+        boolean valuePresence = false;
         for (Map.Entry<String, Object> entry : data.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
             String setterName = "set" + key.substring(0, 1).toUpperCase() + key.substring(1);
-            boolean valuePresence = false;
+            System.out.println("SETTER NAME: "+setterName);
             try {
-                // Find the setter method
                 Method setter = findSetterMethod(pojoClass, setterName);
                 if (setter != null) {
                     Class<?> paramType = setter.getParameterTypes()[0];
-                    // Convert the value to the expected type
                     Object convertedValue = convertValue(value, paramType);
                     setter.invoke(pojo, convertedValue);
                     valuePresence = true;
                 }
-                if(!valuePresence) {
-                	return null;
-                }
-                
             } catch (Exception e) {
             	e.printStackTrace();
                 System.out.println("Failed to set value for " + key + ": " + e.getMessage());
             }
         }
 
+        if(!valuePresence) {
+        	return null;
+        }
         return pojo;
     }
 
@@ -68,7 +62,7 @@ public class ApiHelper {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
 	private static Object convertValue(Object value, Class<?> targetType) {
         if (value == null) {
             return null;
@@ -128,20 +122,5 @@ public class ApiHelper {
         }
 
         throw new IllegalArgumentException("Unsupported type conversion: " + targetType.getName());
-    }
-    
-    public static StringBuilder getJsonBody(HttpServletRequest request) {
-    	StringBuilder jsonBody = new StringBuilder();
-		String line;
-		try(BufferedReader reader = request.getReader())
-		{
-			while((line = reader.readLine()) != null)
-			{
-				jsonBody.append(line);
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		return jsonBody;
     }
 }

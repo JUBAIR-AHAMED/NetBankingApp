@@ -3,17 +3,18 @@ package com.netbanking.dao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import com.netbanking.daoObject.Join;
 import com.netbanking.daoObject.QueryRequest;
 import com.netbanking.daoObject.Where;
 import com.netbanking.enumHelper.GetMetadata;
 import com.netbanking.exception.CustomException;
+import com.netbanking.mapper.YamlMapper;
 import com.netbanking.model.Model;
 import com.netbanking.object.Account;
 import com.netbanking.object.Branch;
 import com.netbanking.object.Customer;
 import com.netbanking.object.Transaction;
-import com.netbanking.util.TableHelper;
 import com.netbanking.util.Validator;
 
 public class FunctionHandler {
@@ -151,7 +152,7 @@ public class FunctionHandler {
 	public List<Map<String, Object>> getUser(Map<String, Object> filters, Integer limit, Integer offset, Class<? extends Model> clazz) throws Exception
 	{
 		String primaryTableName = "user";
-		String secondaryTableName = TableHelper.getTableName(clazz);
+		String secondaryTableName = YamlMapper.getTableName(clazz.getSimpleName());
 		Boolean moreDetails = (Boolean) filters.remove("moreDetails");
 		QueryRequest request = new QueryRequest();
 		request.setSelectAllColumns(true);
@@ -209,47 +210,6 @@ public class FunctionHandler {
 		return map;
 	}
 	
-//	public List<Map<String, Object>> getBranch(Map<String, Object> filters, Boolean inactiveReq, Integer limit, Integer offset) throws Exception
-//	{
-//		QueryRequest request = new QueryRequest();
-//		request.setSelectAllColumns(true);
-//		request.setTableName("branch");
-//		if(filters.containsKey("count")) {
-//			request.setCount((Boolean) filters.get("count"));
-//		}
-//		
-//		if(offset!=null) {
-//			request.setOffset(offset);
-//		}
-//		
-//		List<Where> whereConditionsType = new ArrayList<Where>();
-//		int i=0;
-//		for(Map.Entry<String, Object> filter:filters.entrySet()) {
-//			if(i>0) {
-//				request.putWhereLogicalOperators("AND");
-//			}
-//			if(filter.getKey().equals("count")) {
-//				continue;
-//			}
-//			whereConditionsType.add(new Where(filter.getKey(), "branch", filter.getValue()));
-//			request.putWhereOperators("=");
-//			i++;
-//		}
-//		if(!inactiveReq) {
-//			whereConditionsType.add(new Where("status", "account", "INACTIVE"));
-//			request.putWhereLogicalOperators("AND");
-//			request.putWhereOperators("!=");
-//		}
-//		if(limit!=null) {
-//			request.setLimit(limit);
-//		}
-//		request.setWhereConditionsType(whereConditionsType);
-//		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
-//		List<Map<String, Object>> accountMap = null;
-//		accountMap = daoCaller.select(request);
-//		return accountMap;
-//	}
-	
 	//Create
 	public Long create(Model object) throws Exception {
 		DataAccessObject<Model> accountDao = new DataAccessObject<>();
@@ -293,9 +253,11 @@ public class FunctionHandler {
 			transaction_acc_one.setType("Deposit");
 		} else if(transactionType.equals("withdraw")) {
 			transaction_acc_one.setType("Withdraw");
-		} else {
-			throw new CustomException("Invalid transaction type.");
-		}
+		} 
+		// need to check in the previous layer itself
+//		else {
+//			throw new CustomException("Invalid transaction type.");
+//		}
 		Long ref_number = transactionHandle.insertHandler(transaction_acc_one);
 		
 		if(transactionType.equals("same-bank"))
@@ -329,25 +291,21 @@ public class FunctionHandler {
 		}
 
 		if(!transactionType.equals("deposit")&&fromAccountBalance < amount) {
-			throw new CustomException("Balance Not Enough");
+			throw new CustomException(422, "Balance Not Enough");
 		}
 		
 		if(transactionType.equals("same-bank"))
 		{
 			Validator.checkInvalidInput(to_account_number);
 			Object toBalance = toAccountMap.get("balance");
-
 			if (toBalance instanceof Double) {
 			    toAccountBalance = ((Double) toBalance).floatValue();
 			} else if (toBalance instanceof Float) {
 			    toAccountBalance = (Float) toBalance;
-			} else {
-			    throw new IllegalArgumentException("Unexpected type for balance: " + 
-			                                       (toBalance != null ? toBalance.getClass().getName() : "null"));
 			}
-
 			toAccountBalance += amount;
 		}
+		
 		if(transactionType.equals("deposit"))
 		{
 			fromAccountBalance += amount;
@@ -359,8 +317,6 @@ public class FunctionHandler {
 		fromAccRequest.putWhereConditions("accountNumber");
 		fromAccRequest.putWhereConditionsValues(from_account_number);
 		fromAccRequest.putWhereOperators("=");
-//		fromAccRequest.putUpdateField("balance");
-//		fromAccRequest.putUpdateValue(from_account_balance);
 		Account from_account = new Account();
 		from_account.setBalance(fromAccountBalance);
 		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();

@@ -15,11 +15,19 @@ public enum UserAccessibleMethods {
 
     public static boolean isAuthorized(UserAccessibleMethods role, String path, String method) {
         Map<String, Set<String>> permissions = rolePermissions.get(role);
-        if (permissions == null) {
-            return false;
-        }
+        Set<String> allowedMethods = permissions.get(path);
+        return allowedMethods != null && allowedMethods.contains(method);
+    }
+    
+    public static boolean isPathPresent(String path, String method) {
+        Map<String, Set<String>> permissions = rolePermissions.get(UserAccessibleMethods.MANAGER);
+        Set<String> allowedMethods = permissions.get(path);
+        return allowedMethods != null;
+    }
+    
+    public static boolean isMethodPresent(String path, String method) {
+        Map<String, Set<String>> permissions = rolePermissions.get(UserAccessibleMethods.MANAGER);
         Set<String> allowedMethods = permissions.get(path);
         return allowedMethods != null && allowedMethods.contains(method);
     }
 }
-

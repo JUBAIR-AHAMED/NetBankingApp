@@ -8,11 +8,9 @@ import java.io.InputStream;
 import java.util.*;
 
 public class PermissionLoader {
-
     public static Map<UserAccessibleMethods, Map<String, Set<String>>> loadPermissions(String yamlFilePath) {
         Yaml yaml = new Yaml();
         Map<UserAccessibleMethods, Map<String, Set<String>>> permissions = new HashMap<>();
-
         try (InputStream inputStream = PermissionLoader.class.getClassLoader().getResourceAsStream(yamlFilePath)) {
             if (inputStream == null) {
                 throw new IllegalArgumentException("YAML file not found: " + yamlFilePath);
@@ -33,7 +31,6 @@ public class PermissionLoader {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return permissions;
     }
 }

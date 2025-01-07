@@ -1,4 +1,4 @@
-package com.netbanking.servlet;
+package com.netbanking.filter;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;

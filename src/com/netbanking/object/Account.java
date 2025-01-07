@@ -1,15 +1,18 @@
 package com.netbanking.object;
 
+import javax.servlet.http.HttpServletResponse;
+
+import com.netbanking.exception.CustomException;
 import com.netbanking.model.Model;
 
 public class Account implements Model {
     private Long accountNumber;
     private Long userId;
     private Long branchId;
-    private AccountType accountType;  // Changed to String
+    private AccountType accountType;
     private Long dateOfOpening;
     private Float balance;
-    private Status status;  // Changed to String
+    private Status status;
     private Long creationTime;
     private Long modifiedTime;
     private Long modifiedBy;
@@ -19,7 +22,15 @@ public class Account implements Model {
         return accountNumber;
     }
 
-    public void setAccountNumber(Long accountNumber) {
+    public void setAccountNumber(Long accountNumber) throws CustomException{
+    	String accountNumberStr = String.valueOf(accountNumber);
+        if (accountNumberStr != null && !accountNumberStr.matches("\\d{16}")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Account number must be exactly 16 digits and contain only numeric characters."
+            );
+        }
+
         this.accountNumber = accountNumber;
     }
 
@@ -27,15 +38,31 @@ public class Account implements Model {
         return userId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUserId(Long userId) throws CustomException {
+    	String userIdStr = String.valueOf(userId);
+        if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "User ID must be exactly 6 digits and contain only numeric characters."
+            );
+        }
+
+    	this.userId = userId;
     }
 
     public Long getBranchId() {
         return branchId;
     }
 
-    public void setBranchId(Long branchId) {
+    public void setBranchId(Long branchId) throws CustomException {
+    	String branchIdStr = String.valueOf(branchId);
+
+        if (branchIdStr != null && !branchIdStr.matches("\\d{1}")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Branch ID must be exactly 5 digits and contain only numeric characters."
+            );
+        }
         this.branchId = branchId;
     }
 
@@ -51,7 +78,17 @@ public class Account implements Model {
         return dateOfOpening;
     }
 
-    public void setDateOfOpening(Long dateOfOpening) {
+    public void setDateOfOpening(Long dateOfOpening) throws CustomException {
+    	long currentTime = System.currentTimeMillis();
+        long oneMinuteAgo = currentTime - 60 * 1000; // 1 minute in milliseconds
+
+        if (dateOfOpening != null && dateOfOpening < oneMinuteAgo) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Date of opening is Invalid."
+            );
+        }
+
         this.dateOfOpening = dateOfOpening;
     }
 
@@ -59,7 +96,13 @@ public class Account implements Model {
         return balance;
     }
 
-    public void setBalance(Float balance) {
+    public void setBalance(Float balance) throws CustomException {
+    	if (balance != null && balance < 0) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Balance cannot be negative."
+            );
+        }
         this.balance = balance;
     }
 
@@ -75,7 +118,17 @@ public class Account implements Model {
         return creationTime;
     }
 
-    public void setCreationTime(Long creationTime) {
+    public void setCreationTime(Long creationTime) throws CustomException {
+    	long currentTime = System.currentTimeMillis();
+        long oneMinuteAgo = currentTime - 60 * 1000; 
+
+        if (creationTime != null && creationTime > oneMinuteAgo) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Creation Time is Invalid."
+            );
+        }
+
         this.creationTime = creationTime;
     }
 
@@ -83,7 +136,16 @@ public class Account implements Model {
         return modifiedTime;
     }
 
-    public void setModifiedTime(Long modifiedTime) {
+    public void setModifiedTime(Long modifiedTime) throws CustomException {
+    	long currentTime = System.currentTimeMillis();
+        long oneMinuteAgo = currentTime - 60 * 1000; 
+
+        if (modifiedTime != null && modifiedTime > oneMinuteAgo) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Modified Time is Invalid."
+            );
+        }
         this.modifiedTime = modifiedTime;
     }
 
@@ -91,7 +153,14 @@ public class Account implements Model {
         return modifiedBy;
     }
 
-    public void setModifiedBy(Long modifiedBy) {
+    public void setModifiedBy(Long modifiedBy) throws CustomException {
+    	String userIdStr = String.valueOf(modifiedBy);
+    	if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "User ID must be exactly 6 digits and contain only numeric characters."
+            );
+        }
         this.modifiedBy = modifiedBy;
     }
 }

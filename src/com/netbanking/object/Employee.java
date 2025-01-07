@@ -1,5 +1,8 @@
 package com.netbanking.object;
 
+import javax.servlet.http.HttpServletResponse;
+
+import com.netbanking.exception.CustomException;
 import com.netbanking.model.Model;
 
 public class Employee extends User implements Model {
@@ -12,7 +15,14 @@ public class Employee extends User implements Model {
     }
 
     // Setter for employeeId
-    public void setEmployeeId(Long employeeId) {
+    public void setEmployeeId(Long employeeId) throws CustomException {
+    	String userIdStr = String.valueOf(employeeId);
+        if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "User ID must be exactly 6 digits and contain only numeric characters."
+            );
+        }
         this.employeeId = employeeId;
     }
 
@@ -22,7 +32,14 @@ public class Employee extends User implements Model {
     }
 
     // Setter for branchId
-    public void setBranchId(Long branchId) {
+    public void setBranchId(Long branchId) throws CustomException {
+    	String branchIdStr = String.valueOf(branchId);
+    	if (branchId != null && !branchIdStr.matches("\\d{1}")) {
+            throw new CustomException(
+                HttpServletResponse.SC_BAD_REQUEST,
+                "Branch ID must be exactly 5 digits and contain only numeric characters."
+            );
+        }
         this.branchId = branchId;
     }
 }

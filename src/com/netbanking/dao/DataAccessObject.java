@@ -305,6 +305,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 		}
 		String newField = fieldToColumnMap.get(field);
 		if(newField==null) {
+			System.out.println(field);
 			throw new Exception("Field name is invalid.");
 		}
 		return newField;
