@@ -1,4 +1,4 @@
-package com.netbanking.object;
+package com.netbanking.enums;
 
 public enum Status {
 	ACTIVE(0), INACTIVE(1), BLOCKED(2);

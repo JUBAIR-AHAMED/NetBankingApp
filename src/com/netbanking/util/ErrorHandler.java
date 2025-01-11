@@ -9,6 +9,7 @@ public class ErrorHandler {
     public static void handleException(Exception ex, HttpServletResponse httpResponse) throws IOException {
     	System.out.println("Exception faced.");
         if (ex instanceof CustomException) {
+        	ex.printStackTrace();
         	CustomException customException = (CustomException) ex;
             int statusCode = customException.getStatusCode();
             String errorMessage = customException.getMessage();

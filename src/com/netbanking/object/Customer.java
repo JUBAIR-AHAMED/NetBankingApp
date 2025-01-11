@@ -22,7 +22,7 @@ public class Customer extends User {
     
     public void setCustomerId(Long customerId) throws CustomException {
     	String userIdStr = String.valueOf(customerId);
-        if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+        if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
                 "User ID must be exactly 6 digits and contain only numeric characters."

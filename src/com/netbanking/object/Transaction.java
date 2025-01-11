@@ -87,7 +87,7 @@ public class Transaction implements Model {
 
     public void setUserId(Long userId) throws CustomException {
     	String userIdStr = String.valueOf(userId);
-        if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+        if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
                 "User ID must be exactly 6 digits and contain only numeric characters."
@@ -116,15 +116,6 @@ public class Transaction implements Model {
     }
 
     public void setCreationTime(Long creationTime) throws CustomException {
-    	long currentTime = System.currentTimeMillis();
-        long oneMinuteAgo = currentTime - 60 * 1000; 
-
-        if (creationTime != null && creationTime > oneMinuteAgo) {
-            throw new CustomException(
-                HttpServletResponse.SC_BAD_REQUEST,
-                "Creation Time is Invalid."
-            );
-        }
         this.creationTime = creationTime;
     }
     
@@ -134,7 +125,8 @@ public class Transaction implements Model {
 
     public void setModifiedBy(Long modifiedBy) throws CustomException {
     	String userIdStr = String.valueOf(modifiedBy);
-    	if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+    	System.out.println("id: "+userIdStr);
+    	if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
                 "User ID must be exactly 6 digits and contain only numeric characters."
@@ -147,8 +139,9 @@ public class Transaction implements Model {
     	return type;
     }
     
+    // change to enum
     public void setType(String type) throws CustomException {
-    	if (type != null && !(type.equals("Deposit") || type.equals("Withdraw") || type.equals("Credit") || type.equals("Debit"))) {
+    	if (type != null && !(type.equals("	") || type.equals("Withdraw") || type.equals("Credit") || type.equals("Debit"))) {
                 throw new CustomException(
                     HttpServletResponse.SC_BAD_REQUEST,
                     "Type must be one of the following: Deposit, Withdraw, Credit, or Debit."

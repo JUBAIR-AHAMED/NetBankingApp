@@ -39,7 +39,7 @@ public class Branch implements Model {
     public void setBranchId(Long branchId) throws CustomException {
     	String branchIdStr = String.valueOf(branchId);
 
-        if (branchIdStr != null && !branchIdStr.matches("\\d{1}")) {
+        if (branchIdStr != null && !branchIdStr.matches("\\d{1,5}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
                 "Branch ID must be exactly 5 digits and contain only numeric characters."
@@ -67,7 +67,7 @@ public class Branch implements Model {
     }
 
     public void setName(String name) throws CustomException {
-    	if (name != null && !name.matches("^[A-Za-z.]+$")) {
+    	if (name != null && !name.matches("^[A-Za-z. ]+$")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
                 "Name must contain only alphabets and dots (.)"
@@ -82,7 +82,7 @@ public class Branch implements Model {
 
     public void setEmployeeId(Long employeeId) throws CustomException {
     	String userIdStr = String.valueOf(employeeId);
-        if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+        if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
                 "User ID must be exactly 6 digits and contain only numeric characters."
@@ -110,15 +110,6 @@ public class Branch implements Model {
     }
 
     public void setCreationTime(Long creationTime) throws CustomException {
-    	long currentTime = System.currentTimeMillis();
-        long oneMinuteAgo = currentTime - 60 * 1000; 
-
-        if (creationTime != null && creationTime > oneMinuteAgo) {
-            throw new CustomException(
-                HttpServletResponse.SC_BAD_REQUEST,
-                "Creation Time is Invalid."
-            );
-        }
         this.creationTime = creationTime;
     }
 
@@ -127,15 +118,6 @@ public class Branch implements Model {
     }
 
     public void setModifiedTime(Long modifiedTime) throws CustomException {
-    	long currentTime = System.currentTimeMillis();
-        long oneMinuteAgo = currentTime - 60 * 1000; 
-
-        if (modifiedTime != null && modifiedTime > oneMinuteAgo) {
-            throw new CustomException(
-                HttpServletResponse.SC_BAD_REQUEST,
-                "Modified Time is Invalid."
-            );
-        }
         this.modifiedTime = modifiedTime;
     }
 

@@ -6,21 +6,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import com.netbanking.dao.FunctionHandler;
+import com.netbanking.enums.Role;
+import com.netbanking.enums.Status;
 import com.netbanking.exception.CustomException;
 import com.netbanking.model.Model;
 import com.netbanking.object.Account;
 import com.netbanking.object.Branch;
 import com.netbanking.object.Customer;
 import com.netbanking.object.Employee;
-import com.netbanking.object.Role;
-import com.netbanking.object.Status;
 import com.netbanking.object.User;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Converter;
@@ -234,18 +232,11 @@ public class ApiHandler {
 		Long fromAccount=null, toAccount=null;
 		Float amount=null;
 		String transactionType = null;
-		try {
-			fromAccount = jsonObject.get("fromAccount").getAsLong();
-			toAccount = jsonObject.has("toAccount") && !jsonObject.get("toAccount").isJsonNull() 
-	                ? jsonObject.get("toAccount").getAsLong() : null;
-            transactionType = jsonObject.has("transactionType") && !jsonObject.get("transactionType").isJsonNull() 
-            		? jsonObject.get("transactionType").getAsString() : null;
-			amount = jsonObject.get("amount").getAsFloat();
-		} catch (Exception e) {
-			throw new CustomException(1, "Enter numeric values for account number and amount.");
-		}
+		fromAccount = Parser.getValue(jsonObject, "fromAccount", Long.class, "Sender Account", true);
+        toAccount = Parser.getValue(jsonObject, "toAccount", Long.class, "Reciver Account", false);
+        transactionType = Parser.getValue(jsonObject, "transactionType", String.class, "Transaction Type", true);
+		amount = Parser.getValue(jsonObject, "amount", Float.class, "Amount", true);
 		FunctionHandler functionHandler = new FunctionHandler();
-				
 		Map<String, Object> fromAccountMap = get(fromAccount, Account.class);
 		Map<String, Object> toAccountMap=null;
 		if(toAccount!=null) {
@@ -253,16 +244,16 @@ public class ApiHandler {
 		}
 		
 		if(fromAccountMap == null) {
-			throw new CustomException(1, "Invalid accounts.");
+			throw new CustomException(HttpServletResponse.SC_NOT_FOUND, "Sender account not found.");
 		}
 		if(role.equals("CUSTOMER"))
 		{
 			if(userId != (Long) fromAccountMap.get("userId")) {
-				throw new CustomException(1, "You don't have permission to access this account.");
+				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Permission denied to access this account.");
 			}
 		} else if(role.equals("EMPLOYEE")) {
 			if(branchId != (Long) fromAccountMap.get("branchId")) {
-				throw new CustomException(1, "You don't have permission to access this account.");
+				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Permission denied to access this account.");
 			}
 		}
 		
@@ -271,29 +262,29 @@ public class ApiHandler {
 		
 		if(!fromAccountStatus.equals("ACTIVE"))
 		{
-			throw new CustomException(1, "Sender Account is "+ fromAccountStatus);
+			throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Sender Account is "+ fromAccountStatus);
 		}
 		if(toAccountStatus!=null&&!toAccountStatus.equals("ACTIVE"))
 		{
-			throw new CustomException(1, "Reciever Account is "+ toAccountStatus);
+			throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Reciever Account is "+ toAccountStatus);
 		}
 		
 		if(fromAccount.equals(toAccount))
 		{
-			throw new CustomException(1, "Cannot send money to the same account.");
+			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Cannot send money to the same account.");
 		}
 		if(amount<0)
 		{
-			throw new CustomException(1, "Amount cannot be negative.");
+			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Amount cannot be negative.");
 		}
 		float decimalPart = amount - amount.intValue();
 		if(decimalPart!=0&&decimalPart<0.01)
 		{
-			throw new CustomException(1, "Cannot send amount less than 0.01 rupees.");
+			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Cannot send amount less than 0.01 rupees.");
 		}
 		if(!Validator.decimalChecker(amount))
 		{
-			throw new CustomException(1, "Can have only 2 digits after the decimal.");
+			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Can have only 2 digits after the decimal.");
 		}
 		String cacheKeyFromAcc = "ACCOUNT$ACCOUNT_NUMBER:"+fromAccount;
 		String cacheKeyToAcc = "ACCOUNT$ACCOUNT_NUMBER:"+toAccount;
@@ -301,7 +292,7 @@ public class ApiHandler {
 		String cacheKeyToAccTran = "TRANSACTION$ACCOUNT_NUMBER:"+toAccount;
 		if((transactionType.equals("same-bank")||transactionType.equals("other-bank"))&&toAccount==null)
 		{				
-			throw new CustomException(1, "Reciever account is required.");
+			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Reciever account is required.");
 		}
 		functionHandler.makeTransaction(fromAccountMap, toAccountMap, userId, amount, transactionType);
 		Redis.delete(cacheKeyFromAcc);
@@ -331,36 +322,36 @@ public class ApiHandler {
 		Map<String, Object> accountMap = get(accountNumber, Account.class);
 		
 		if(accountMap == null) {
-			throw new CustomException(1,"Invalid account.");
+			throw new CustomException(HttpServletResponse.SC_NOT_FOUND,"Account not found.");
 		}
 		
 		if(role.equals("CUSTOMER"))
 		{
 			if(userId != Converter.convertToLong(accountMap.get("userId"))) {
-				throw new CustomException(1, "You don't have permission to access this account.");
+				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Permission denied to access this account.");
 			}
 		} else if(role.equals("EMPLOYEE")) {
 			if(branchId != (Long) accountMap.get("branchId")) {
-				throw new CustomException(1, "You don't have permission to access this account.");
+				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Permission denied to access this account.");
 			}
 		}
 		
 		String accountStatus = (String) accountMap.get("status");
-		if(accountStatus.equals("BLOCKED")||accountStatus.equals("INACTIVE"))
+		if(!accountStatus.equals("ACTIVE"))
 		{
-			throw new CustomException(1,"Account is "+accountStatus+".");
+			throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Sender Account is "+ accountStatus);
 		}
 		
-		if(fromDate==null&&toDate==null&&limit==null)
+//		if(fromDate==null&&toDate==null&&limit==null)
+//		{
+//			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Required fields not found.");
+//		}
+//		if((fromDate==null&&toDate!=null)||(fromDate!=null&&toDate==null)) {
+//			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Time frame is invalid.");
+//		}
+		if(fromDate!=null && toDate!=null && fromDate>toDate)
 		{
-			throw new CustomException(1, "Please enter valid details");
-		}
-		if((fromDate==null&&toDate!=null)||(fromDate!=null&&toDate==null)) {
-			throw new CustomException(1, "Time frame is invalid.");
-		}
-		if(fromDate!=null && fromDate>toDate)
-		{
-			throw new CustomException(1, "Time frame is invalid.");
+			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Time frame is invalid.");
 		}
 		
 		try {
@@ -433,7 +424,7 @@ public class ApiHandler {
 	}
 	
 	// no redis
-	public long createBranch(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
+	public long createBranch(HttpServletRequest request, Long userId, String role, Long branchId) throws CustomException, Exception{
 		StringBuilder jsonBody = Parser.getJsonBody(request);
 		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
 		Branch branch = ApiHelper.getPojoFromRequest(data, Branch.class);
@@ -441,15 +432,11 @@ public class ApiHandler {
 	    branch.setModifiedBy(userId);
 	    FunctionHandler functionHandler = new FunctionHandler();
 	    Redis.deleteKeysWithStartString("BRANCH");
-	    try {
-	    	return functionHandler.create(branch);
-	    } catch (Exception e) {
-	    	throw new Exception("Failed creating branch.");
-	    }
+    	return functionHandler.create(branch);
 	}
 	
 	// no redis
-	public long createAccount(HttpServletRequest request, Long userId) throws Exception {
+	public long createAccount(HttpServletRequest request, Long userId) throws CustomException, Exception {
 		StringBuilder jsonBody = Parser.getJsonBody(request);
 		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
 		Account account = ApiHelper.getPojoFromRequest(data, Account.class);
@@ -458,11 +445,7 @@ public class ApiHandler {
 	    account.setModifiedBy(userId);
 	    FunctionHandler functionHandler = new FunctionHandler();
 	    Redis.deleteKeysWithStartString("ACCOUNT");
-	    try {
-			return functionHandler.create(account);
-		} catch (Exception e) {
-			throw new Exception("Failed to create account");
-		}
+		return functionHandler.create(account);
 	}
 	
 	// no redis

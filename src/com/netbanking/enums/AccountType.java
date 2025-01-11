@@ -1,4 +1,4 @@
-package com.netbanking.object;
+package com.netbanking.enums;
 
 public enum AccountType {
 	SAVINGS(0), CURRENT(1);

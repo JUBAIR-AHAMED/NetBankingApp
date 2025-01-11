@@ -17,7 +17,7 @@ public class Employee extends User implements Model {
     // Setter for employeeId
     public void setEmployeeId(Long employeeId) throws CustomException {
     	String userIdStr = String.valueOf(employeeId);
-        if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+        if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
                 "User ID must be exactly 6 digits and contain only numeric characters."

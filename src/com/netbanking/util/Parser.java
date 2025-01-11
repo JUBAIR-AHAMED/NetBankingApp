@@ -94,12 +94,16 @@ public class Parser {
     }
     
     @SuppressWarnings("unchecked")
-	public static <T> T getValue(JsonObject jsonObject, String key, Class<T> type, String fieldName, boolean required) throws CustomException {
+    public static <T> T getValue(JsonObject jsonObject, String key, Class<T> type, String fieldName, boolean required) throws CustomException {
         if (jsonObject != null && jsonObject.has(key)) {
             JsonElement element = jsonObject.get(key);
 
             if (required && (element.isJsonNull() || (element.isJsonPrimitive() && element.getAsString().isEmpty()))) {
-                throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " is required.");
+                throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " is required and cannot be null or empty.");
+            }
+
+            if (element.isJsonNull()) {
+                return null;
             }
 
             try {
@@ -112,31 +116,31 @@ public class Parser {
                 } else if (type == Integer.class) {
                     String value = element.getAsString();
                     if (!value.matches("\\d+")) {
-                    	throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " can contain only numbers.");
+                        throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " can contain only numbers.");
                     }
                     return (T) Integer.valueOf(element.getAsInt());
                 } else if (type == Long.class) {
                     String value = element.getAsString();
                     if (!value.matches("\\d+")) {
-                    	throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " can contain only numbers.");
+                        throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " can contain only numbers.");
                     }
                     return (T) Long.valueOf(element.getAsLong());
                 } else if (type == Float.class) {
                     String value = element.getAsString();
                     if (!value.matches("[+-]?\\d*\\.?\\d+")) {
-                    	throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " can contain only numeric values.");
+                        throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " can contain only numeric values.");
                     }
                     return (T) Float.valueOf(element.getAsFloat());
                 } else if (type == Double.class) {
                     String value = element.getAsString();
                     if (!value.matches("[+-]?\\d*\\.?\\d+")) {
-                    	throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " can contain only numeric values.");
+                        throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " can contain only numeric values.");
                     }
                     return (T) Double.valueOf(element.getAsDouble());
                 } else if (type == Boolean.class) {
                     String value = element.getAsString();
                     if (!value.equalsIgnoreCase("true") && !value.equalsIgnoreCase("false")) {
-                    	throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " can contain only boolean values (true/false).");
+                        throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " can contain only boolean values (true/false).");
                     }
                     return (T) Boolean.valueOf(element.getAsBoolean());
                 } else {
@@ -146,11 +150,10 @@ public class Parser {
                 throw new IllegalArgumentException("Error casting value for key '" + key + "' to type " + type.getName(), e);
             }
         }
-        
+
         if (required) {
-        	throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " is required.");
+            throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " is required.");
         }
-        
         return null;
     }
 

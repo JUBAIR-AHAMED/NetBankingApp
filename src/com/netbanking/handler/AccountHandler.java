@@ -38,7 +38,13 @@ public class AccountHandler {
             Integer currentPage=Parser.getValue(jsonObject, "currentPage", Integer.class);
             
             List<Map<String, Object>> accounts = apiHandler
-            									.filteredGetAccount(userId, role, branchId, filters, limit, currentPage);
+            									.filteredGetAccount(
+            											userId, 
+            											role, 
+            											branchId, 
+            											filters, 
+            											limit, 
+            											currentPage);
             
             // Sending the count or account data as requested
             Long count = null;
@@ -69,22 +75,20 @@ public class AccountHandler {
 	
 	public static void handlePost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     	Map<String, Object> responseMap = new HashMap<>();
-    		ApiHandler apiHandler = new ApiHandler();
-
-            Long userId = (Long) request.getAttribute("userId");
-
-			try {
-				Long createdBranchId = apiHandler.createAccount(request, userId);	
-				responseMap.put("accountNumber", createdBranchId);
-				Writer.responseMapWriter(response, 
-	            		HttpServletResponse.SC_OK, 
-	            		HttpServletResponse.SC_OK, 
-	            		"Accounts created successfully", 
-	            		responseMap);
-			} catch (Exception e) {
-				ErrorHandler.handleException(e, response);
-			}
-    	Writer.writeResponse(response, responseMap);
+		ApiHandler apiHandler = new ApiHandler();
+	    Long userId = (Long) request.getAttribute("userId");
+	
+		try {
+			Long createdBranchId = apiHandler.createAccount(request, userId);	
+			responseMap.put("accountNumber", createdBranchId);
+			Writer.responseMapWriter(response, 
+	        		HttpServletResponse.SC_OK, 
+	        		HttpServletResponse.SC_OK, 
+	        		"Accounts created successfully", 
+	        		responseMap);
+		} catch (Exception e) {
+			ErrorHandler.handleException(e, response);
+		}
 	}
 	
 	public static void handlePut(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -92,20 +96,13 @@ public class AccountHandler {
         try {
             ApiHandler apiHandler = new ApiHandler();
             Long userId = (Long) request.getAttribute("userId");
-            String role = (String) request.getAttribute("role");
-            if(role.equals("CUSTOMER")) {
-            	response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-                responseMap.put("status", false);
-                responseMap.put("message", "Not Allowed.");
-                Writer.writeResponse(response, responseMap);
-                return;
-            }
             apiHandler.updateAccount(Parser.getJsonBody(request), userId);
             Writer.responseMapWriter(response, 
             		HttpServletResponse.SC_OK, 
             		HttpServletResponse.SC_OK, 
             		"Account updated successfully", 
             		responseMap);
+            return;
         } catch (Exception e) {
         	ErrorHandler.handleException(e, response);
         }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -51,6 +52,21 @@ public class ApiHelper {
         	return null;
         }
         return pojo;
+    }
+    
+    public static Long getCount(List<Map<String, Object>> list) {
+    	Object value = list.get(0).getOrDefault("count", null);
+    	if(value==null) {
+			return null;
+		}
+		
+		if (value instanceof Integer) {
+			return ((Integer) value).longValue();
+		} else if (value instanceof Long) {
+			return (Long) value;
+		}
+		
+		return null;
     }
 
     private static Method findSetterMethod(Class<?> pojoClass, String setterName) {
@@ -123,4 +139,6 @@ public class ApiHelper {
 
         throw new IllegalArgumentException("Unsupported type conversion: " + targetType.getName());
     }
+    
+    
 }

@@ -8,76 +8,52 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.netbanking.api.ApiHandler;
 import com.netbanking.exception.CustomException;
-import com.netbanking.util.Parser;
+import com.netbanking.util.ApiHelper;
+import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Writer;
 
 public class TransactionHandler {
 	public static void handleGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Map<String, Object> responseMap = new HashMap<>();
 		try {
-			ApiHandler apiHandler = new ApiHandler();			
 			Long userId = (Long) request.getAttribute("userId");
 			String role = (String) request.getAttribute("role");
 			Long branchId = (Long) request.getAttribute("branchId");
 			
+			ApiHandler apiHandler = new ApiHandler();			
             List<Map<String, Object>> statement = apiHandler.getStatement(request, userId, role, branchId);
-            response.setStatus(HttpServletResponse.SC_OK);
-            responseMap.put("status", true);
-            responseMap.put("message", "Statement fetched successfully");
-            Object countObj = statement.get(0).getOrDefault("count", null);
-            Long count = null;
-            if(countObj!=null) {
-            	if (countObj instanceof Integer) {
-            		count = ((Integer) countObj).longValue();
-            	} else if (countObj instanceof Long) {
-            		count = (Long) countObj;
-            	}
-            }
-
+            Long count = ApiHelper.getCount(statement);
             if(count!=null) {
             	responseMap.put("count", count);
             } else {
             	responseMap.put("statement", statement);
             }
-            Writer.writeResponse(response, responseMap);
+            Writer.responseMapWriter(response, 
+            		HttpServletResponse.SC_OK, 
+            		HttpServletResponse.SC_OK, 
+            		"Statement fetched successfully.", 
+            		responseMap);
             return;
-		} catch(CustomException e) {			
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			responseMap.put("status", false);
-			responseMap.put("message", e.getMessage());
-			Writer.writeResponse(response, responseMap);
 		} catch(Exception e) {
-			e.printStackTrace();
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			responseMap.put("status", false);
-			Writer.writeResponse(response, responseMap);	
+			ErrorHandler.handleException(e, response);
 		}
 	}
 	
 	public static void handlePost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Map<String, Object> responseMap = new HashMap<>();
 		try {
-			ApiHandler apiHandler = new ApiHandler();
 			Long userId = (Long) request.getAttribute("userId");
 			String role = (String) request.getAttribute("role");
 			Long branchId = (Long) request.getAttribute("branchId");
-			try {
-				apiHandler.initiateTransaction(request, userId, role, branchId);	
-				response.setStatus(HttpServletResponse.SC_OK);
-				responseMap.put("status", true);
-                responseMap.put("message", "Transaction success.");
-			} catch(CustomException e) {
-				e.printStackTrace();
-				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-				responseMap.put("status", false);
-                responseMap.put("message", e.getMessage());
-			}
+			ApiHandler apiHandler = new ApiHandler();
+			apiHandler.initiateTransaction(request, userId, role, branchId);	
+            Writer.responseMapWriter(response, 
+            		HttpServletResponse.SC_OK, 
+            		HttpServletResponse.SC_OK, 
+            		"Transaction success.", 
+            		responseMap);
 		} catch (Exception e) {
-			e.printStackTrace();
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			responseMap.put("status", false);
-            responseMap.put("message", "Transaction failed.");
+			ErrorHandler.handleException(e, response);
 		}
-		Writer.writeResponse(response, responseMap);
 	}
 }

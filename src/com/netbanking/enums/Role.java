@@ -1,4 +1,4 @@
-package com.netbanking.object;
+package com.netbanking.enums;
 
 public enum Role {
 	CUSTOMER(0), EMPLOYEE(1), MANAGER(2);

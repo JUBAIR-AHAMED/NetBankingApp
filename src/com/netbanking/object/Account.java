@@ -2,6 +2,8 @@ package com.netbanking.object;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.netbanking.enums.AccountType;
+import com.netbanking.enums.Status;
 import com.netbanking.exception.CustomException;
 import com.netbanking.model.Model;
 
@@ -40,7 +42,7 @@ public class Account implements Model {
 
     public void setUserId(Long userId) throws CustomException {
     	String userIdStr = String.valueOf(userId);
-        if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+        if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
                 "User ID must be exactly 6 digits and contain only numeric characters."
@@ -57,7 +59,7 @@ public class Account implements Model {
     public void setBranchId(Long branchId) throws CustomException {
     	String branchIdStr = String.valueOf(branchId);
 
-        if (branchIdStr != null && !branchIdStr.matches("\\d{1}")) {
+        if (branchIdStr != null && !branchIdStr.matches("\\d{1,5}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
                 "Branch ID must be exactly 5 digits and contain only numeric characters."
@@ -79,16 +81,6 @@ public class Account implements Model {
     }
 
     public void setDateOfOpening(Long dateOfOpening) throws CustomException {
-    	long currentTime = System.currentTimeMillis();
-        long oneMinuteAgo = currentTime - 60 * 1000; // 1 minute in milliseconds
-
-        if (dateOfOpening != null && dateOfOpening < oneMinuteAgo) {
-            throw new CustomException(
-                HttpServletResponse.SC_BAD_REQUEST,
-                "Date of opening is Invalid."
-            );
-        }
-
         this.dateOfOpening = dateOfOpening;
     }
 
@@ -119,16 +111,6 @@ public class Account implements Model {
     }
 
     public void setCreationTime(Long creationTime) throws CustomException {
-    	long currentTime = System.currentTimeMillis();
-        long oneMinuteAgo = currentTime - 60 * 1000; 
-
-        if (creationTime != null && creationTime > oneMinuteAgo) {
-            throw new CustomException(
-                HttpServletResponse.SC_BAD_REQUEST,
-                "Creation Time is Invalid."
-            );
-        }
-
         this.creationTime = creationTime;
     }
 
@@ -137,15 +119,6 @@ public class Account implements Model {
     }
 
     public void setModifiedTime(Long modifiedTime) throws CustomException {
-    	long currentTime = System.currentTimeMillis();
-        long oneMinuteAgo = currentTime - 60 * 1000; 
-
-        if (modifiedTime != null && modifiedTime > oneMinuteAgo) {
-            throw new CustomException(
-                HttpServletResponse.SC_BAD_REQUEST,
-                "Modified Time is Invalid."
-            );
-        }
         this.modifiedTime = modifiedTime;
     }
 
@@ -155,7 +128,7 @@ public class Account implements Model {
 
     public void setModifiedBy(Long modifiedBy) throws CustomException {
     	String userIdStr = String.valueOf(modifiedBy);
-    	if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+    	if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
                 "User ID must be exactly 6 digits and contain only numeric characters."

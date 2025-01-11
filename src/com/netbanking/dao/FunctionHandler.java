@@ -46,10 +46,16 @@ public class FunctionHandler {
 		orderByColumn.add("timestamp");
 		orderDirections.add("DESC");
 		if(fromDate!=null) {
-			request.putWhereConditions("timestamp", "timestamp");
-			request.putWhereConditionsValues(fromDate, toDate);
-			request.putWhereOperators(">=", "<=");
-			request.putWhereLogicalOperators("AND", "AND");
+			request.putWhereConditions("timestamp");
+			request.putWhereConditionsValues(fromDate);
+			request.putWhereOperators(">=");
+			request.putWhereLogicalOperators("AND");
+		}
+		if(toDate!=null) {
+			request.putWhereConditions("timestamp");
+			request.putWhereConditionsValues(toDate);
+			request.putWhereOperators("<=");
+			request.putWhereLogicalOperators("AND");
 		}
 		request.setOrderByColumns(orderByColumn);
 		request.setOrderDirections(orderDirections);
@@ -229,7 +235,10 @@ public class FunctionHandler {
 		accountDao.update(object, request);
 	}
 	
-	private void storeTransaction(Long from_account, Long to_account, Long user_id, Float amount, Float from_account_balance, Float to_account_balance, String transactionType) throws Exception
+	private void storeTransaction(Long from_account, Long to_account, 
+			Long from_user_id, Long to_user_id,
+			Long user_id, Float amount, 
+			Float from_account_balance, Float to_account_balance, String transactionType) throws Exception
 	{
 		Validator.checkInvalidInput(from_account, user_id, amount);
 		DataAccessObject<Transaction> transactionHandle = new DataAccessObject<Transaction>();
@@ -241,11 +250,11 @@ public class FunctionHandler {
 		Transaction transaction_acc_one = new Transaction();
 		transaction_acc_one.setAccountNumber(from_account);
 		transaction_acc_one.setBalance(from_account_balance);
-		transaction_acc_one.setModifiedBy(from_account);
+		transaction_acc_one.setModifiedBy(user_id);
 		transaction_acc_one.setTimestamp(System.currentTimeMillis());
 		transaction_acc_one.setTransactionAccount(to_account);
 		transaction_acc_one.setTransactionAmount(amount);
-		transaction_acc_one.setUserId(user_id);
+		transaction_acc_one.setUserId(from_user_id);
 		transaction_acc_one.setCreationTime(System.currentTimeMillis());
 		if(transactionType.equals("same-bank")||transactionType.equals("other-bank")) {
 			transaction_acc_one.setType("Debit");
@@ -265,11 +274,11 @@ public class FunctionHandler {
 			Transaction transaction_acc_two = new Transaction();
 			transaction_acc_two.setAccountNumber(to_account);
 			transaction_acc_two.setBalance(to_account_balance);
-			transaction_acc_two.setModifiedBy(from_account);
+			transaction_acc_two.setModifiedBy(user_id);
 			transaction_acc_two.setTimestamp(System.currentTimeMillis());
 			transaction_acc_two.setTransactionAccount(from_account);
 			transaction_acc_two.setTransactionAmount(amount);
-			transaction_acc_two.setUserId(user_id);
+			transaction_acc_two.setUserId(to_user_id);
 			transaction_acc_two.setReferenceNumber(ref_number);
 			transaction_acc_two.setCreationTime(System.currentTimeMillis());
 			transaction_acc_two.setType("Credit");
@@ -332,6 +341,9 @@ public class FunctionHandler {
 			toAccRequest.putWhereOperators("=");
 			daoCaller.update(to_account, toAccRequest);
 		}
-		storeTransaction(from_account_number, to_account_number, user_id, amount, fromAccountBalance, toAccountBalance, transactionType);
+		storeTransaction(from_account_number, to_account_number,
+				(Long) fromAccountMap.get("userId"), (Long) toAccountMap.get("userId"),
+				user_id, amount, fromAccountBalance, 
+				toAccountBalance, transactionType);
 	}
 }
