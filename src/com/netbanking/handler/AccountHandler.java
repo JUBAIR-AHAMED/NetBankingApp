@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.JsonObject;
 import com.netbanking.api.ApiHandler;
 import com.netbanking.exception.CustomException;
+import com.netbanking.util.ApiHelper;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
 import com.netbanking.util.Writer;
@@ -29,7 +31,8 @@ public class AccountHandler {
             Parser.storeIfPresent(jsonObject, filters, "userId", Long.class, "User Id", false);
             Parser.storeIfPresent(jsonObject, filters, "branchId", Long.class, "Branch Id", false);
             Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);
-
+            Parser.storeIfPresent(jsonObject, filters, "searchSimilar", Boolean.class, "Type of search", false);
+            Boolean countReq = (Boolean) filters.get("count");
 		    if ("CUSTOMER".equals(role) && !filters.isEmpty()) {
                 throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "No parameters allowed for CUSTOMER role.");
             }
@@ -47,17 +50,8 @@ public class AccountHandler {
             											currentPage);
             
             // Sending the count or account data as requested
-            Long count = null;
-            if (accounts.size() >= 1) {
-                Object countValue = accounts.get(0).getOrDefault("count", null);
-                if (countValue instanceof Integer) {
-                    count = ((Integer) countValue).longValue();
-                } else if (countValue instanceof Long) {
-                    count = (Long) countValue;
-                }
-            }
-            
-            if(count!=null) {
+            if(countReq!=null&&countReq) {
+            	Long count = ApiHelper.getCount(accounts);
             	responseMap.put("count", count);
             } else {
             	responseMap.put("accounts", accounts);
@@ -96,7 +90,11 @@ public class AccountHandler {
         try {
             ApiHandler apiHandler = new ApiHandler();
             Long userId = (Long) request.getAttribute("userId");
-            apiHandler.updateAccount(Parser.getJsonBody(request), userId);
+            Function<String, Object> parseLong = Long::parseLong;
+            StringBuilder jsonBody = Parser.getJsonBody(request);
+            Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
+            Long key = (Long) parseLong.apply((String) data.remove("accountNumber"));
+            apiHandler.updateAccount(data, userId, key);
             Writer.responseMapWriter(response, 
             		HttpServletResponse.SC_OK, 
             		HttpServletResponse.SC_OK, 

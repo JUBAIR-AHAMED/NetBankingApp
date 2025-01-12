@@ -35,19 +35,17 @@ public class ApiHandler {
 		{
 			JsonObject jsonObject = Parser.getJsonObject(reader);
 
-			Validator.checkInvalidInput(jsonObject.get("userId"), "User Id");
-			Long userId = jsonObject.get("userId").getAsLong();
-			Validator.checkInvalidInput(jsonObject.get("password"), "Password");
-			String password = jsonObject.get("password").getAsString();
+			Long userId = Parser.getValue(jsonObject, "userId", Long.class, "User Id", true);
+			String password = Parser.getValue(jsonObject, "password", String.class, "Password", true);
+			Map<String, Object> map = get(userId, User.class);
 			
-			Map<String, Object> map = get(userId, User.class);			
 			if(map != null && !map.isEmpty()) {
 				Boolean check=Encryption.verifyPassword(password, (String) map.get("password"));
 				if(!check) {
 					throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "Invalid password.");
 				}
 			} else {
-				throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "Invalid user / customer id.");
+				throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "Invalid customer id.");
 			}
 			String role = (String) map.get("role");
 			Long user_id;
@@ -81,12 +79,11 @@ public class ApiHandler {
 			filters.put("isInActiveRequired", true);
 		}
 		
-		StringBuilder cacheKeyBuilder = new StringBuilder("ACCOUNT$ACCOUNT_NUMBER:"+filters.get("accountNumber"));
-		
-		String cacheKeyForRetrieval = null;
-		cacheKeyForRetrieval = cacheKeyBuilder.append("$USER_ID:").append(filters.getOrDefault("userId", null))
+		StringBuilder cacheKeyBuilder = new StringBuilder("ACCOUNT");
+		String cacheKeyForRetrieval = cacheKeyBuilder.append("$COUNT:").append(filters.getOrDefault("count", null))
+				.append("$ACCOUNT_NUMBER:").append(filters.getOrDefault("accountNumber", null))
+				.append("$USER_ID:").append(filters.getOrDefault("userId", null))
 				.append("$BRANCH_ID:").append(filters.getOrDefault("branchId", null))
-				.append("$COUNT:").append(filters.getOrDefault("count", null))
 				.toString();
 		if(filters.containsKey("count")) {
 			if(Redis.exists(cacheKeyForRetrieval)) {
@@ -97,16 +94,6 @@ public class ApiHandler {
 				list.add(map);
 				return list;
 			}
-		} else if (filters.containsKey("accountNumber")&&filters.size()==3) {
-				String cacheKey = "ACCOUNT$ACCOUNT_NUMBER:" + filters.get("accountNumber");
-				if(Redis.exists(cacheKey)) {
-					ObjectMapper objectMapper = new ObjectMapper();
-					@SuppressWarnings("unchecked")
-					Map<String, Object> map = objectMapper.readValue(Redis.get(cacheKey), Map.class);
-					List<Map<String, Object>> list = new ArrayList<>();
-					list.add(map);
-					return list;
-				}
 		}
 		List<Map<String, Object>> list = functionHandler.getAccount(filters, limit, offset);
 		for(Map<String, Object> map:list) {
@@ -129,12 +116,13 @@ public class ApiHandler {
 	{
 		FunctionHandler functionHandler = new FunctionHandler();
 		Integer offset = currentPage!=null? (currentPage - 1) * limit:null;
-		StringBuilder cacheKeyBuilder = new StringBuilder("BRANCH$BRANCH_ID:"+filters.get("branchId"));
+		StringBuilder cacheKeyBuilder = new StringBuilder("BRANCH");
 		String cacheKeyForRetrieval = null;
-		cacheKeyForRetrieval = cacheKeyBuilder.append("$EMPLOYEE_ID:").append(filters.getOrDefault("employeeId", null))
-				.append("$BRANCH_ID:").append(filters.getOrDefault("branchId", null))
-				.append("$COUNT:").append(filters.getOrDefault("count", null))
-				.toString();
+		cacheKeyForRetrieval = cacheKeyBuilder.append("$COUNT:").append(filters.getOrDefault("count", null))
+												.append("$BRANCH_ID:").append(filters.getOrDefault("branchId", null))
+												.append("$EMPLOYEE_ID:").append(filters.getOrDefault("employeeId", null))
+												.append("$IFSC:").append(filters.getOrDefault("ifsc", null))
+												.toString();
 		if(filters.containsKey("count")) {
 			if(Redis.exists(cacheKeyForRetrieval)) {
 				ObjectMapper objectMapper = new ObjectMapper();
@@ -144,16 +132,6 @@ public class ApiHandler {
 				list.add(map);
 				return list;
 			}
-		} else if (filters.containsKey("branchId")&&filters.size()==1) {
-				String cacheKey = "BRANCH$BRANCH_ID:" + filters.get("branchId");
-				if(Redis.exists(cacheKey)) {
-					ObjectMapper objectMapper = new ObjectMapper();
-					@SuppressWarnings("unchecked")
-					Map<String, Object> map = objectMapper.readValue(Redis.get(cacheKey), Map.class);
-					List<Map<String, Object>> list = new ArrayList<>();
-					list.add(map);
-					return list;
-				}
 		}
 		List<Map<String, Object>> list = functionHandler.getBranch(filters, limit, offset);
 		for(Map<String, Object> map:list) {
@@ -183,46 +161,37 @@ public class ApiHandler {
 		} else if(userType.equals("customer")) {
 			clazz = Customer.class;
 		}
-//		StringBuilder cacheKeyBuilder = new StringBuilder("ACCOUNT$ACCOUNT_NUMBER:"+filters.get("accountNumber"));
-//		String cacheKeyForRetrieval = null;
-//		cacheKeyForRetrieval = cacheKeyBuilder.append("$USER_ID:").append(filters.getOrDefault("userId", null))
-//				.append("$BRANCH_ID:").append(filters.getOrDefault("branchId", null))
-//				.append("$COUNT:").append(filters.getOrDefault("count", null))
-//				.toString();
-//		if(filters.containsKey("count")) {
-//			if(Redis.exists(cacheKeyForRetrieval)) {
-//				ObjectMapper objectMapper = new ObjectMapper();
-//				@SuppressWarnings("unchecked")
-//				Map<String, Object> map = objectMapper.readValue(Redis.get(cacheKeyForRetrieval), Map.class);
-//				List<Map<String, Object>> list = new ArrayList<>();
-//				list.add(map);
-//				return list;
-//			}
-//		} else if (filters.containsKey("accountNumber")&&filters.size()==3) {
-//				String cacheKey = "ACCOUNT$ACCOUNT_NUMBER:" + filters.get("accountNumber");
-//				if(Redis.exists(cacheKey)) {
-//					ObjectMapper objectMapper = new ObjectMapper();
-//					@SuppressWarnings("unchecked")
-//					Map<String, Object> map = objectMapper.readValue(Redis.get(cacheKey), Map.class);
-//					List<Map<String, Object>> list = new ArrayList<>();
-//					list.add(map);
-//					return list;
-//				}
-//		}
+		StringBuilder cacheKeyBuilder = new StringBuilder(clazz.getSimpleName().toUpperCase());
+		String cacheKeyForRetrieval = null;
+		cacheKeyForRetrieval = cacheKeyBuilder.append("$COUNT:").append(filters.getOrDefault("count", null))
+												.append("$NAME:").append(filters.getOrDefault("name", null))
+												.append("$USER_ID:").append(filters.getOrDefault("userId", null))
+												.append("$EMAIL:").append(filters.getOrDefault("email", null))
+												.toString();
+		if(filters.containsKey("count")) {
+			if(Redis.exists(cacheKeyForRetrieval)) {
+				ObjectMapper objectMapper = new ObjectMapper();
+				@SuppressWarnings("unchecked")
+				Map<String, Object> map = objectMapper.readValue(Redis.get(cacheKeyForRetrieval), Map.class);
+				List<Map<String, Object>> list = new ArrayList<>();
+				list.add(map);
+				return list;
+			}
+		}
 		List<Map<String, Object>> list = functionHandler.getUser(filters, limit, offset, clazz);
-//		for(Map<String, Object> map:list) {
-//			// As count is also maintained in this function
-//			if(filters.containsKey("count")) {
-//				Redis.setex(cacheKeyForRetrieval, map);
-//			}
-//			Long id = (Long) map.get("accountNumber");
-//			String cacheKey = "ACCOUNT$ACCOUNT_NUMBER:";
-//			cacheKey += id;
-//			if(Redis.exists(cacheKey)) {
-//				continue;
-//			}
-//			Redis.setex(cacheKey, map);
-//		}
+		for(Map<String, Object> map:list) {
+			// As count is also maintained in this function
+			if(filters.containsKey("count")) {
+				Redis.setex(cacheKeyForRetrieval, map);
+			}
+			Long id = (Long) map.get("userId");
+			String cacheKey = "USER$USER_ID:";
+			cacheKey += id;
+			if(Redis.exists(cacheKey)) {
+				continue;
+			}
+			Redis.setex(cacheKey, map);
+		}
 		return list;
 	}
 	
@@ -241,8 +210,7 @@ public class ApiHandler {
 		Map<String, Object> toAccountMap=null;
 		if(toAccount!=null) {
 			toAccountMap = get(toAccount, Account.class);
-		}
-		
+		}		
 		if(fromAccountMap == null) {
 			throw new CustomException(HttpServletResponse.SC_NOT_FOUND, "Sender account not found.");
 		}
@@ -259,7 +227,7 @@ public class ApiHandler {
 		
 		String fromAccountStatus = (String) fromAccountMap.get("status");
 		String toAccountStatus = toAccountMap!=null? (String) toAccountMap.get("status"):null;
-		
+
 		if(!fromAccountStatus.equals("ACTIVE"))
 		{
 			throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Sender Account is "+ fromAccountStatus);
@@ -288,8 +256,6 @@ public class ApiHandler {
 		}
 		String cacheKeyFromAcc = "ACCOUNT$ACCOUNT_NUMBER:"+fromAccount;
 		String cacheKeyToAcc = "ACCOUNT$ACCOUNT_NUMBER:"+toAccount;
-		String cacheKeyFromAccTran = "TRANSACTION$ACCOUNT_NUMBER:"+fromAccount;
-		String cacheKeyToAccTran = "TRANSACTION$ACCOUNT_NUMBER:"+toAccount;
 		if((transactionType.equals("same-bank")||transactionType.equals("other-bank"))&&toAccount==null)
 		{				
 			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Reciever account is required.");
@@ -297,14 +263,9 @@ public class ApiHandler {
 		functionHandler.makeTransaction(fromAccountMap, toAccountMap, userId, amount, transactionType);
 		Redis.delete(cacheKeyFromAcc);
 		Redis.delete(cacheKeyToAcc);
-		Redis.deleteKeysWithStartString(cacheKeyFromAccTran);
-		if(cacheKeyToAccTran!=null) {
-			Redis.deleteKeysWithStartString(cacheKeyToAccTran);
-		}
 	}
 	
 	// redis ok
-	@SuppressWarnings("unchecked")
 	public List<Map<String, Object>> getStatement(HttpServletRequest request, Long userId, String role, Long branchId) throws CustomException, Exception {
 		JsonObject jsonObject = Parser.getJsonObject(request);
 		
@@ -342,42 +303,17 @@ public class ApiHandler {
 			throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Sender Account is "+ accountStatus);
 		}
 		
-//		if(fromDate==null&&toDate==null&&limit==null)
-//		{
-//			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Required fields not found.");
-//		}
-//		if((fromDate==null&&toDate!=null)||(fromDate!=null&&toDate==null)) {
-//			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Time frame is invalid.");
-//		}
 		if(fromDate!=null && toDate!=null && fromDate>toDate)
 		{
 			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Time frame is invalid.");
 		}
 		
-		try {
-			StringBuilder sb = new StringBuilder("TRANSACTION");
-		    sb.append("$ACCOUNT_NUMBER:").append(accountNumber)
-		    .append("$FROM_DATE:").append(fromDate)
-		    .append("$TO_DATE:").append(toDate)
-		    .append("$LIMIT:").append(limit)
-		    .append("$CURRENT_PAGE:").append(currentPage)
-		    .append("$COUNT:").append(count);
-		    String cacheKey = sb.toString();
-		    if(Redis.exists(cacheKey)) {
-		    	String cachedDate = Redis.get(cacheKey);
-		    	ObjectMapper objectMapper = new ObjectMapper();
-		    	return objectMapper.readValue(cachedDate, List.class);
-		    }
-			List<Map<String, Object>> list = functionHandler.getTransactionStatement(accountNumber, fromDate, toDate, limit, offset, count);
-			Redis.setex(cacheKey, list);
-			return list;
-		} catch (CustomException e) {
-			e.printStackTrace();
-			throw e;
-		}
+		List<Map<String, Object>> list = functionHandler.getTransactionStatement(accountNumber, fromDate, toDate, limit, offset, count);
+		return list;
 	}
 
 	// redis ok
+	@SuppressWarnings("unchecked")
 	public <T extends Model> Map<String, Object> get(Long userId, Class<T> clazz) throws CustomException, Exception
 	{
 		String cacheKey=null;
@@ -394,11 +330,11 @@ public class ApiHandler {
 		}
 		cacheKey=cacheKey+userId;
 		FunctionHandler functionHandler = new FunctionHandler();
-//		ObjectMapper objectMapper = new ObjectMapper();
-//		String cachedData = Redis.get(cacheKey);
-//		if(cachedData!=null) {
-//			return objectMapper.readValue(cachedData, Map.class);
-//		} 
+		ObjectMapper objectMapper = new ObjectMapper();
+		String cachedData = Redis.get(cacheKey);
+		if(cachedData!=null) {
+			return objectMapper.readValue(cachedData, Map.class);
+		} 
 		Map<String, Object> map = functionHandler.getRecord(userId, clazz);
 		Redis.setex(cacheKey, map);
 		return map;
@@ -414,13 +350,8 @@ public class ApiHandler {
 		employee.setCreationTime(System.currentTimeMillis());
 		employee.setModifiedBy(userId);
 	    FunctionHandler functionHandler = new FunctionHandler();
-	    Redis.deleteKeysWithStartString("EMPLOYEE");
-	    try {	    	
-	    	return functionHandler.create(employee);
-	    } catch (Exception e) {
-	    	e.printStackTrace();
-	    	throw new Exception("Failed Creating employee.");
-		}
+	    Redis.deleteKeysWithStartString("EMPLOYEE$COUNT");
+    	return functionHandler.create(employee);
 	}
 	
 	// no redis
@@ -431,7 +362,7 @@ public class ApiHandler {
 		branch.setCreationTime(System.currentTimeMillis());
 	    branch.setModifiedBy(userId);
 	    FunctionHandler functionHandler = new FunctionHandler();
-	    Redis.deleteKeysWithStartString("BRANCH");
+	    Redis.deleteKeysWithStartString("BRANCH$COUNT");
     	return functionHandler.create(branch);
 	}
 	
@@ -444,7 +375,7 @@ public class ApiHandler {
 	    account.setCreationTime(System.currentTimeMillis());
 	    account.setModifiedBy(userId);
 	    FunctionHandler functionHandler = new FunctionHandler();
-	    Redis.deleteKeysWithStartString("ACCOUNT");
+	    Redis.deleteKeysWithStartString("ACCOUNT$COUNT");
 		return functionHandler.create(account);
 	}
 	
@@ -458,7 +389,7 @@ public class ApiHandler {
 		customer.setRole(Role.CUSTOMER);
 		customer.setStatus(Status.ACTIVE);
 		FunctionHandler functionHandler = new FunctionHandler();
-		Redis.deleteKeysWithStartString("ACCOUNT");
+		Redis.deleteKeysWithStartString("CUSTOMER$COUNT");
 		return functionHandler.create(customer);
 	}
 	
@@ -471,6 +402,7 @@ public class ApiHandler {
 		if(Redis.exists(cacheKey)) {
 			Redis.delete(cacheKey);
 		}
+		Redis.deleteKeysWithStartString("CUSTOMER$COUNT");
 		customer.setCreationTime(System.currentTimeMillis());
 		customer.setModifiedBy(userId);
 		FunctionHandler functionHandler = new FunctionHandler();
@@ -486,6 +418,7 @@ public class ApiHandler {
 		if(Redis.exists(cacheKey)) {
 			Redis.delete(cacheKey);
 		}
+		Redis.deleteKeysWithStartString("EMPLOYEE$COUNT");
 		employee.setCreationTime(System.currentTimeMillis());
 		employee.setModifiedBy(userId);
 		FunctionHandler functionHandler = new FunctionHandler();
@@ -501,6 +434,7 @@ public class ApiHandler {
 		if(Redis.exists(cacheKey)) {
 			Redis.delete(cacheKey);
 		}
+		Redis.deleteKeysWithStartString("USER$COUNT");
 		user.setModifiedTime(System.currentTimeMillis());
 		user.setModifiedBy(userId);
 		FunctionHandler functionHandler = new FunctionHandler();
@@ -508,21 +442,19 @@ public class ApiHandler {
 	}
 	
 	// redis and impl needed
-	public void updateAccount(StringBuilder jsonBody, Long userId) throws Exception {
-		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
+	public void updateAccount(Map<String, Object> data, Long userId, Long key) throws Exception {
 		Account account = ApiHelper.getPojoFromRequest(data, Account.class);
 		if(account==null) {
 			return;
 		}
-//		String cacheKey = "USER$USER_ID:"+userId;
-//		if(Redis.exists(cacheKey)) {
-//			Redis.delete(cacheKey);
-//		}
+		String cacheKey = "ACCOUNT$ACCOUNT_NUMBER:"+key;
+		if(Redis.exists(cacheKey)) {
+			Redis.delete(cacheKey);
+		}
+		Redis.deleteKeysWithStartString("ACCOUNT$COUNT");
 		account.setCreationTime(System.currentTimeMillis());
 		account.setModifiedBy(userId);
 		FunctionHandler functionHandler = new FunctionHandler();
-		Long accountNumber = account.getAccountNumber();
-		account.setAccountNumber(null);
-		functionHandler.update(account, Account.class, accountNumber);
+		functionHandler.update(account, Account.class, key);
 	}
 }

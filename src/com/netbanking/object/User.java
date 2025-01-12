@@ -66,7 +66,7 @@ public class User implements Model {
     }
 
     public void setName(String name) throws CustomException {
-    	if (name != null && !name.matches("^[A-Za-z.]+$")) {
+    	if (name != null && !name.matches("^[A-Za-z. ]+$")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
                 "Name must contain only alphabets and dots (.)"
@@ -136,15 +136,6 @@ public class User implements Model {
     }
 
     public void setCreationTime(Long creationTime) throws CustomException {
-    	long currentTime = System.currentTimeMillis();
-        long oneMinuteAgo = currentTime - 60 * 1000; 
-
-        if (creationTime != null && creationTime > oneMinuteAgo) {
-            throw new CustomException(
-                HttpServletResponse.SC_BAD_REQUEST,
-                "Creation Time is Invalid."
-            );
-        }
         this.creationTime = creationTime;
     }
 
@@ -153,15 +144,6 @@ public class User implements Model {
     }
 
     public void setModifiedTime(Long modifiedTime) throws CustomException {
-    	long currentTime = System.currentTimeMillis();
-        long oneMinuteAgo = currentTime - 60 * 1000; 
-
-        if (modifiedTime != null && modifiedTime > oneMinuteAgo) {
-            throw new CustomException(
-                HttpServletResponse.SC_BAD_REQUEST,
-                "Modified Time is Invalid."
-            );
-        }
         this.modifiedTime = modifiedTime;
     }
 

@@ -23,6 +23,8 @@ EMPLOYEE:
   /profile:
     - GET
     - PUT
+  /user:
+    - GET
 
 MANAGER:
   /account:

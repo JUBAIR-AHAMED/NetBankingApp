@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.netbanking.mapper.YamlMapper;
+
 public class QueryRequest {
     private String tableName;
     private List<Join> joinConditions;
-    private List<String> whereConditions;
     private List<Where> whereConditionsType;
+    private List<String> whereConditions;
     private List<Object> whereConditionsValues;
-    private Map<String, Object> updates; 
     private List<String> updateField;
-    private List<Condition> updatesType;
     private List<Object> updateValue;
     private Boolean selectAllColumns;
     private List<String> selectColumns;
@@ -25,27 +25,37 @@ public class QueryRequest {
     private Integer offset;
     private Boolean count=false;
 
-    // Constructors
-    public QueryRequest() {}
-
     // Getters and Setters
     public String getTableName() {
         return tableName;
     }
 
-    public void setTableName(String tableName) {
+    public QueryRequest setTableName(String tableName) {
         this.tableName = tableName;
+        return this;
     }
 
-    public List<Join> getJoinConditions() {
+    public List<Join> getJoinConditions() throws Exception {
+    	if(joinConditions!=null&&!joinConditions.isEmpty()) {
+			for(Join join:joinConditions) {
+				int joinConditionLength = join.getLeftTable().size();
+				List<String> leftTable=join.getLeftTable(), leftColumn=join.getLeftColumn(), rightTable=join.getRightTable(), rightColumn=join.getRightColumn();
+				for(int i=0;i<joinConditionLength;i++) {
+					String leftTableName = leftTable.get(i), leftColumnName = leftColumn.remove(i), rightTableName = rightTable.get(i), rightColumnName = rightColumn.remove(i);
+					leftColumn.add(i, convertField(leftTableName, leftColumnName));
+					rightColumn.add(i, convertField(rightTableName, rightColumnName));
+				}
+			}
+		}
         return this.joinConditions;
     }
     
-    public void setJoinConditions(List<Join> joinConditions) {
+    public QueryRequest setJoinConditions(List<Join> joinConditions) {
         this.joinConditions = joinConditions;
+        return this;
     }
 
-    public void putJoinConditions(Join... condition) {
+    public QueryRequest putJoinConditions(Join... condition) {
     	if (this.joinConditions == null) {
     		this.joinConditions = new ArrayList<>();
     	}
@@ -53,17 +63,37 @@ public class QueryRequest {
     	{
     		this.joinConditions.add(joins);
     	}
+    	return this;
     }
 
-    public List<String> getWhereConditions() {
+    public List<String> getWhereConditions() throws Exception {
+    	if(whereConditions!=null && !whereConditions.isEmpty()) {
+        	convertFields(getTableName(), whereConditions);
+	    }
+    	if(whereConditionsType!=null) {
+    		if(whereConditions==null) {
+    			whereConditions = new ArrayList<String>();
+    			whereConditionsValues = new ArrayList<Object>();
+    		}
+			for(Where entity: whereConditionsType) {
+				String whereTableName = entity.getTable();
+				String field = entity.getField();
+				Object value = entity.getValue();
+				field = convertField(whereTableName, field);
+				StringBuilder sb = new StringBuilder(whereTableName).append(".").append(field);
+				whereConditions.add(sb.toString());
+				whereConditionsValues.add(value);
+			}
+		}
         return whereConditions;
     }
 
-    public void setWhereConditions(List<String> whereConditions) {
+    public QueryRequest setWhereConditions(List<String> whereConditions) {
         this.whereConditions = whereConditions;
+        return this;
     }
     
-    public void putWhereConditions(String... conditions) {
+    public QueryRequest putWhereConditions(String... conditions) {
         if(whereConditions==null)
         {
         	whereConditions = new ArrayList<String>();
@@ -71,10 +101,12 @@ public class QueryRequest {
         for(String condition : conditions) {
         	whereConditions.add(condition);
         }
+        return this;
     }
 
-    public void setWhereConditionsType(List<Where> whereConditionsType) {
+    public QueryRequest setWhereConditionsType(List<Where> whereConditionsType) {
         this.whereConditionsType = whereConditionsType;
+        return this;
     }
 
     public List<Where> getWhereConditionsType() {
@@ -85,11 +117,12 @@ public class QueryRequest {
     	return whereConditionsValues;
     }
     
-    public void setWhereConditionsValues(List<Object> whereConditionsValues) {
+    public QueryRequest setWhereConditionsValues(List<Object> whereConditionsValues) {
         this.whereConditionsValues = whereConditionsValues;
+        return this;
     }
     
-    public void putWhereConditionsValues(Object... values) {
+    public QueryRequest putWhereConditionsValues(Object... values) {
     	if(whereConditionsValues==null)
     	{
     		whereConditionsValues = new ArrayList<Object>();
@@ -98,25 +131,19 @@ public class QueryRequest {
         {
         	whereConditionsValues.add(value);
         }
-    }
-    
-    public Map<String, Object> getUpdates() {
-        return updates;
-    }
-
-    public void setUpdates(Map<String, Object> updates) {
-        this.updates = updates;
+        return this;
     }
     
     public List<String> getUpdateField() {
         return updateField;
     }
 
-    public void setUpdateField(List<String> updateField) {
+    public QueryRequest setUpdateField(List<String> updateField) {
         this.updateField = updateField;
+        return this;
     }
     
-    public void putUpdateField(String... updateFields) {
+    public QueryRequest putUpdateField(String... updateFields) {
         if(updateField==null)
         {
         	updateField = new ArrayList<String>();
@@ -124,17 +151,19 @@ public class QueryRequest {
         for(String field : updateFields) {
         	updateField.add(field);
         }
+        return this;
     }
     
     public List<Object> getUpdateValue() {
         return updateValue;
     }
 
-    public void setUpdateValue(List<Object> updateValue) {
+    public QueryRequest setUpdateValue(List<Object> updateValue) {
         this.updateValue = updateValue;
+        return this;
     }
     
-    public void putUpdateValue(Object... updateValues) {
+    public QueryRequest putUpdateValue(Object... updateValues) {
         if(updateValue==null)
         {
         	updateValue = new ArrayList<Object>();
@@ -142,26 +171,29 @@ public class QueryRequest {
         for(Object value : updateValues) {
         	updateValue.add(value);
         }
+        return this;
     }
 
     public Boolean getSelectAllColumns() {
         return selectAllColumns;
     }
 
-    public void setSelectAllColumns(Boolean selectAllColumns) {
+    public QueryRequest setSelectAllColumns(Boolean selectAllColumns) {
         this.selectAllColumns = selectAllColumns;
+        return this;
     }
     
     public List<String> getSelectColumns() {
         return selectColumns;
     }
 
-    public void setSelectColumns(List<String> selectColumns) {
+    public QueryRequest setSelectColumns(List<String> selectColumns) {
         this.selectColumns = selectColumns;
         selectAllColumns = false;
+        return this;
     }
     
-    public void putSelectColumns(String... selectColumns) {
+    public QueryRequest putSelectColumns(String... selectColumns) {
         if(this.selectColumns==null) {
         	this.selectColumns = new ArrayList<String>();
         }
@@ -169,18 +201,29 @@ public class QueryRequest {
         	this.selectColumns.add(select);
         }
         selectAllColumns = false;
+        return this;
     }
     
-    public List<Condition> getSelects() {
-        return selects;
+    public List<String> getSelects() throws Exception {
+    	List<String> selectColumns = new ArrayList<String>();
+    	if(selects!=null && !selects.isEmpty()) {
+			for(Condition select:selects) {
+				String table = select.getTable();
+				String field = select.getField();
+				field = convertField(table, field);
+				selectColumns.add(field);
+			}
+		}
+        return selectColumns;
     }
 
-    public void setSelects(List<Condition> selects) {
+    public QueryRequest setSelects(List<Condition> selects) {
         this.selects = selects;
         selectAllColumns = false;
+        return this;
     }
     
-    public void putSelects(Condition... selects) {
+    public QueryRequest putSelects(Condition... selects) {
         if(this.selects==null) {
         	this.selects = new ArrayList<Condition>();
         }
@@ -188,50 +231,37 @@ public class QueryRequest {
         	this.selects.add(select);
         }
         selectAllColumns = false;
-    }
-    
-    public List<Condition> getUpdatesType() {
-        return updatesType;
-    }
-
-    public void setUpdatesType(List<Condition> updatesType) {
-        this.updatesType = updatesType;
-    }
-    
-    public void putUpdatesType(Condition... updatesType) {
-        if(this.updatesType==null) {
-        	this.updatesType = new ArrayList<Condition>();
-        }
-        for(Condition updates:updatesType) {
-        	this.updatesType.add(updates);
-        }
+        return this;
     }
 
     public List<String> getOrderByColumns() {
         return orderByColumns;
     }
 
-    public void setOrderByColumns(List<String> orderByColumns) {
+    public QueryRequest setOrderByColumns(List<String> orderByColumns) {
         this.orderByColumns = orderByColumns;
+        return this;
     }
     
     public List<String> getOrderDirections() {
         return orderDirections;
     }
 
-    public void setOrderDirections(List<String> orderDirections) {
+    public QueryRequest setOrderDirections(List<String> orderDirections) {
         this.orderDirections = orderDirections;
+        return this;
     }
     
     public List<String> getWhereOperators() {
         return whereOperators;
     }
 
-    public void setWhereOperators(List<String> whereOperators) {
+    public QueryRequest setWhereOperators(List<String> whereOperators) {
         this.whereOperators = whereOperators;
+        return this;
     }
     
-    public void putWhereOperators(String... operators) {
+    public QueryRequest putWhereOperators(String... operators) {
         if(whereOperators==null)
         {
         	whereOperators=new ArrayList<String>();
@@ -240,17 +270,19 @@ public class QueryRequest {
         {
         	whereOperators.add(operator);
         }
+        return this;
     }
     
     public List<String> getWhereLogicalOperators() {
         return whereLogicalOperators;
     }
 
-    public void setWhereLogicalOperators(List<String> whereLogicalOperators) {
+    public QueryRequest setWhereLogicalOperators(List<String> whereLogicalOperators) {
         this.whereLogicalOperators = whereLogicalOperators;
+        return this;
     }
     
-    public void putWhereLogicalOperators(String... logicalOperators) {
+    public QueryRequest putWhereLogicalOperators(String... logicalOperators) {
         if(whereLogicalOperators==null)
         {
         	whereLogicalOperators=new ArrayList<String>();
@@ -259,29 +291,62 @@ public class QueryRequest {
         {
         	whereLogicalOperators.add(operator);
         }
+        return this;
     }
 
     public Integer getLimit() {
         return limit;
     }
 
-    public void setLimit(Integer limit) {
+    public QueryRequest setLimit(Integer limit) {
         this.limit = limit;
+        return this;
     }
     
     public Integer getOffset() {
         return offset;
     }
 
-    public void setOffset(Integer offset) {
+    public QueryRequest setOffset(Integer offset) {
         this.offset = offset;
+        return this;
     }
     
     public Boolean getCount() {
         return count;
     }
 
-    public void setCount(Boolean count) {
+    public QueryRequest setCount(Boolean count) {
         this.count = count;
+        return this;
     }
+    
+    public String convertField(String tableName, String field) throws Exception {
+		Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(tableName);
+		if(fieldToColumnMap==null) {
+			throw new Exception("Table name is invalid");
+		}
+		String newField = fieldToColumnMap.get(field);
+		if(newField==null) {
+			System.out.println(field);
+			throw new Exception("Field name is invalid.");
+		}
+		return newField;
+	}
+    
+    public void convertFields(String tableName, List<String> fields) throws Exception {
+    	if(fields==null) {
+    		return;
+    	}
+		Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(tableName);
+		if(fieldToColumnMap==null) {
+			throw new Exception("Table name is invalid");
+		}
+		for(int i=0;i<fields.size();i++) {
+			String fieldName = fields.remove(i);
+	        if (fieldToColumnMap.containsKey(fieldName)) {
+	            fields.add(i, fieldToColumnMap.get(fieldName));
+	        }
+		}
+	}
 }

@@ -7,7 +7,6 @@ import com.netbanking.exception.CustomException;
 
 public class ErrorHandler {
     public static void handleException(Exception ex, HttpServletResponse httpResponse) throws IOException {
-    	System.out.println("Exception faced.");
         if (ex instanceof CustomException) {
         	ex.printStackTrace();
         	CustomException customException = (CustomException) ex;

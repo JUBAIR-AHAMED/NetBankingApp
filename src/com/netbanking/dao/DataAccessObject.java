@@ -8,11 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.netbanking.daoObject.Condition;
 import com.netbanking.daoObject.Join;
 import com.netbanking.daoObject.QueryBuilder;
 import com.netbanking.daoObject.QueryRequest;
-import com.netbanking.daoObject.Where;
 import com.netbanking.mapper.PojoValueMapper;
 import com.netbanking.mapper.YamlMapper;
 import com.netbanking.model.Model;
@@ -20,7 +18,7 @@ import com.netbanking.util.DBConnection;
 
 public class DataAccessObject<T extends Model> implements Dao<T> {
 	//Insert operation
-	public Long insertHandler(T object) throws Exception {
+	public Long insert(T object) throws Exception {
 		if(object==null) {
 			throw new Exception("Object is null.");
 		}		
@@ -35,11 +33,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 			superClass = superClass.getSuperclass();
 		}
 		Map<String, Object> pojoValuesMap = null;
-		try {
-			pojoValuesMap = new PojoValueMapper<T>().getMap(object);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		pojoValuesMap = new PojoValueMapper<T>().getMap(object);
 				
 		Long refrenceKey = null;
 		for(String objectName : objectNames) {
@@ -69,7 +63,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 				insertValues.put(keyNameInTable, value);
 			}
 			try {
-				Long tempRef = insert(tableName, insertValues);
+				Long tempRef = insertHandler(tableName, insertValues);
 				if(refrenceKey==null)
 				{
 					refrenceKey =  tempRef;
@@ -82,7 +76,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 		return refrenceKey;
 	}
 	
-	public Long insert(String tableName, Map<String, Object> insertValues) throws SQLException {
+	public Long insertHandler(String tableName, Map<String, Object> insertValues) throws SQLException {
 		QueryBuilder qb = new QueryBuilder();
 	    qb.insert(tableName, insertValues.keySet());
 	    String sqlQuery = qb.finish();
@@ -103,73 +97,31 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
     	} 
 	}
 	
-	//Delete operation
-	public void delete(String tableName, List<String> whereFields, List<Object> whereValues, List<String> whereOperators, List<String> logicalOperators) throws SQLException {
-	    QueryBuilder qb = new QueryBuilder();
-	    if(whereFields != null && !whereFields.isEmpty()) {
-	    	qb.delete(tableName).where(whereFields, whereOperators, logicalOperators);
-	    }
-		
-		String sqlQuery = qb.finish();
-	    try (Connection connection = DBConnection.getConnection();
-    	     PreparedStatement stmt = connection.prepareStatement(sqlQuery.toString())) {
-	    	if(whereFields != null && !whereFields.isEmpty())
-	    	{
-	    		DBConnection.setValuesInPstm(stmt, whereValues, 1);
-	    		stmt.executeUpdate();
-	    	}
-	    }
-	}
-	
 	//Update operation
 	public void update(T object, QueryRequest request) throws Exception {
 		Map<String, Object> pojoValuesMap = null;
-		try {
-			pojoValuesMap = new PojoValueMapper<T>().getMapExcludingParent(object);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-        List<String> whereConditions = request.getWhereConditions();
+		pojoValuesMap = new PojoValueMapper<T>().getMapExcludingParent(object);
+		String tableName = request.getTableName();
+		List<String> whereConditions = request.getWhereConditions();
 		List<String> updateFields = new ArrayList<String>(pojoValuesMap.keySet());
-        List<Object> updateValues = new ArrayList<Object>(pojoValuesMap.values());
-		List<Where> whereConditionsType = request.getWhereConditionsType();
-		String tableName = request.getTableName();	    		
+		List<Object> updateValues = new ArrayList<Object>(pojoValuesMap.values());
 	    
 	    if(updateFields==null || updateFields.isEmpty()) {
 	    	return;
 	    }
-	    
 	    convertFields(tableName, updateFields);
-
-	    List<Object> whereConditionsValues = new ArrayList<>();
-	    if(whereConditions!=null && !whereConditions.isEmpty()) {
-	    	convertFields(tableName, whereConditions);
-	    	whereConditionsValues = request.getWhereConditionsValues();
-	    } else if(whereConditionsType!=null) {
-			whereConditions = new ArrayList<String>();
-			for(Where entity: whereConditionsType) {
-				String whereTableName = entity.getTable();
-				String field = entity.getField();
-				Object value = entity.getValue();
-				field = convertField(whereTableName, field);
-				StringBuilder sb = new StringBuilder(whereTableName).append(".").append(field);
-				whereConditions.add(sb.toString());
-				whereConditionsValues.add(value);
-			}
-		}
-
-        QueryBuilder qb = new QueryBuilder();
-        qb.update(request.getTableName());
-        
-    	qb.set(updateFields)
-    	.where(whereConditions, request.getWhereOperators(), request.getWhereLogicalOperators());
+	    
+	    QueryBuilder qb = new QueryBuilder();
+	    qb.update(request.getTableName())
+		    .set(updateFields)
+	    	.where(whereConditions, request.getWhereOperators(), request.getWhereLogicalOperators());
         
     	try (Connection connection = DBConnection.getConnection();
              PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
         	int count = 1;
         	count = DBConnection.setValuesInPstm(stmt, updateValues, count);
         	if(whereConditions != null && !whereConditions.isEmpty()) {
-        		DBConnection.setValuesInPstm(stmt, whereConditionsValues, count);
+        		DBConnection.setValuesInPstm(stmt, request.getWhereConditionsValues(), count);
         	}
         	System.out.println(stmt);
         	stmt.executeUpdate();
@@ -179,51 +131,9 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
     //Select operation
     public List<Map<String, Object>> select(QueryRequest request) throws SQLException, Exception {
     	String tableName = request.getTableName();
-		List<String> whereConditions=request.getWhereConditions();
-		List<Where> whereConditionsType = request.getWhereConditionsType();
 		List<Join> joins = request.getJoinConditions();
-		List<Condition> selects = request.getSelects();
-		List<String> selectList = new ArrayList<String>();
+		List<String> selectList = request.getSelects();
 		
-		if(selects!=null && !selects.isEmpty()) {
-			for(Condition select:selects) {
-				String table = select.getTable();
-				String field = select.getField();
-				field = convertField(table, field);
-				selectList.add(field);
-			}
-		}
-		
-		if(joins!=null&&!joins.isEmpty()) {
-			for(Join join:joins) {
-				int joinConditionLength = join.getLeftTable().size();
-				List<String> leftTable=join.getLeftTable(), leftColumn=join.getLeftColumn(), rightTable=join.getRightTable(), rightColumn=join.getRightColumn();
-				for(int i=0;i<joinConditionLength;i++) {
-					String leftTableName = leftTable.get(i), leftColumnName = leftColumn.remove(i), rightTableName = rightTable.get(i), rightColumnName = rightColumn.remove(i);
-					leftColumn.add(i, convertField(leftTableName, leftColumnName));
-					rightColumn.add(i, convertField(rightTableName, rightColumnName));
-				}
-			}
-		}
-		
-		List<Object> whereConditionsValues = new ArrayList<>();
-	    if(whereConditions!=null && !whereConditions.isEmpty()) {
-	    	convertFields(tableName, whereConditions);
-	    	whereConditionsValues = request.getWhereConditionsValues();
-	    } else if(whereConditionsType!=null) {
-			whereConditions = new ArrayList<String>();
-			for(Where entity: whereConditionsType) {
-				String whereTableName = entity.getTable();
-				String field = entity.getField();
-				Object value = entity.getValue();
-				System.out.println(field);
-				field = convertField(whereTableName, field);
-				StringBuilder sb = new StringBuilder(whereTableName).append(".").append(field);
-				whereConditions.add(sb.toString());
-				whereConditionsValues.add(value);
-			}
-		}
-
     	QueryBuilder qb = new QueryBuilder();
     	if(request.getCount()||request.getSelectAllColumns()) {
         	qb.select(request.getCount());
@@ -232,7 +142,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
         }
         
     	qb.from(tableName).join(joins)
-    		.where(whereConditions, request.getWhereOperators(), request.getWhereLogicalOperators())
+    		.where(request.getWhereConditions(), request.getWhereOperators(), request.getWhereLogicalOperators())
         	.order(request.getOrderByColumns(), request.getOrderDirections())
             .limit(request.getLimit()).offset(request.getOffset());
         
@@ -243,11 +153,12 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
         		tableField.putAll(YamlMapper.getFieldToColumnMapByTableName(join.getTableName()));
         	}
         }
+        
         List<Map<String, Object>> list = new ArrayList<>();
         try (Connection connection = DBConnection.getConnection();
             PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
         	int count = 1;
-        	DBConnection.setValuesInPstm(stmt, whereConditionsValues, count);
+        	DBConnection.setValuesInPstm(stmt, request.getWhereConditionsValues(), count);
         	System.out.println(stmt);
         	ResultSet rs = stmt.executeQuery();
         	// Preparing map for the purpose of returning the selected values from the database
@@ -285,7 +196,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 		}
     }
 
-    public void convertFields(String tableName, List<String> fields) throws Exception {
+    private void convertFields(String tableName, List<String> fields) throws Exception {
 		Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(tableName);
 		if(fieldToColumnMap==null) {
 			throw new Exception("Table name is invalid");
@@ -296,18 +207,5 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 	            fields.add(i, fieldToColumnMap.get(fieldName));
 	        }
 		}
-	}
-	
-	public String convertField(String tableName, String field) throws Exception {
-		Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(tableName);
-		if(fieldToColumnMap==null) {
-			throw new Exception("Table name is invalid");
-		}
-		String newField = fieldToColumnMap.get(field);
-		if(newField==null) {
-			System.out.println(field);
-			throw new Exception("Field name is invalid.");
-		}
-		return newField;
 	}
 }

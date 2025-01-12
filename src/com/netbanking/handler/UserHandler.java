@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonObject;
 import com.netbanking.api.ApiHandler;
-import com.netbanking.exception.CustomException;
 import com.netbanking.object.Customer;
 import com.netbanking.object.User;
 import com.netbanking.util.ApiHelper;
@@ -37,7 +35,8 @@ public class UserHandler {
             Parser.storeIfPresent(jsonObject, filters, "userType", String.class, "User Type", false);
             Parser.storeIfPresent(jsonObject, filters, "moreDetails", Boolean.class, "More Details", false);
             Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);
-
+            Parser.storeIfPresent(jsonObject, filters, "searchSimilar", Boolean.class, "Type of search", false);
+            
 	        if(!filters.containsKey("userType")||!filters.containsKey("moreDetails")) {
         		Writer.responseWriter(response,
         				false, HttpServletResponse.SC_BAD_REQUEST,
@@ -80,7 +79,7 @@ public class UserHandler {
             StringBuilder jsonBody = Parser.getJsonBody(request);
             Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
             Function<String, Object> parseLong = Long::parseLong;
-            Long key = (Long) parseLong.apply((String) data.get("key"));
+            Long key = (Long) parseLong.apply((String) data.remove("key"));
     		User user = ApiHelper.getPojoFromRequest(data, User.class);
             apiHandler.updateUser(user, userId, key);
             Customer customer = ApiHelper.getPojoFromRequest(data, Customer.class);
@@ -88,18 +87,9 @@ public class UserHandler {
             response.setStatus(HttpServletResponse.SC_OK);
             responseMap.put("status", true);
             responseMap.put("message", "Updated successfully");
-        } catch (CustomException e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            responseMap.put("status", false);
-            responseMap.put("message", "Update failed due to a server error.");
-            e.printStackTrace(); // Log the stack trace for debugging
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            responseMap.put("status", false);
-            responseMap.put("message", "An unexpected error occurred.");
-            e.printStackTrace();
+        	ErrorHandler.handleException(e, response);
         }
-
         Writer.writeResponse(response, responseMap);
 	}
 }

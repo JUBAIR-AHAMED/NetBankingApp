@@ -1,7 +1,6 @@
 package com.netbanking.handler;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -10,8 +9,6 @@ import com.netbanking.api.ApiHandler;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.TokenHelper;
 import com.netbanking.util.Writer;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 public class LoginHandler {
     public static void handlePost(HttpServletRequest request, HttpServletResponse response) throws IOException {

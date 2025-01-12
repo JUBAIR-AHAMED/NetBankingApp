@@ -62,9 +62,6 @@ public class GenericServlet extends HttpServlet {
                 case "/customer":
                     CustomerHandler.handlePost(request, response);
                     break;
-                case "/profile":
-                    ProfileHandler.handlePut(request, response);
-                    break;
                 case "/transaction":
                     TransactionHandler.handlePost(request, response);
                     break;

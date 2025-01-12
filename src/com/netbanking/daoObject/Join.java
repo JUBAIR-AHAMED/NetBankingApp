@@ -48,91 +48,105 @@ public class Join {
     }
 
     // Setters
-    public void setJoinType(String joinType) {
+    public Join setJoinType(String joinType) {
         this.joinType = joinType;
+        return this;
     }
     
-    public void setTableName(String tableName) {
+    public Join setTableName(String tableName) {
         this.tableName = tableName;
+        return this;
     }
     
-    public void setLeftTable(List<String> leftTable) {
+    public Join setLeftTable(List<String> leftTable) {
         this.leftTable = leftTable;
+        return this;
     }
 
-    public void setLeftColumn(List<String> leftColumn) {
+    public Join setLeftColumn(List<String> leftColumn) {
         this.leftColumn = leftColumn;
+        return this;
     }
 
-    public void setRightTable(List<String> rightTable) {
+    public Join setRightTable(List<String> rightTable) {
         this.rightTable = rightTable;
+        return this;
     }
 
-    public void setRightColumn(List<String> rightColumn) {
+    public Join setRightColumn(List<String> rightColumn) {
         this.rightColumn = rightColumn;
+        return this;
     }
 
-    public void setOperator(List<String> operator) {
+    public Join setOperator(List<String> operator) {
         this.operator = operator;
+        return this;
     }
 
-    public void setLogicalOperator(List<String> logicalOperator) {
+    public Join setLogicalOperator(List<String> logicalOperator) {
         this.logicalOperator = logicalOperator;
+        return this;
     }
     
     // Put
-    public void putLeftTable(String... leftTable) {
+    public Join putLeftTable(String... leftTable) {
         if(this.leftTable==null) {
         	this.leftTable = new ArrayList<>();
         }
     	for(String value:leftTable) {
         	this.leftTable.add(value);
         }
+    	return this;
     }
     
-    public void putLeftColumn(String... leftColumn) {
+    public Join putLeftColumn(String... leftColumn) {
         if(this.leftColumn==null) {
         	this.leftColumn = new ArrayList<>();
         }
     	for(String value:leftColumn) {
         	this.leftColumn.add(value);
         }
+    	return this;
     }
     
-    public void putRightTable(String... rightTable) {
+    public Join putRightTable(String... rightTable) {
         if(this.rightTable==null) {
         	this.rightTable = new ArrayList<>();
         }
     	for(String value:rightTable) {
         	this.rightTable.add(value);
         }
+    	return this;
     }
     
-    public void putRightColumn(String... rightColumn) {
+    public Join putRightColumn(String... rightColumn) {
         if(this.rightColumn==null) {
         	this.rightColumn = new ArrayList<>();
         }
     	for(String value:rightColumn) {
         	this.rightColumn.add(value);
         }
+    	return this;
     }
     
-    public void putOperator(String... operator) {
+    public Join putOperator(String... operator) {
         if(this.operator==null) {
         	this.operator = new ArrayList<>();
         }
     	for(String value:operator) {
         	this.operator.add(value);
         }
+    	return this;
     }
     
-    public void putLogicalOperator(String... logicalOperator) {
+    public Join putLogicalOperator(String... logicalOperator) {
         if(this.logicalOperator==null) {
         	this.logicalOperator = new ArrayList<>();
         }
     	for(String value:logicalOperator) {
         	this.logicalOperator.add(value);
         }
+    	return this;
     }
     
     public String toString() {

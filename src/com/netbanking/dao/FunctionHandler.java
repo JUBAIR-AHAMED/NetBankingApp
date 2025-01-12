@@ -18,16 +18,15 @@ import com.netbanking.object.Transaction;
 import com.netbanking.util.Validator;
 
 public class FunctionHandler {
-	// Get Methods
 	public <T extends Model> Map<String, Object> getRecord(Long id, Class<T> type) throws CustomException, Exception {
 		Validator.checkInvalidInput(id);
 		GetMetadata metadata = GetMetadata.fromClass(type);
-		QueryRequest request = new QueryRequest();
-		request.setSelectAllColumns(true);
-		request.setTableName(metadata.getTableName());
-		request.putWhereConditions(metadata.getPrimaryKeyColumn());
-		request.putWhereConditionsValues(id);
-		request.putWhereOperators("=");
+		QueryRequest request = new QueryRequest()
+									.setSelectAllColumns(true)
+									.setTableName(metadata.getTableName())
+									.putWhereConditions(metadata.getPrimaryKeyColumn())
+									.putWhereConditionsValues(id)
+									.putWhereOperators("=");
 		DataAccessObject<T> daoCaller = new DataAccessObject<>();
 		List<Map<String, Object>> resultList = daoCaller.select(request);
 		return (resultList == null || resultList.isEmpty()) ? null : resultList.get(0);
@@ -36,29 +35,30 @@ public class FunctionHandler {
 	public List<Map<String, Object>> getTransactionStatement(Long accountNumber, Long fromDate, Long toDate, Integer limit, Integer offset, Boolean count) throws Exception {
 		Validator.checkInvalidInput(accountNumber);
 		DataAccessObject<Transaction> transactionHandle = new DataAccessObject<Transaction>();		
-		QueryRequest request = new QueryRequest();
-		request.setTableName("transaction");
-		request.setSelectAllColumns(true);
 		List<String> orderByColumn = new ArrayList<String>(), orderDirections = new ArrayList<String>();
-		request.putWhereConditions("accountNumber");
-		request.putWhereOperators("=");
-		request.putWhereConditionsValues(accountNumber);
+		QueryRequest request = new QueryRequest()
+									.setTableName("transaction")
+									.setSelectAllColumns(true)
+									.putWhereConditions("accountNumber")
+									.putWhereOperators("=")
+									.putWhereConditionsValues(accountNumber);
+		
 		orderByColumn.add("timestamp");
 		orderDirections.add("DESC");
 		if(fromDate!=null) {
-			request.putWhereConditions("timestamp");
-			request.putWhereConditionsValues(fromDate);
-			request.putWhereOperators(">=");
-			request.putWhereLogicalOperators("AND");
+			request.putWhereConditions("timestamp")
+					.putWhereConditionsValues(fromDate)
+					.putWhereOperators(">=")
+					.putWhereLogicalOperators("AND");
 		}
 		if(toDate!=null) {
-			request.putWhereConditions("timestamp");
-			request.putWhereConditionsValues(toDate);
-			request.putWhereOperators("<=");
-			request.putWhereLogicalOperators("AND");
+			request.putWhereConditions("timestamp")
+					.putWhereConditionsValues(toDate)
+					.putWhereOperators("<=")
+					.putWhereLogicalOperators("AND");
 		}
-		request.setOrderByColumns(orderByColumn);
-		request.setOrderDirections(orderDirections);
+		request.setOrderByColumns(orderByColumn)
+				.setOrderDirections(orderDirections);
 		if(limit!=null)
 		{
 			request.setLimit(limit);			
@@ -75,26 +75,23 @@ public class FunctionHandler {
 	public List<Map<String, Object>> getAccount(Map<String, Object> filters, Integer limit, Integer offset) throws Exception
 	{
 		String tableName = "account";
-		QueryRequest request = new QueryRequest();
-		request.setSelectAllColumns(true);
-		request.setTableName(tableName);
+		Boolean searchSimilar = (Boolean) filters.remove("searchSimilar");
+		QueryRequest request = new QueryRequest()
+									.setSelectAllColumns(true)
+									.setTableName(tableName);
 		if(filters.containsKey("count")) {
 			request.setCount((Boolean) filters.get("count"));
 		}
-		
 		if(offset!=null) {
 			request.setOffset(offset);
 		}
-		
 		List<Where> whereConditionsType = new ArrayList<Where>();
-
 		if(!(Boolean) filters.get("isInActiveRequired")) {
 			whereConditionsType.add(new Where("status", tableName, "INACTIVE"));
-			request.putWhereLogicalOperators("AND");
-			request.putWhereOperators("!=");
+			request.putWhereLogicalOperators("AND")
+					.putWhereOperators("!=");
 		}
 		filters.remove("isInActiveRequired");
-		
 		int i=0;
 		for(Map.Entry<String, Object> filter:filters.entrySet()) {
 			if(i>0) {
@@ -103,8 +100,14 @@ public class FunctionHandler {
 			if(filter.getKey().equals("count")) {
 				continue;
 			}
-			whereConditionsType.add(new Where(filter.getKey(), tableName, "%"+filter.getValue()+"%"));
-			request.putWhereOperators("LIKE");
+			String filterValue = filter.getValue().toString();
+			String filterOperator = "=";
+			if(searchSimilar!=null&&searchSimilar) {
+				filterValue = "%"+filter.getValue()+"%";
+				filterOperator = "LIKE";
+			}
+			whereConditionsType.add(new Where(filter.getKey(), tableName, filterValue));
+			request.putWhereOperators(filterOperator);
 			i++;
 		}
 		if(limit!=null) {
@@ -120,9 +123,10 @@ public class FunctionHandler {
 	public List<Map<String, Object>> getBranch(Map<String, Object> filters, Integer limit, Integer offset) throws Exception
 	{
 		String tableName = "branch";
+		Boolean searchSimilar = (Boolean) filters.remove("searchSimilar");
 		QueryRequest request = new QueryRequest();
-		request.setSelectAllColumns(true);
-		request.setTableName(tableName);
+		request.setSelectAllColumns(true)
+				.setTableName(tableName);
 		if(filters.containsKey("count")) {
 			request.setCount((Boolean) filters.get("count"));
 		}
@@ -141,8 +145,14 @@ public class FunctionHandler {
 			if(filter.getKey().equals("count")) {
 				continue;
 			}
-			whereConditionsType.add(new Where(filter.getKey(), tableName, filter.getValue()));
-			request.putWhereOperators("=");
+			String filterValue = filter.getValue().toString();
+			String filterOperator = "=";
+			if(searchSimilar!=null&&searchSimilar) {
+				filterValue = "%"+filter.getValue()+"%";
+				filterOperator = "LIKE";
+			}
+			whereConditionsType.add(new Where(filter.getKey(), tableName, filterValue));
+			request.putWhereOperators(filterOperator);
 			i++;
 		}
 		if(limit!=null) {
@@ -154,24 +164,23 @@ public class FunctionHandler {
 		branchMap = daoCaller.select(request);
 		return branchMap;
 	}
-	
+
 	public List<Map<String, Object>> getUser(Map<String, Object> filters, Integer limit, Integer offset, Class<? extends Model> clazz) throws Exception
 	{
 		String primaryTableName = "user";
 		String secondaryTableName = YamlMapper.getTableName(clazz.getSimpleName());
 		Boolean moreDetails = (Boolean) filters.remove("moreDetails");
+		Boolean searchSimilar = (Boolean) filters.remove("searchSimilar");
 		QueryRequest request = new QueryRequest();
-		request.setSelectAllColumns(true);
-		request.setTableName(primaryTableName);
+		request.setSelectAllColumns(true)
+			.setTableName(primaryTableName);
 		
 		if(moreDetails) {
 			Join join = new Join();
-			join.putLeftTable(primaryTableName);
-			join.putLeftColumn("userId");
-			join.putRightTable(secondaryTableName);
-			join.putRightColumn(clazz.equals(Customer.class)? "customerId" : "employeeId");
-			join.putOperator("=");
-			join.setTableName(secondaryTableName);
+			join.putLeftTable(primaryTableName).putLeftColumn("userId")
+				.putRightTable(secondaryTableName)
+				.putRightColumn(clazz.equals(Customer.class)? "customerId" : "employeeId")
+				.putOperator("=").setTableName(secondaryTableName);
 			request.putJoinConditions(join);
 		}
 		
@@ -193,10 +202,17 @@ public class FunctionHandler {
 			if(filter.getKey().equals("count")) {
 				continue;
 			}
-			whereConditionsType.add(new Where(filter.getKey(), primaryTableName, "%"+filter.getValue()+"%"));
-			request.putWhereOperators("LIKE");
+			String filterValue = filter.getValue().toString();
+			String filterOperator = "=";
+			if(searchSimilar!=null&&searchSimilar) {
+				filterValue = "%"+filter.getValue()+"%";
+				filterOperator = "LIKE";
+			}
+			whereConditionsType.add(new Where(filter.getKey(), primaryTableName, filterValue));
+			request.putWhereOperators(filterOperator);
 			i++;
 		}
+		// setting role
 		whereConditionsType.add(new Where("role", primaryTableName, "CUSTOMER"));
 		if(clazz.equals(Customer.class)) {
 			request.putWhereOperators("=");
@@ -206,6 +222,7 @@ public class FunctionHandler {
 		if(i>0) {
 			request.putWhereLogicalOperators("AND");
 		}
+		// setting limit	
 		if(limit!=null) {
 			request.setLimit(limit);
 		}
@@ -219,19 +236,19 @@ public class FunctionHandler {
 	//Create
 	public Long create(Model object) throws Exception {
 		DataAccessObject<Model> accountDao = new DataAccessObject<>();
-		return accountDao.insertHandler(object);
+		return accountDao.insert(object);
 	}
 	
 	//Update
 	public void update(Model object, Class<?> clazz, Long id) throws Exception {
 		DataAccessObject<Model> accountDao = new DataAccessObject<>();
 		GetMetadata metadata = GetMetadata.fromClass(clazz);
-		QueryRequest request = new QueryRequest();
-		request.setSelectAllColumns(true);
-		request.setTableName(metadata.getTableName());
-		request.putWhereConditions(metadata.getPrimaryKeyColumn());
-		request.putWhereConditionsValues(id);
-		request.putWhereOperators("=");
+		QueryRequest request = new QueryRequest()
+									.setSelectAllColumns(true)
+									.setTableName(metadata.getTableName())
+									.putWhereConditions(metadata.getPrimaryKeyColumn())
+									.putWhereConditionsValues(id)
+									.putWhereOperators("=");
 		accountDao.update(object, request);
 	}
 	
@@ -263,11 +280,7 @@ public class FunctionHandler {
 		} else if(transactionType.equals("withdraw")) {
 			transaction_acc_one.setType("Withdraw");
 		} 
-		// need to check in the previous layer itself
-//		else {
-//			throw new CustomException("Invalid transaction type.");
-//		}
-		Long ref_number = transactionHandle.insertHandler(transaction_acc_one);
+		Long ref_number = transactionHandle.insert(transaction_acc_one);
 		
 		if(transactionType.equals("same-bank"))
 		{
@@ -282,7 +295,7 @@ public class FunctionHandler {
 			transaction_acc_two.setReferenceNumber(ref_number);
 			transaction_acc_two.setCreationTime(System.currentTimeMillis());
 			transaction_acc_two.setType("Credit");
-			transactionHandle.insertHandler(transaction_acc_two);
+			transactionHandle.insert(transaction_acc_two);
 		}
 	}
 	
@@ -321,11 +334,11 @@ public class FunctionHandler {
 		} else {
 			fromAccountBalance -= amount;
 		}
-		QueryRequest fromAccRequest = new QueryRequest();
-		fromAccRequest.setTableName("account");
-		fromAccRequest.putWhereConditions("accountNumber");
-		fromAccRequest.putWhereConditionsValues(from_account_number);
-		fromAccRequest.putWhereOperators("=");
+		QueryRequest fromAccRequest = new QueryRequest()
+											.setTableName("account")
+											.putWhereConditions("accountNumber")
+											.putWhereConditionsValues(from_account_number)
+											.putWhereOperators("=");
 		Account from_account = new Account();
 		from_account.setBalance(fromAccountBalance);
 		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
@@ -334,11 +347,11 @@ public class FunctionHandler {
 		{
 			Account to_account = new Account();
 			to_account.setBalance(toAccountBalance);
-			QueryRequest toAccRequest = new QueryRequest();
-			toAccRequest.setTableName("account");
-			toAccRequest.putWhereConditions("accountNumber");
-			toAccRequest.putWhereConditionsValues(to_account_number);
-			toAccRequest.putWhereOperators("=");
+			QueryRequest toAccRequest = new QueryRequest()
+											.setTableName("account")
+											.putWhereConditions("accountNumber")
+											.putWhereConditionsValues(to_account_number)
+											.putWhereOperators("=");
 			daoCaller.update(to_account, toAccRequest);
 		}
 		storeTransaction(from_account_number, to_account_number,

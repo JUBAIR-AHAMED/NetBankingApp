@@ -158,8 +158,8 @@ public class Parser {
     }
 
 
-    public static void storeIfPresent(JsonObject jsonObject, Map<String, Object> filters, String key, Class<?> clazz, String fieldName, Boolean required) {
-    	Optional.ofNullable(Parser.getValue(jsonObject, key, clazz))
+    public static void storeIfPresent(JsonObject jsonObject, Map<String, Object> filters, String key, Class<?> clazz, String fieldName, Boolean required) throws CustomException {
+    	Optional.ofNullable(Parser.getValue(jsonObject, key, clazz, fieldName, required))
     	.ifPresent(value -> filters.put(key, value));
     }
 }
