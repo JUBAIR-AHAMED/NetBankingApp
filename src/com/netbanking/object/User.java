@@ -1,10 +1,7 @@
 package com.netbanking.object;
 
 import java.sql.Date;
-import java.util.Calendar;
-
 import javax.servlet.http.HttpServletResponse;
-
 import com.netbanking.enums.Role;
 import com.netbanking.enums.Status;
 import com.netbanking.exception.CustomException;
@@ -26,7 +23,7 @@ public class User implements Model {
   //user getter and setters
     public void setUserId(Long userId) throws CustomException {
     	String userIdStr = String.valueOf(userId);
-        if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+        if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
                 "User ID must be exactly 6 digits and contain only numeric characters."
@@ -109,17 +106,6 @@ public class User implements Model {
     }
 
     public void setDateOfBirth(Date dateOfBirth) throws CustomException {
-    	Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.YEAR, -18);
-        Date eighteenYearsAgo = (Date) calendar.getTime();
-
-        if (dateOfBirth != null && dateOfBirth.after(eighteenYearsAgo)) {
-            throw new CustomException(
-                HttpServletResponse.SC_BAD_REQUEST,
-                "You must be at least 18 years old."
-            );
-        }
-
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -153,7 +139,7 @@ public class User implements Model {
 
     public void setModifiedBy(Long modifiedBy) throws CustomException {
     	String userIdStr = String.valueOf(modifiedBy);
-    	if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+    	if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
                 "User ID must be exactly 6 digits and contain only numeric characters."

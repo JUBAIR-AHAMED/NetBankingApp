@@ -76,3 +76,12 @@ pojo:
       transactionAccount: "transaction_account"
       modifiedBy: "modified_by"
       type: "type"
+
+  Activity:
+    tablename: "activity_logs"
+    table_field_name:
+      userId: "user_id"
+      tablename: "tablename"
+      action: "action"
+      details: "details"
+      actionTime: "action_time"

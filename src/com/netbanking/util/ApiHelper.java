@@ -33,14 +33,11 @@ public class ApiHelper {
             String key = entry.getKey();
             Object value = entry.getValue();
             String setterName = "set" + key.substring(0, 1).toUpperCase() + key.substring(1);
-            System.out.println("SETTER NAME: "+setterName);
-            System.out.println("Setter key: "+key+" Setter value: "+value);
             try {
                 Method setter = findSetterMethod(pojoClass, setterName);
                 if (setter != null) {
                     Class<?> paramType = setter.getParameterTypes()[0];
                     Object convertedValue = convertValue(value, paramType);
-                    System.out.println(convertedValue);
                     setter.invoke(pojo, convertedValue);
                     valuePresence = true;
                 }
@@ -142,5 +139,14 @@ public class ApiHelper {
         throw new IllegalArgumentException("Unsupported type conversion: " + targetType.getName());
     }
     
-    
+    public static String dataToString(Map<String, Object> data) {
+		StringBuilder sb = new StringBuilder();
+		for(Map.Entry<String, Object> entry:data.entrySet()) {
+			sb.append(entry.getKey())
+			.append(" : ")
+			.append(entry.getValue())
+			.append("; ");
+		}
+		return sb.toString();
+	}
 }

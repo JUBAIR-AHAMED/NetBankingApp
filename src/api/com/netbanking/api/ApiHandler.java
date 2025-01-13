@@ -216,12 +216,12 @@ public class ApiHandler {
 		}
 		if(role.equals("CUSTOMER"))
 		{
-			if(userId != (Long) fromAccountMap.get("userId")) {
+			if(userId != Converter.convertToLong(fromAccountMap.get("userId"))) {
 				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Permission denied to access this account.");
 			}
 		} else if(role.equals("EMPLOYEE")) {
-			if(branchId != (Long) fromAccountMap.get("branchId")) {
-				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Permission denied to access this account.");
+			if(branchId != Converter.convertToLong(fromAccountMap.get("branchId"))) {
+				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Operation failed. Employee belongs to a different branch.");
 			}
 		}
 		
@@ -292,8 +292,8 @@ public class ApiHandler {
 				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Permission denied to access this account.");
 			}
 		} else if(role.equals("EMPLOYEE")) {
-			if(branchId != (Long) accountMap.get("branchId")) {
-				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Permission denied to access this account.");
+			if(branchId != Converter.convertToLong(accountMap.get("branchId"))) {
+				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Operation failed. Employee belongs to a different branch.");
 			}
 		}
 		

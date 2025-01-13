@@ -47,10 +47,12 @@ public class BranchHandler {
             Map<String, Object> filters = new HashMap<String, Object>();
             JsonObject jsonObject = Parser.getJsonObject(request);
             Parser.storeIfPresent(jsonObject, filters, "branchId", Long.class, "Branch Id", false);
-            Parser.storeIfPresent(jsonObject, filters, "employeeId", Long.class, "Employee Id", false);
-            Parser.storeIfPresent(jsonObject, filters, "ifsc", String.class, "IFSC", false);
-            Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);
-            Parser.storeIfPresent(jsonObject, filters, "searchSimilar", Boolean.class, "Type of search", false);
+            if(role.equals("MANAGER")) {
+            	Parser.storeIfPresent(jsonObject, filters, "employeeId", Long.class, "Employee Id", false);
+            	Parser.storeIfPresent(jsonObject, filters, "ifsc", String.class, "IFSC", false);
+            	Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);
+            	Parser.storeIfPresent(jsonObject, filters, "searchSimilar", Boolean.class, "Type of search", false);
+            }
             
             Boolean countReq = (Boolean) filters.get("count");
             Integer limit=Parser.getValue(jsonObject, "limit", Integer.class), 

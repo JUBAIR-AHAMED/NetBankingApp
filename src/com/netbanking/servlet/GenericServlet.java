@@ -75,10 +75,10 @@ public class GenericServlet extends HttpServlet {
         if (path != null) {
             switch (path) {
                 case "/profile":
-                    ProfileHandler.handlePut(request, response);
-                    break;
-                case "/user":
                     UserHandler.handlePut(request, response);
+                    break;
+                case "/customer":
+                    CustomerHandler.handlePut(request, response);
                     break;
                 case "/account":
                     AccountHandler.handlePut(request, response);

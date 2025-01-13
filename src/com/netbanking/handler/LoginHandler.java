@@ -6,6 +6,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.netbanking.api.ApiHandler;
+import com.netbanking.object.Activity;
+import com.netbanking.util.ActivityLogger;
+import com.netbanking.util.ApiHelper;
+import com.netbanking.util.Converter;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.TokenHelper;
 import com.netbanking.util.Writer;
@@ -19,6 +23,14 @@ public class LoginHandler {
             if (userDetails.isEmpty()) {
                 throw new Exception();
             } else {
+            	Activity activity = new Activity()
+                		.setAction("UPDATE")
+                		.setTablename("customer")
+                		.setUserId(Converter.convertToLong(userDetails.get("userId")))
+                		.setDetails("Logged in")
+                		.setActionTime(System.currentTimeMillis());
+    			ActivityLogger activityLogger = new ActivityLogger();
+    			activityLogger.log(activity);
                 String jwt = TokenHelper.generateJwt(userDetails);
                 responseMap.put("token", jwt);
                 Writer.responseMapWriter(response, 

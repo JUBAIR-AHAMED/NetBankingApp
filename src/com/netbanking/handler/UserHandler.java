@@ -11,8 +11,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonObject;
 import com.netbanking.api.ApiHandler;
+import com.netbanking.enumHelper.EditableFields;
+import com.netbanking.object.Activity;
 import com.netbanking.object.Customer;
 import com.netbanking.object.User;
+import com.netbanking.util.ActivityLogger;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
@@ -72,24 +75,33 @@ public class UserHandler {
 	}
 	
 	public static void handlePut(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Map<String, Object> responseMap = new HashMap<>();
         try {
-            ApiHandler apiHandler = new ApiHandler();
             Long userId = (Long) request.getAttribute("userId");
             StringBuilder jsonBody = Parser.getJsonBody(request);
             Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
-            Function<String, Object> parseLong = Long::parseLong;
-            Long key = (Long) parseLong.apply((String) data.remove("key"));
-    		User user = ApiHelper.getPojoFromRequest(data, User.class);
-            apiHandler.updateUser(user, userId, key);
-            Customer customer = ApiHelper.getPojoFromRequest(data, Customer.class);
-            apiHandler.updateCustomer(customer, userId, key);            
-            response.setStatus(HttpServletResponse.SC_OK);
-            responseMap.put("status", true);
-            responseMap.put("message", "Updated successfully");
+            EditableFields.validateEditableFields(User.class, data);
+            User user = ApiHelper.getPojoFromRequest(data, User.class);            
+    		ApiHandler apiHandler = new ApiHandler();
+            apiHandler.updateUser(user, userId, userId);
+            
+            Activity activity = new Activity()
+				            		.setAction("UPDATE")
+				            		.setTablename("user")
+				            		.setUserId(userId)
+				            		.setDetails(ApiHelper.dataToString(data))
+				            		.setActionTime(System.currentTimeMillis());
+            ActivityLogger activityLogger = new ActivityLogger();
+            activityLogger.log(activity);
+
+            // apiHandler.updateCustomer(jsonBody, userId);
+            Map<String, Object> responseMap = new HashMap<>();
+            Writer.responseMapWriter(response, 
+            		HttpServletResponse.SC_OK, 
+            		HttpServletResponse.SC_OK, 
+            		"Profile updated successfully.", 
+            		responseMap);
         } catch (Exception e) {
-        	ErrorHandler.handleException(e, response);
+            ErrorHandler.handleException(e, response);
         }
-        Writer.writeResponse(response, responseMap);
-	}
+    }
 }

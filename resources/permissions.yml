@@ -25,6 +25,11 @@ EMPLOYEE:
     - PUT
   /user:
     - GET
+  /customer:
+    - PUT
+    - POST
+  /branch:
+    - GET
 
 MANAGER:
   /account:
@@ -49,6 +54,6 @@ MANAGER:
     - POST
   /customer:
     - POST
+    - PUT
   /user:
     - GET
-    - PUT

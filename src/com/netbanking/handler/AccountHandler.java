@@ -11,8 +11,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonObject;
 import com.netbanking.api.ApiHandler;
+import com.netbanking.enumHelper.EditableFields;
 import com.netbanking.exception.CustomException;
+import com.netbanking.object.Account;
+import com.netbanking.object.Activity;
+import com.netbanking.util.ActivityLogger;
 import com.netbanking.util.ApiHelper;
+import com.netbanking.util.Converter;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
 import com.netbanking.util.Writer;
@@ -90,11 +95,37 @@ public class AccountHandler {
         try {
             ApiHandler apiHandler = new ApiHandler();
             Long userId = (Long) request.getAttribute("userId");
+            String role = (String) request.getAttribute("role");
+            Long branchId = (Long) request.getAttribute("branchId");
             Function<String, Object> parseLong = Long::parseLong;
             StringBuilder jsonBody = Parser.getJsonBody(request);
             Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
             Long key = (Long) parseLong.apply((String) data.remove("accountNumber"));
+            Map<String, Object> accountData = apiHandler.get(key, Account.class);
+            
+            // Block the employee from editing the details of the account in another branch
+            if(role.equals("EMPLOYEE")) {
+            	Long accountBranchId = Converter.convertToLong(accountData.get("branchId"));
+            	if(accountBranchId != branchId) {
+            		throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Operation failed. Employee belongs to a different branch.");
+            	}
+            }
+            if(accountData.get("status").equals("INACTIVE"))
+    		{
+    			throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "This account can't be updated because it is an inactive/deleted account.");
+    		}
+            EditableFields.validateEditableFields(Account.class, data);
             apiHandler.updateAccount(data, userId, key);
+
+            Activity activity = new Activity()
+            		.setAction("UPDATE")
+            		.setTablename("account")
+            		.setUserId(userId)
+            		.setDetails(ApiHelper.dataToString(data))
+            		.setActionTime(System.currentTimeMillis());
+			ActivityLogger activityLogger = new ActivityLogger();
+			activityLogger.log(activity);
+
             Writer.responseMapWriter(response, 
             		HttpServletResponse.SC_OK, 
             		HttpServletResponse.SC_OK, 
