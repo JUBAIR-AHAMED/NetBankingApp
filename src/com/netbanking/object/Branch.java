@@ -96,7 +96,7 @@ public class Branch implements Model {
     }
 
     public void setAddress(String address) throws CustomException {
-    	if (address != null && address.matches("^[A-Za-z0-9,.'\\s-/]+$")) {
+    	if (address != null && !address.matches("^[A-Za-z0-9,.'\\s-/]+$")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
                 "Address can only contain letters, numbers, spaces, and the following punctuation: , . ' - /"

@@ -84,14 +84,13 @@ public class UserHandler {
     		ApiHandler apiHandler = new ApiHandler();
             apiHandler.updateUser(user, userId, userId);
             
-            Activity activity = new Activity()
-				            		.setAction("UPDATE")
-				            		.setTablename("user")
-				            		.setUserId(userId)
-				            		.setDetails(ApiHelper.dataToString(data))
-				            		.setActionTime(System.currentTimeMillis());
-            ActivityLogger activityLogger = new ActivityLogger();
-            activityLogger.log(activity);
+            new Activity()
+        		.setAction("UPDATE")
+        		.setTablename("user")
+        		.setUserId(userId)
+        		.setDetails(ApiHelper.dataToString(data))
+        		.setActionTime(System.currentTimeMillis())
+        		.execute();
 
             // apiHandler.updateCustomer(jsonBody, userId);
             Map<String, Object> responseMap = new HashMap<>();

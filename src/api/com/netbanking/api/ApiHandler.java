@@ -355,10 +355,7 @@ public class ApiHandler {
 	}
 	
 	// no redis
-	public long createBranch(HttpServletRequest request, Long userId, String role, Long branchId) throws CustomException, Exception{
-		StringBuilder jsonBody = Parser.getJsonBody(request);
-		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
-		Branch branch = ApiHelper.getPojoFromRequest(data, Branch.class);
+	public long createBranch(Branch branch, Long userId) throws CustomException, Exception{
 		branch.setCreationTime(System.currentTimeMillis());
 	    branch.setModifiedBy(userId);
 	    FunctionHandler functionHandler = new FunctionHandler();
@@ -367,10 +364,7 @@ public class ApiHandler {
 	}
 	
 	// no redis
-	public long createAccount(HttpServletRequest request, Long userId) throws CustomException, Exception {
-		StringBuilder jsonBody = Parser.getJsonBody(request);
-		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
-		Account account = ApiHelper.getPojoFromRequest(data, Account.class);
+	public long createAccount(Account account, Long userId) throws CustomException, Exception {
 		account.setDateOfOpening(System.currentTimeMillis());
 	    account.setCreationTime(System.currentTimeMillis());
 	    account.setModifiedBy(userId);
@@ -380,10 +374,7 @@ public class ApiHandler {
 	}
 	
 	// no redis
-	public long createCustomer(HttpServletRequest request, Long userId) throws Exception {
-		StringBuilder jsonBody = Parser.getJsonBody(request);
-		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
-		Customer customer = ApiHelper.getPojoFromRequest(data, Customer.class);
+	public long createCustomer(Customer customer, Long userId) throws Exception {
 		customer.setCreationTime(System.currentTimeMillis());
 		customer.setModifiedBy(userId);
 		customer.setRole(Role.CUSTOMER);

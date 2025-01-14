@@ -1,6 +1,7 @@
 package com.netbanking.object;
 
 import com.netbanking.model.Model;
+import com.netbanking.util.ActivityLogger;
 
 public class Activity implements Model{
 	private Long userId;
@@ -43,5 +44,9 @@ public class Activity implements Model{
 	public Activity setActionTime(Long actionTime) {
 		this.actionTime = actionTime;
 		return this;
+	}
+	public void execute() {
+		ActivityLogger activityLogger = new ActivityLogger();
+		activityLogger.log(this);
 	}
 }

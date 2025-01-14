@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netbanking.api.ApiHandler;
 import com.netbanking.enumHelper.EditableFields;
+import com.netbanking.enumHelper.RequiredFields;
 import com.netbanking.object.Activity;
 import com.netbanking.object.Customer;
 import com.netbanking.object.User;
@@ -22,11 +23,23 @@ import com.netbanking.util.Writer;
 public class CustomerHandler {
 	public static void handlePost(HttpServletRequest request, HttpServletResponse response) throws IOException{
 		Map<String, Object> responseMap = new HashMap<>();
-		ApiHandler apiHandler = new ApiHandler();
 		Long userId = (Long) request.getAttribute("userId");
     	try {
-			Long createdCustomerId = apiHandler.createCustomer(request, userId);	
-            responseMap.put("customerId", createdCustomerId);
+    		StringBuilder jsonBody = Parser.getJsonBody(request);
+    		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
+    		RequiredFields.validate("CUSTOMER", data);
+    		Customer customer = ApiHelper.getPojoFromRequest(data, Customer.class);
+    		
+    		ApiHandler apiHandler = new ApiHandler();
+			Long createdCustomerId = apiHandler.createCustomer(customer, userId);	
+			new Activity()
+        		.setAction("CREATE")
+        		.setTablename("customer")
+        		.setUserId(userId)
+        		.setDetails(ApiHelper.dataToString(data))
+        		.setActionTime(System.currentTimeMillis())
+        		.execute();
+			responseMap.put("customerId", createdCustomerId);
             Writer.responseMapWriter(response, 
             		HttpServletResponse.SC_OK, 
             		HttpServletResponse.SC_OK, 
@@ -51,14 +64,13 @@ public class CustomerHandler {
             apiHandler.updateUser(user, userId, key);
             Customer customer = ApiHelper.getPojoFromRequest(data, Customer.class);
             apiHandler.updateCustomer(customer, userId, key);
-            Activity activity = new Activity()
+            new Activity()
             		.setAction("UPDATE")
             		.setTablename("customer")
             		.setUserId(userId)
             		.setDetails(ApiHelper.dataToString(data))
-            		.setActionTime(System.currentTimeMillis());
-			ActivityLogger activityLogger = new ActivityLogger();
-			activityLogger.log(activity);
+            		.setActionTime(System.currentTimeMillis())
+            		.execute();
             Writer.responseMapWriter(response, 
             		HttpServletResponse.SC_OK, 
             		HttpServletResponse.SC_OK, 

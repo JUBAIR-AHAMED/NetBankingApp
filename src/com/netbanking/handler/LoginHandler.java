@@ -23,14 +23,13 @@ public class LoginHandler {
             if (userDetails.isEmpty()) {
                 throw new Exception();
             } else {
-            	Activity activity = new Activity()
-                		.setAction("UPDATE")
-                		.setTablename("customer")
-                		.setUserId(Converter.convertToLong(userDetails.get("userId")))
-                		.setDetails("Logged in")
-                		.setActionTime(System.currentTimeMillis());
-    			ActivityLogger activityLogger = new ActivityLogger();
-    			activityLogger.log(activity);
+            	new Activity()
+            		.setAction("LOGIN")
+            		.setTablename("customer")
+            		.setUserId(Converter.convertToLong(userDetails.get("userId")))
+            		.setDetails("Logged in")
+            		.setActionTime(System.currentTimeMillis())
+            		.execute();
                 String jwt = TokenHelper.generateJwt(userDetails);
                 responseMap.put("token", jwt);
                 Writer.responseMapWriter(response, 

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.netbanking.exception.CustomException;
 
 public class ApiHelper {
 	private static final Gson gson = new Gson();
@@ -18,7 +19,7 @@ public class ApiHelper {
         return data;
 	}
 	
-    public static <T> T getPojoFromRequest(Map<String, Object> data, Class<T> pojoClass) throws IOException {
+    public static <T> T getPojoFromRequest(Map<String, Object> data, Class<T> pojoClass) throws Exception {
         if(data==null) {
         	return null;
         }
@@ -42,8 +43,11 @@ public class ApiHelper {
                     valuePresence = true;
                 }
             } catch (Exception e) {
-            	e.printStackTrace();
-                System.out.println("Failed to set value for " + key + ": " + e.getMessage());
+                Throwable cause = e.getCause();
+                if (cause instanceof CustomException) {
+                    throw (CustomException) cause;
+                } 
+                throw e;
             }
         }
 

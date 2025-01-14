@@ -8,6 +8,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.google.gson.JsonObject;
 import com.netbanking.api.ApiHandler;
+import com.netbanking.enumHelper.RequiredFields;
+import com.netbanking.object.Activity;
+import com.netbanking.object.Branch;
+import com.netbanking.util.ActivityLogger;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
@@ -18,11 +22,19 @@ public class BranchHandler {
     	try {
     		// getting required data
 			Long userId = (Long) request.getAttribute("userId");
-			String role = (String) request.getAttribute("role");
-			Long branchId = (Long) request.getAttribute("branchId");
-			// Creation process with returning branch id
 			ApiHandler apiHandler = new ApiHandler();
-			Long createdBranchId = apiHandler.createBranch(request, userId, role, branchId);	
+			StringBuilder jsonBody = Parser.getJsonBody(request);
+			Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
+			RequiredFields.validate("BRANCH", data);
+			Branch branch = ApiHelper.getPojoFromRequest(data, Branch.class);
+			Long createdBranchId = apiHandler.createBranch(branch, userId);	
+			new Activity()
+        		.setAction("CREATE")
+        		.setTablename("branch")
+        		.setUserId(userId)
+        		.setDetails(ApiHelper.dataToString(data))
+        		.setActionTime(System.currentTimeMillis())
+        		.execute();
 			// response
 			Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("branchId", createdBranchId);

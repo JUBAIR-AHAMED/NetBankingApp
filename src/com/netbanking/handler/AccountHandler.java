@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.JsonObject;
 import com.netbanking.api.ApiHandler;
 import com.netbanking.enumHelper.EditableFields;
+import com.netbanking.enumHelper.RequiredFields;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Account;
 import com.netbanking.object.Activity;
@@ -47,12 +48,7 @@ public class AccountHandler {
             
             List<Map<String, Object>> accounts = apiHandler
             									.filteredGetAccount(
-            											userId, 
-            											role, 
-            											branchId, 
-            											filters, 
-            											limit, 
-            											currentPage);
+            											userId, role, branchId, filters, limit, currentPage);
             
             // Sending the count or account data as requested
             if(countReq!=null&&countReq) {
@@ -73,18 +69,28 @@ public class AccountHandler {
 	}
 	
 	public static void handlePost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		try {
     	Map<String, Object> responseMap = new HashMap<>();
 		ApiHandler apiHandler = new ApiHandler();
 	    Long userId = (Long) request.getAttribute("userId");
-	
-		try {
-			Long createdBranchId = apiHandler.createAccount(request, userId);	
-			responseMap.put("accountNumber", createdBranchId);
-			Writer.responseMapWriter(response, 
-	        		HttpServletResponse.SC_OK, 
-	        		HttpServletResponse.SC_OK, 
-	        		"Accounts created successfully", 
-	        		responseMap);
+	    StringBuilder jsonBody = Parser.getJsonBody(request);
+		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
+		RequiredFields.validate("ACCOUNT", data);
+		Account account = ApiHelper.getPojoFromRequest(data, Account.class);
+		Long createdBranchId = apiHandler.createAccount(account, userId);
+		new Activity()
+    		.setAction("CREATE")
+    		.setTablename("account")
+    		.setUserId(userId)
+    		.setDetails(ApiHelper.dataToString(data))
+    		.setActionTime(System.currentTimeMillis())
+    		.execute();
+		responseMap.put("accountNumber", createdBranchId);
+		Writer.responseMapWriter(response, 
+        		HttpServletResponse.SC_OK, 
+        		HttpServletResponse.SC_OK, 
+        		"Accounts created successfully", 
+        		responseMap);
 		} catch (Exception e) {
 			ErrorHandler.handleException(e, response);
 		}
@@ -117,14 +123,13 @@ public class AccountHandler {
             EditableFields.validateEditableFields(Account.class, data);
             apiHandler.updateAccount(data, userId, key);
 
-            Activity activity = new Activity()
+            new Activity()
             		.setAction("UPDATE")
             		.setTablename("account")
             		.setUserId(userId)
             		.setDetails(ApiHelper.dataToString(data))
-            		.setActionTime(System.currentTimeMillis());
-			ActivityLogger activityLogger = new ActivityLogger();
-			activityLogger.log(activity);
+            		.setActionTime(System.currentTimeMillis())
+            		.execute();;
 
             Writer.responseMapWriter(response, 
             		HttpServletResponse.SC_OK, 
