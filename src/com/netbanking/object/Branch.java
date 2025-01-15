@@ -15,22 +15,6 @@ public class Branch implements Model {
     private Long modifiedTime;
     private Long modifiedBy;
 
-    // Constructors
-    public Branch() {
-    }
-
-    public Branch(Long branchId, String ifsc, String name, Long employeeId, String address,
-                  Long creationTime, Long modifiedTime, Long modifiedBy) {
-        this.branchId = branchId;
-        this.ifsc = ifsc;
-        this.name = name;
-        this.employeeId = employeeId;
-        this.address = address;
-        this.creationTime = creationTime;
-        this.modifiedTime = modifiedTime;
-        this.modifiedBy = modifiedBy;
-    }
-
     // Getters and Setters
     public Long getBranchId() {
         return branchId;
@@ -42,7 +26,7 @@ public class Branch implements Model {
         if (branchIdStr != null && !branchIdStr.matches("\\d{1,5}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
-                "Branch ID must be exactly 5 digits and contain only numeric characters."
+                "Branch ID must be within 5 digits and contain only numeric characters."
             );
         }
         this.branchId = branchId;
@@ -85,7 +69,7 @@ public class Branch implements Model {
         if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
-                "User ID must be exactly 6 digits and contain only numeric characters."
+                "User ID must be within 6 digits and contain only numeric characters."
             );
         }
         this.employeeId = employeeId;
@@ -127,10 +111,10 @@ public class Branch implements Model {
 
     public void setModifiedBy(Long modifiedBy) throws CustomException {
     	String userIdStr = String.valueOf(modifiedBy);
-    	if (userIdStr != null && !userIdStr.matches("\\d{1}")) {
+    	if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
-                "User ID must be exactly 6 digits and contain only numeric characters."
+                "User ID must be within 6 digits and contain only numeric characters."
             );
         }
         this.modifiedBy = modifiedBy;

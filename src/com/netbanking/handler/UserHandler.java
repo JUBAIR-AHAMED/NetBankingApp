@@ -35,6 +35,7 @@ public class UserHandler {
             Parser.storeIfPresent(jsonObject, filters, "userId", Long.class, "User Id", false);
             Parser.storeIfPresent(jsonObject, filters, "name", String.class, "Name", false);
             Parser.storeIfPresent(jsonObject, filters, "email", String.class, "Email", false);
+            Parser.storeIfPresent(jsonObject, filters, "branchId", Long.class, "Branch Id", false);
             Parser.storeIfPresent(jsonObject, filters, "userType", String.class, "User Type", false);
             Parser.storeIfPresent(jsonObject, filters, "moreDetails", Boolean.class, "More Details", false);
             Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);

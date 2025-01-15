@@ -9,23 +9,12 @@ public class Customer extends User {
     private Long aadharNumber;
     private String panNumber;
 
-    // Constructors, Getters, and Setters...
-    
-    public Customer() {
-    }
-
-    public Customer(long customerId, long aadharNumber, String panNumber) {
-        this.customerId = customerId;
-        this.aadharNumber = aadharNumber;
-        this.panNumber = panNumber;
-    }
-    
     public void setCustomerId(Long customerId) throws CustomException {
     	String userIdStr = String.valueOf(customerId);
         if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
-                "User ID must be exactly 6 digits and contain only numeric characters."
+                "User ID must be within 6 digits and contain only numeric characters."
             );
         }
         this.customerId = customerId;

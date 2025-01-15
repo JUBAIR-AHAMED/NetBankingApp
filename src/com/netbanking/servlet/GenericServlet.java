@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.netbanking.handler.AccountHandler;
 import com.netbanking.handler.BranchHandler;
 import com.netbanking.handler.CustomerHandler;
+import com.netbanking.handler.EmployeeHandler;
 import com.netbanking.handler.LoginHandler;
 import com.netbanking.handler.ProfileHandler;
 import com.netbanking.handler.TransactionHandler;
@@ -61,6 +62,9 @@ public class GenericServlet extends HttpServlet {
                     break;
                 case "/customer":
                     CustomerHandler.handlePost(request, response);
+                    break;
+                case "/employee":
+                    EmployeeHandler.handlePost(request, response);
                     break;
                 case "/branch":
                     BranchHandler.handlePost(request, response);

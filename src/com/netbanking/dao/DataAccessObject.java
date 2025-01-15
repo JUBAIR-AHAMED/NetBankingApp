@@ -62,15 +62,10 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 				Object value = pojoValuesMap.get(key);
 				insertValues.put(keyNameInTable, value);
 			}
-			try {
-				Long tempRef = insertHandler(tableName, insertValues);
-				if(refrenceKey==null)
-				{
-					refrenceKey =  tempRef;
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-				throw new Exception("Failed Inserting");
+			Long tempRef = insertHandler(tableName, insertValues);
+			if(refrenceKey==null)
+			{
+				refrenceKey =  tempRef;
 			}
 		}
 		return refrenceKey;
@@ -80,6 +75,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 		QueryBuilder qb = new QueryBuilder();
 	    qb.insert(tableName, insertValues.keySet());
 	    String sqlQuery = qb.finish();
+	    Long generatedKeysList = null;
 	    try (Connection connection = DBConnection.getConnection();
     	    PreparedStatement stmt = connection.prepareStatement(sqlQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
 	    	
@@ -87,14 +83,13 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
     	    System.out.println(stmt);
     	    stmt.executeUpdate();
 
-    	    Long generatedKeysList = null;
     	    try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     generatedKeysList = generatedKeys.getLong(1);
                 }
             }
-            return generatedKeysList;
-    	} 
+    	}
+		return generatedKeysList;
 	}
 	
 	//Update operation
@@ -190,10 +185,6 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
             }
             return list;
         }
-        catch (Exception e) {
-        	e.printStackTrace();
-			throw new Exception("Failed getting the data.");
-		}
     }
 
     private void convertFields(String tableName, List<String> fields) throws Exception {

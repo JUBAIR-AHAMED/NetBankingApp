@@ -4,17 +4,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import com.netbanking.api.ApiHandler;
 import com.netbanking.enumHelper.EditableFields;
 import com.netbanking.enumHelper.RequiredFields;
 import com.netbanking.object.Activity;
 import com.netbanking.object.Customer;
 import com.netbanking.object.User;
-import com.netbanking.util.ActivityLogger;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;

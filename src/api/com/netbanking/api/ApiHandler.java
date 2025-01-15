@@ -198,13 +198,11 @@ public class ApiHandler {
 	// redis ok
 	public void initiateTransaction(HttpServletRequest request, Long userId, String role, Long branchId) throws CustomException, Exception {
 		JsonObject jsonObject = Parser.getJsonObject(request);
-		Long fromAccount=null, toAccount=null;
-		Float amount=null;
-		String transactionType = null;
-		fromAccount = Parser.getValue(jsonObject, "fromAccount", Long.class, "Sender Account", true);
-        toAccount = Parser.getValue(jsonObject, "toAccount", Long.class, "Reciver Account", false);
-        transactionType = Parser.getValue(jsonObject, "transactionType", String.class, "Transaction Type", true);
-		amount = Parser.getValue(jsonObject, "amount", Float.class, "Amount", true);
+		Long fromAccount=Parser.getValue(jsonObject, "fromAccount", Long.class, "Sender Account", true);
+		Long toAccount=Parser.getValue(jsonObject, "toAccount", Long.class, "Reciver Account", false);
+		Float amount=Parser.getValue(jsonObject, "amount", Float.class, "Amount", true);
+		String transactionType = Parser.getValue(jsonObject, "transactionType", String.class, "Transaction Type", true);
+		System.out.println(transactionType);
 		FunctionHandler functionHandler = new FunctionHandler();
 		Map<String, Object> fromAccountMap = get(fromAccount, Account.class);
 		Map<String, Object> toAccountMap=null;
@@ -333,6 +331,7 @@ public class ApiHandler {
 		ObjectMapper objectMapper = new ObjectMapper();
 		String cachedData = Redis.get(cacheKey);
 		if(cachedData!=null) {
+			System.out.println("Retrieved from cache.");
 			return objectMapper.readValue(cachedData, Map.class);
 		} 
 		Map<String, Object> map = functionHandler.getRecord(userId, clazz);
@@ -341,10 +340,7 @@ public class ApiHandler {
 	}
 	
 	// no redis
-	public long createEmployee(HttpServletRequest request, Long userId, String role, Long branchId) throws Exception {
-		StringBuilder jsonBody = Parser.getJsonBody(request);
-		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
-		Employee employee = ApiHelper.getPojoFromRequest(data, Employee.class);
+	public long createEmployee(Employee employee, Long userId) throws Exception {
 		employee.setPassword(Encryption.hashPassword(employee.getPassword()));
 		employee.setStatus(Status.ACTIVE);
 		employee.setCreationTime(System.currentTimeMillis());

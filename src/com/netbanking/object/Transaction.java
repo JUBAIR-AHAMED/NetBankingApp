@@ -2,6 +2,7 @@ package com.netbanking.object;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.netbanking.enums.TransactionType;
 import com.netbanking.exception.CustomException;
 import com.netbanking.model.Model;
 
@@ -16,10 +17,6 @@ public class Transaction implements Model {
     private Long creationTime;
     private Long modifiedBy;
     private String type;
-
-    // Default constructor
-    public Transaction() {
-    }
 
     // Getters and Setters
     public Long getReferenceNumber() {
@@ -90,7 +87,7 @@ public class Transaction implements Model {
         if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
-                "User ID must be exactly 6 digits and contain only numeric characters."
+                "User ID must be within 6 digits and contain only numeric characters."
             );
         }
         this.userId = userId;
@@ -129,7 +126,7 @@ public class Transaction implements Model {
     	if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
-                "User ID must be exactly 6 digits and contain only numeric characters."
+                "User ID must be within 6 digits and contain only numeric characters."
             );
         }
         this.modifiedBy = modifiedBy;
@@ -141,7 +138,8 @@ public class Transaction implements Model {
     
     // change to enum
     public void setType(String type) throws CustomException {
-    	if (type != null && !(type.equals("	") || type.equals("Withdraw") || type.equals("Credit") || type.equals("Debit"))) {
+    	System.out.println(type);
+    	if (TransactionType.valueOf(type) == null) {
                 throw new CustomException(
                     HttpServletResponse.SC_BAD_REQUEST,
                     "Type must be one of the following: Deposit, Withdraw, Credit, or Debit."

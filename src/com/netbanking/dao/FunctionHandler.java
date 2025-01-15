@@ -15,6 +15,7 @@ import com.netbanking.object.Account;
 import com.netbanking.object.Branch;
 import com.netbanking.object.Customer;
 import com.netbanking.object.Transaction;
+import com.netbanking.util.Converter;
 import com.netbanking.util.Validator;
 
 public class FunctionHandler {
@@ -186,6 +187,7 @@ public class FunctionHandler {
 		
 		if(filters.containsKey("count")) {
 			request.setCount((Boolean) filters.get("count"));
+			filters.remove("count");
 		}
 		
 		if(offset!=null) {
@@ -199,16 +201,17 @@ public class FunctionHandler {
 			if(i>0) {
 				request.putWhereLogicalOperators("AND");
 			}
-			if(filter.getKey().equals("count")) {
-				continue;
-			}
 			String filterValue = filter.getValue().toString();
 			String filterOperator = "=";
 			if(searchSimilar!=null&&searchSimilar) {
-				filterValue = "%"+filter.getValue()+"%";
+				filterValue = "%"+filterValue+"%";
 				filterOperator = "LIKE";
 			}
-			whereConditionsType.add(new Where(filter.getKey(), primaryTableName, filterValue));
+			if(filter.getKey().equals("branchId")) {
+				whereConditionsType.add(new Where(filter.getKey(), secondaryTableName, filterValue));
+			} else {
+				whereConditionsType.add(new Where(filter.getKey(), primaryTableName, filterValue));
+			}
 			request.putWhereOperators(filterOperator);
 			i++;
 		}
@@ -273,12 +276,12 @@ public class FunctionHandler {
 		transaction_acc_one.setTransactionAmount(amount);
 		transaction_acc_one.setUserId(from_user_id);
 		transaction_acc_one.setCreationTime(System.currentTimeMillis());
-		if(transactionType.equals("same-bank")||transactionType.equals("other-bank")) {
-			transaction_acc_one.setType("Debit");
-		} else if(transactionType.equals("deposit")){
-			transaction_acc_one.setType("Deposit");
-		} else if(transactionType.equals("withdraw")) {
-			transaction_acc_one.setType("Withdraw");
+		if(transactionType.equalsIgnoreCase("same-bank")||transactionType.equalsIgnoreCase("other-bank")) {
+			transaction_acc_one.setType("DEBIT");
+		} else if(transactionType.equalsIgnoreCase("deposit")){
+			transaction_acc_one.setType("DEPOSIT");
+		} else if(transactionType.equalsIgnoreCase("withdraw")) {
+			transaction_acc_one.setType("WITHDRAW");
 		} 
 		Long ref_number = transactionHandle.insert(transaction_acc_one);
 		
@@ -294,13 +297,17 @@ public class FunctionHandler {
 			transaction_acc_two.setUserId(to_user_id);
 			transaction_acc_two.setReferenceNumber(ref_number);
 			transaction_acc_two.setCreationTime(System.currentTimeMillis());
-			transaction_acc_two.setType("Credit");
+			transaction_acc_two.setType("CREDIT");
 			transactionHandle.insert(transaction_acc_two);
 		}
 	}
 	
 	public void makeTransaction(Map<String, Object> fromAccountMap, Map<String, Object> toAccountMap, Long user_id, Float amount, String transactionType) throws Exception {
-		Long from_account_number = (Long) fromAccountMap.get("accountNumber"), to_account_number = (Long) toAccountMap.get("accountNumber");
+		Long from_account_number = (Long) fromAccountMap.get("accountNumber");
+		Long to_account_number = null;
+		if(toAccountMap!=null) {
+			to_account_number = (Long) toAccountMap.getOrDefault("accountNumber", null);
+		}
 		Float fromAccountBalance, toAccountBalance = null;
 		Object frombalance = fromAccountMap.get ("balance");
 
@@ -354,8 +361,13 @@ public class FunctionHandler {
 											.putWhereOperators("=");
 			daoCaller.update(to_account, toAccRequest);
 		}
+		Long fromUserId = Converter.convertToLong(fromAccountMap.get("userId"));
+		Long toUserId = null;
+		if(toAccountMap!=null) {
+			toUserId = Converter.convertToLong(toAccountMap.get("userId"));
+		}
 		storeTransaction(from_account_number, to_account_number,
-				(Long) fromAccountMap.get("userId"), (Long) toAccountMap.get("userId"),
+				fromUserId, toUserId,
 				user_id, amount, fromAccountBalance, 
 				toAccountBalance, transactionType);
 	}

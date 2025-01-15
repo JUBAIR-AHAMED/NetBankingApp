@@ -20,7 +20,7 @@ public class Employee extends User implements Model {
         if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
-                "User ID must be exactly 6 digits and contain only numeric characters."
+                "User ID must be within 6 digits and contain only numeric characters."
             );
         }
         this.employeeId = employeeId;
@@ -34,10 +34,10 @@ public class Employee extends User implements Model {
     // Setter for branchId
     public void setBranchId(Long branchId) throws CustomException {
     	String branchIdStr = String.valueOf(branchId);
-    	if (branchId != null && !branchIdStr.matches("\\d{1}")) {
+    	if (branchId != null && !branchIdStr.matches("\\d{1,5}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
-                "Branch ID must be exactly 5 digits and contain only numeric characters."
+                "Branch ID must be within 5 digits and contain only numeric characters."
             );
         }
         this.branchId = branchId;

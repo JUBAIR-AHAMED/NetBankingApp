@@ -11,7 +11,6 @@ import com.netbanking.api.ApiHandler;
 import com.netbanking.enumHelper.RequiredFields;
 import com.netbanking.object.Activity;
 import com.netbanking.object.Branch;
-import com.netbanking.util.ActivityLogger;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
