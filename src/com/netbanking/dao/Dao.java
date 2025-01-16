@@ -9,6 +9,6 @@ import com.netbanking.model.Model;
 
 public interface Dao<T extends Model> {
     Long insert(T Object) throws Exception;
-    void update(T object, QueryRequest request) throws Exception;
+    void update(T object) throws Exception;
     List<Map<String, Object>> select(QueryRequest request) throws SQLException, Exception;
 }

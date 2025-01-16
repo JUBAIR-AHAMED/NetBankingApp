@@ -26,6 +26,9 @@ public class Redis {
     }
     
     public static <T> void setex(String key, T map) throws JsonProcessingException {
+    	if(exists(key)) {
+    		return;
+    	}
     	String value = objectMapper.writeValueAsString(map);
     	setex(key, value);
     }

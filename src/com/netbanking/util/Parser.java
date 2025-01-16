@@ -2,12 +2,15 @@ package com.netbanking.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.netbanking.exception.CustomException;
@@ -143,6 +146,16 @@ public class Parser {
                         throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " can contain only boolean values (true/false).");
                     }
                     return (T) Boolean.valueOf(element.getAsBoolean());
+                } else if (Set.class.isAssignableFrom(type)) {
+                    // Handle Set<String> type
+                    JsonArray jsonArray = element.getAsJsonArray();
+                    Set<String> set = new HashSet<>();
+
+                    for (JsonElement jsonElement : jsonArray) {
+                        set.add(jsonElement.getAsString()); // Add String elements to the Set
+                    }
+
+                    return (T) set;
                 } else {
                     throw new IllegalArgumentException("Unsupported type: " + type.getName());
                 }
@@ -150,12 +163,9 @@ public class Parser {
                 throw new IllegalArgumentException("Error casting value for key '" + key + "' to type " + type.getName(), e);
             }
         }
-
-        if (required) {
-            throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " is required.");
-        }
-        return null;
+        return null; // Return null if the key is not present or jsonObject is null
     }
+
 
 
     public static void storeIfPresent(JsonObject jsonObject, Map<String, Object> filters, String key, Class<?> clazz, String fieldName, Boolean required) throws CustomException {

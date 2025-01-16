@@ -3,6 +3,7 @@ package com.netbanking.dao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.netbanking.daoObject.Join;
 import com.netbanking.daoObject.QueryRequest;
@@ -20,7 +21,6 @@ import com.netbanking.util.Validator;
 
 public class FunctionHandler {
 	public <T extends Model> Map<String, Object> getRecord(Long id, Class<T> type) throws CustomException, Exception {
-		Validator.checkInvalidInput(id);
 		GetMetadata metadata = GetMetadata.fromClass(type);
 		QueryRequest request = new QueryRequest()
 									.setSelectAllColumns(true)
@@ -76,7 +76,9 @@ public class FunctionHandler {
 	public List<Map<String, Object>> getAccount(Map<String, Object> filters, Integer limit, Integer offset) throws Exception
 	{
 		String tableName = "account";
-		Boolean searchSimilar = (Boolean) filters.remove("searchSimilar");
+//		Boolean searchSimilar = (Boolean) filters.remove("searchSimilar");
+		@SuppressWarnings("unchecked")
+		Set<String> searchSimilarFields = (Set<String>) filters.remove("searchSimilarFields");
 		QueryRequest request = new QueryRequest()
 									.setSelectAllColumns(true)
 									.setTableName(tableName);
@@ -95,15 +97,16 @@ public class FunctionHandler {
 		filters.remove("isInActiveRequired");
 		int i=0;
 		for(Map.Entry<String, Object> filter:filters.entrySet()) {
-			if(i>0) {
-				request.putWhereLogicalOperators("AND");
-			}
 			if(filter.getKey().equals("count")) {
 				continue;
 			}
+			if(i>0) {
+				request.putWhereLogicalOperators("AND");
+			}
+			String filterKey = filter.getKey();
 			String filterValue = filter.getValue().toString();
 			String filterOperator = "=";
-			if(searchSimilar!=null&&searchSimilar) {
+			if(searchSimilarFields!=null&&searchSimilarFields.contains(filterKey)) {
 				filterValue = "%"+filter.getValue()+"%";
 				filterOperator = "LIKE";
 			}
@@ -116,8 +119,7 @@ public class FunctionHandler {
 		}
 		request.setWhereConditionsType(whereConditionsType);
 		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
-		List<Map<String, Object>> accountMap = null;
-		accountMap = daoCaller.select(request);
+		List<Map<String, Object>> accountMap = daoCaller.select(request);
 		return accountMap;
 	}
 	
@@ -236,25 +238,6 @@ public class FunctionHandler {
 		return map;
 	}
 	
-	//Create
-	public Long create(Model object) throws Exception {
-		DataAccessObject<Model> accountDao = new DataAccessObject<>();
-		return accountDao.insert(object);
-	}
-	
-	//Update
-	public void update(Model object, Class<?> clazz, Long id) throws Exception {
-		DataAccessObject<Model> accountDao = new DataAccessObject<>();
-		GetMetadata metadata = GetMetadata.fromClass(clazz);
-		QueryRequest request = new QueryRequest()
-									.setSelectAllColumns(true)
-									.setTableName(metadata.getTableName())
-									.putWhereConditions(metadata.getPrimaryKeyColumn())
-									.putWhereConditionsValues(id)
-									.putWhereOperators("=");
-		accountDao.update(object, request);
-	}
-	
 	private void storeTransaction(Long from_account, Long to_account, 
 			Long from_user_id, Long to_user_id,
 			Long user_id, Float amount, 
@@ -341,25 +324,17 @@ public class FunctionHandler {
 		} else {
 			fromAccountBalance -= amount;
 		}
-		QueryRequest fromAccRequest = new QueryRequest()
-											.setTableName("account")
-											.putWhereConditions("accountNumber")
-											.putWhereConditionsValues(from_account_number)
-											.putWhereOperators("=");
 		Account from_account = new Account();
 		from_account.setBalance(fromAccountBalance);
+		from_account.setAccountNumber(from_account_number);
 		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
-		daoCaller.update(from_account, fromAccRequest);
+		daoCaller.update(from_account);
 		if(transactionType.equals("same-bank"))
 		{
 			Account to_account = new Account();
 			to_account.setBalance(toAccountBalance);
-			QueryRequest toAccRequest = new QueryRequest()
-											.setTableName("account")
-											.putWhereConditions("accountNumber")
-											.putWhereConditionsValues(to_account_number)
-											.putWhereOperators("=");
-			daoCaller.update(to_account, toAccRequest);
+			to_account.setAccountNumber(to_account_number);
+			daoCaller.update(to_account);
 		}
 		Long fromUserId = Converter.convertToLong(fromAccountMap.get("userId"));
 		Long toUserId = null;

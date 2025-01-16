@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.netbanking.exception.CustomException;
 import com.netbanking.model.Model;
 
-public class Employee extends User implements Model {
+public class Employee extends User{
     private Long employeeId;
     private Long branchId;
 

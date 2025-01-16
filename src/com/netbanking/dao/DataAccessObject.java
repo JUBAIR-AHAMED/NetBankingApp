@@ -1,5 +1,6 @@
 package com.netbanking.dao;
 
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,9 +9,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import com.netbanking.daoObject.Join;
 import com.netbanking.daoObject.QueryBuilder;
 import com.netbanking.daoObject.QueryRequest;
+import com.netbanking.enumHelper.GetMetadata;
 import com.netbanking.mapper.PojoValueMapper;
 import com.netbanking.mapper.YamlMapper;
 import com.netbanking.model.Model;
@@ -93,11 +96,54 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 	}
 	
 	//Update operation
-	public void update(T object, QueryRequest request) throws Exception {
-		Map<String, Object> pojoValuesMap = null;
-		pojoValuesMap = new PojoValueMapper<T>().getMapExcludingParent(object);
-		String tableName = request.getTableName();
-		List<String> whereConditions = request.getWhereConditions();
+//	public void update(T object, QueryRequest request) throws Exception {
+//		Map<String, Object> pojoValuesMap = null;
+//		pojoValuesMap = new PojoValueMapper<T>().getMapExcludingParent(object);
+//		String tableName = request.getTableName();
+//		List<String> whereConditions = request.getWhereConditions();
+//		List<String> updateFields = new ArrayList<String>(pojoValuesMap.keySet());
+//		List<Object> updateValues = new ArrayList<Object>(pojoValuesMap.values());
+//	    
+//	    if(updateFields==null || updateFields.isEmpty()) {
+//	    	return;
+//	    }
+//	    convertFields(tableName, updateFields);
+//	    
+//	    QueryBuilder qb = new QueryBuilder();
+//	    qb.update(request.getTableName())
+//		    .set(updateFields)
+//	    	.where(whereConditions, request.getWhereOperators(), request.getWhereLogicalOperators());
+//        
+//    	try (Connection connection = DBConnection.getConnection();
+//             PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
+//        	int count = 1;
+//        	count = DBConnection.setValuesInPstm(stmt, updateValues, count);
+//        	if(whereConditions != null && !whereConditions.isEmpty()) {
+//        		DBConnection.setValuesInPstm(stmt, request.getWhereConditionsValues(), count);
+//        	}
+//        	System.out.println(stmt);
+//        	stmt.executeUpdate();
+//        }
+//    }
+	
+	public void update(T object) throws Exception {
+		Map<String, Object> pojoValuesMap = new PojoValueMapper<T>().getMapExcludingParent(object);
+		Class<?> clazz = object.getClass();
+		GetMetadata metadata = GetMetadata.fromClass(clazz);
+		String tableName = metadata.getTableName();
+		String key = metadata.getPrimaryKeyColumn();
+		String getterName = "get" + key.substring(0, 1).toUpperCase() + key.substring(1);
+		Method getKeyValue = null;
+		for (Method method : clazz.getMethods()) {
+            if (method.getName().equals(getterName)) {
+                getKeyValue = method;
+            }
+        }
+		QueryRequest request = new QueryRequest();
+		request.setTableName(tableName)
+				.putWhereConditions(key)
+				.putWhereOperators("=")
+				.putWhereConditionsValues(getKeyValue.invoke(object, (Object[]) null));
 		List<String> updateFields = new ArrayList<String>(pojoValuesMap.keySet());
 		List<Object> updateValues = new ArrayList<Object>(pojoValuesMap.values());
 	    
@@ -109,15 +155,13 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 	    QueryBuilder qb = new QueryBuilder();
 	    qb.update(request.getTableName())
 		    .set(updateFields)
-	    	.where(whereConditions, request.getWhereOperators(), request.getWhereLogicalOperators());
+	    	.where(request.getWhereConditions(), request.getWhereOperators(), request.getWhereLogicalOperators());
         
     	try (Connection connection = DBConnection.getConnection();
              PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
         	int count = 1;
         	count = DBConnection.setValuesInPstm(stmt, updateValues, count);
-        	if(whereConditions != null && !whereConditions.isEmpty()) {
-        		DBConnection.setValuesInPstm(stmt, request.getWhereConditionsValues(), count);
-        	}
+    		DBConnection.setValuesInPstm(stmt, request.getWhereConditionsValues(), count);
         	System.out.println(stmt);
         	stmt.executeUpdate();
         }

@@ -6,10 +6,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
+import com.netbanking.dao.DataAccessObject;
 import com.netbanking.dao.FunctionHandler;
 import com.netbanking.enums.Role;
 import com.netbanking.enums.Status;
@@ -20,7 +23,6 @@ import com.netbanking.object.Branch;
 import com.netbanking.object.Customer;
 import com.netbanking.object.Employee;
 import com.netbanking.object.User;
-import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Converter;
 import com.netbanking.util.Encryption;
 import com.netbanking.util.Parser;
@@ -34,7 +36,6 @@ public class ApiHandler {
 		try(BufferedReader reader = request.getReader())
 		{
 			JsonObject jsonObject = Parser.getJsonObject(reader);
-
 			Long userId = Parser.getValue(jsonObject, "userId", Long.class, "User Id", true);
 			String password = Parser.getValue(jsonObject, "password", String.class, "Password", true);
 			Map<String, Object> map = get(userId, User.class);
@@ -345,18 +346,18 @@ public class ApiHandler {
 		employee.setStatus(Status.ACTIVE);
 		employee.setCreationTime(System.currentTimeMillis());
 		employee.setModifiedBy(userId);
-	    FunctionHandler functionHandler = new FunctionHandler();
 	    Redis.deleteKeysWithStartString("EMPLOYEE$COUNT");
-    	return functionHandler.create(employee);
+	    DataAccessObject<Employee> accountDao = new DataAccessObject<>();
+		return accountDao.insert(employee);
 	}
 	
 	// no redis
 	public long createBranch(Branch branch, Long userId) throws CustomException, Exception{
 		branch.setCreationTime(System.currentTimeMillis());
 	    branch.setModifiedBy(userId);
-	    FunctionHandler functionHandler = new FunctionHandler();
 	    Redis.deleteKeysWithStartString("BRANCH$COUNT");
-    	return functionHandler.create(branch);
+	    DataAccessObject<Branch> accountDao = new DataAccessObject<>();
+		return accountDao.insert(branch);
 	}
 	
 	// no redis
@@ -364,9 +365,9 @@ public class ApiHandler {
 		account.setDateOfOpening(System.currentTimeMillis());
 	    account.setCreationTime(System.currentTimeMillis());
 	    account.setModifiedBy(userId);
-	    FunctionHandler functionHandler = new FunctionHandler();
 	    Redis.deleteKeysWithStartString("ACCOUNT$COUNT");
-		return functionHandler.create(account);
+	    DataAccessObject<Account> accountDao = new DataAccessObject<>();
+		return accountDao.insert(account);
 	}
 	
 	// no redis
@@ -375,9 +376,9 @@ public class ApiHandler {
 		customer.setModifiedBy(userId);
 		customer.setRole(Role.CUSTOMER);
 		customer.setStatus(Status.ACTIVE);
-		FunctionHandler functionHandler = new FunctionHandler();
 		Redis.deleteKeysWithStartString("CUSTOMER$COUNT");
-		return functionHandler.create(customer);
+		DataAccessObject<Customer> accountDao = new DataAccessObject<>();
+		return accountDao.insert(customer);
 	}
 	
 	// redis ok
@@ -390,10 +391,13 @@ public class ApiHandler {
 			Redis.delete(cacheKey);
 		}
 		Redis.deleteKeysWithStartString("CUSTOMER$COUNT");
+		customer.setCustomerId(key);
 		customer.setCreationTime(System.currentTimeMillis());
 		customer.setModifiedBy(userId);
-		FunctionHandler functionHandler = new FunctionHandler();
-		functionHandler.update(customer, Customer.class, key);
+//		FunctionHandler functionHandler = new FunctionHandler();
+//		functionHandler.update(customer, Customer.class, key);
+		DataAccessObject<Customer> customerDao = new DataAccessObject<>();
+		customerDao.update(customer);
 	}
 	
 	// redis ok
@@ -406,10 +410,13 @@ public class ApiHandler {
 			Redis.delete(cacheKey);
 		}
 		Redis.deleteKeysWithStartString("EMPLOYEE$COUNT");
+		employee.setEmployeeId(key);
 		employee.setCreationTime(System.currentTimeMillis());
 		employee.setModifiedBy(userId);
-		FunctionHandler functionHandler = new FunctionHandler();
-		functionHandler.update(employee, Employee.class, key);
+//		FunctionHandler functionHandler = new FunctionHandler();
+//		functionHandler.update(employee, Employee.class, key);
+		DataAccessObject<Employee> employeeDao = new DataAccessObject<>();
+		employeeDao.update(employee);
 	}
 	
 	// redis ok
@@ -422,15 +429,17 @@ public class ApiHandler {
 			Redis.delete(cacheKey);
 		}
 		Redis.deleteKeysWithStartString("USER$COUNT");
+		user.setUserId(key);
 		user.setModifiedTime(System.currentTimeMillis());
 		user.setModifiedBy(userId);
-		FunctionHandler functionHandler = new FunctionHandler();
-		functionHandler.update(user, User.class, key);
+//		FunctionHandler functionHandler = new FunctionHandler();
+//		functionHandler.update(user, User.class, key);
+		DataAccessObject<User> userDao = new DataAccessObject<>();
+		userDao.update(user);
 	}
 	
 	// redis and impl needed
-	public void updateAccount(Map<String, Object> data, Long userId, Long key) throws Exception {
-		Account account = ApiHelper.getPojoFromRequest(data, Account.class);
+	public void updateAccount(Account account, Long userId, Long key) throws Exception {
 		if(account==null) {
 			return;
 		}
@@ -439,9 +448,12 @@ public class ApiHandler {
 			Redis.delete(cacheKey);
 		}
 		Redis.deleteKeysWithStartString("ACCOUNT$COUNT");
+		account.setAccountNumber(key);
 		account.setCreationTime(System.currentTimeMillis());
 		account.setModifiedBy(userId);
-		FunctionHandler functionHandler = new FunctionHandler();
-		functionHandler.update(account, Account.class, key);
+//		FunctionHandler functionHandler = new FunctionHandler();
+//		functionHandler.update(account, Account.class, key);
+		DataAccessObject<Account> accountDao = new DataAccessObject<>();
+		accountDao.update(account);
 	}
 }

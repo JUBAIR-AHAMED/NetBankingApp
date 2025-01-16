@@ -72,9 +72,9 @@ public class ApiHelper {
 		return null;
     }
 
-    private static Method findSetterMethod(Class<?> pojoClass, String setterName) {
+    public static Method findSetterMethod(Class<?> pojoClass, String methodName) {
         for (Method method : pojoClass.getMethods()) {
-            if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
+            if (method.getName().equals(methodName) && method.getParameterCount() == 1) {
                 return method;
             }
         }
