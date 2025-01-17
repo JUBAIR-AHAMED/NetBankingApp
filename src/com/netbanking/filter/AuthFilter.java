@@ -12,8 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.netbanking.enumHelper.UserAccessibleMethods;
-import com.netbanking.exception.CustomException;
-import com.netbanking.util.Redis;
+import com.netbanking.util.UserDetailsLocal;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -66,6 +65,12 @@ public class AuthFilter implements Filter {
         Long userId = claims.get("userId", Long.class);
         String role = claims.get("role", String.class);
         Long branchId = claims.get("branchId", Long.class);
+        
+        UserDetailsLocal store = UserDetailsLocal.get();
+        store.setUserId(userId);
+        store.setRole(role);
+        store.setBranchId(branchId);
+        
         // Add claims to request attributes for further use
         httpRequest.setAttribute("userId", userId);
         httpRequest.setAttribute("role", role);

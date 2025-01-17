@@ -4,29 +4,34 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import com.google.gson.JsonObject;
-import com.netbanking.api.ApiHandler;
 import com.netbanking.enumHelper.RequiredFields;
+import com.netbanking.functions.BranchFunctions;
 import com.netbanking.object.Activity;
 import com.netbanking.object.Branch;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
+import com.netbanking.util.UserDetailsLocal;
 import com.netbanking.util.Writer;
 
 public class BranchHandler {
 	public static void handlePost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    	try {
-    		// getting required data
-			Long userId = (Long) request.getAttribute("userId");
-			ApiHandler apiHandler = new ApiHandler();
+		UserDetailsLocal store = UserDetailsLocal.get();
+		Long userId = store.getUserId();
+    	try {			
 			StringBuilder jsonBody = Parser.getJsonBody(request);
 			Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
+			
 			RequiredFields.validate("BRANCH", data);
 			Branch branch = ApiHelper.getPojoFromRequest(data, Branch.class);
-			Long createdBranchId = apiHandler.createBranch(branch, userId);	
+			Long createdBranchId = new BranchFunctions().createBranch(branch);	
+			
+			// Activity logger
 			new Activity()
         		.setAction("CREATE")
         		.setTablename("branch")
@@ -50,12 +55,10 @@ public class BranchHandler {
 	public static void handleGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     	Map<String, Object> responseMap = new HashMap<>();
         try {
-
-            Long userId = (Long) request.getAttribute("userId");
-            String role = (String) request.getAttribute("role");
-            Long branchId = (Long) request.getAttribute("branchId");
-
-            Map<String, Object> filters = new HashMap<String, Object>();
+        	UserDetailsLocal store = UserDetailsLocal.get();
+			String role = store.getRole();
+            
+			Map<String, Object> filters = new HashMap<String, Object>();
             JsonObject jsonObject = Parser.getJsonObject(request);
             Parser.storeIfPresent(jsonObject, filters, "branchId", Long.class, "Branch Id", false);
             if(role.equals("MANAGER")) {
@@ -64,14 +67,11 @@ public class BranchHandler {
             	Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);
             	Parser.storeIfPresent(jsonObject, filters, "searchSimilar", Boolean.class, "Type of search", false);
             }
-            
             Boolean countReq = (Boolean) filters.get("count");
-            Integer limit=Parser.getValue(jsonObject, "limit", Integer.class), 
-            		currentPage=Parser.getValue(jsonObject, "currentPage", Integer.class);
-            
-            ApiHandler apiHandler = new ApiHandler();
-            List<Map<String, Object>> branch = apiHandler.filteredGetBranch(userId, role, branchId, filters, limit, currentPage);
-            
+            Integer limit=Parser.getValue(jsonObject, "limit", Integer.class);
+            Integer currentPage=Parser.getValue(jsonObject, "currentPage", Integer.class);
+            // fetching branch data
+            List<Map<String, Object>> branch =new BranchFunctions().filteredGetBranch(filters, limit, currentPage);            
             // if asked to get count
             if(countReq!=null&&countReq) {
             	Long count = ApiHelper.getCount(branch);

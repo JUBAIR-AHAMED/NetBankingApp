@@ -1,5 +1,8 @@
 package com.netbanking.util;
 
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import redis.clients.jedis.Jedis;
@@ -25,12 +28,20 @@ public class Redis {
     	jedis.setex(key, 3600, value);
     }
     
-    public static <T> void setex(String key, T map) throws JsonProcessingException {
+    public static <T> void setex(String key, T value) throws JsonProcessingException {
     	if(exists(key)) {
     		return;
     	}
-    	String value = objectMapper.writeValueAsString(map);
-    	setex(key, value);
+    	String stringValue = objectMapper.writeValueAsString(value);
+    	setex(key, stringValue);
+    }
+    
+    public static void setList(String key, String id, List<Map<String, Object>> list) throws JsonProcessingException {
+    	for(Map<String, Object> map:list) {
+			Long idValue = (Long) map.get(id);
+			String cacheKey = key+idValue;
+			Redis.setex(cacheKey, map);
+		}
     }
     
     public static boolean exists(String key) {
@@ -40,7 +51,10 @@ public class Redis {
     
     public static int delete(String key) {
     	new Redis();
-    	return (int) jedis.del(key);
+    	if(exists(key)) {
+    		return (int) jedis.del(key);
+    	}
+    	return -1;
     }
     
     public static void deleteKeysWithStartString(String cacheKey) {

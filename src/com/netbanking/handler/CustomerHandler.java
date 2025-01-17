@@ -6,29 +6,33 @@ import java.util.Map;
 import java.util.function.Function;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.netbanking.api.ApiHandler;
 import com.netbanking.enumHelper.EditableFields;
 import com.netbanking.enumHelper.RequiredFields;
+import com.netbanking.functions.CustomerFunctions;
+import com.netbanking.functions.UserFunctions;
 import com.netbanking.object.Activity;
 import com.netbanking.object.Customer;
 import com.netbanking.object.User;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
+import com.netbanking.util.UserDetailsLocal;
 import com.netbanking.util.Writer;
 
 public class CustomerHandler {
 	public static void handlePost(HttpServletRequest request, HttpServletResponse response) throws IOException{
-		Map<String, Object> responseMap = new HashMap<>();
-		Long userId = (Long) request.getAttribute("userId");
+		UserDetailsLocal store = UserDetailsLocal.get();
+		Long userId = store.getUserId();
     	try {
+    		// fetching data from body, validating, preparing object
+    		Map<String, Object> responseMap = new HashMap<>();
     		StringBuilder jsonBody = Parser.getJsonBody(request);
     		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
     		RequiredFields.validate("CUSTOMER", data);
     		Customer customer = ApiHelper.getPojoFromRequest(data, Customer.class);
-    		
-    		ApiHandler apiHandler = new ApiHandler();
-			Long createdCustomerId = apiHandler.createCustomer(customer, userId);	
+    		// initiating creation
+			Long createdCustomerId = new CustomerFunctions().createCustomer(customer, userId);	
+			// Activity logger
 			new Activity()
         		.setAction("CREATE")
         		.setTablename("customer")
@@ -48,19 +52,23 @@ public class CustomerHandler {
 	}
 	
 	public static void handlePut(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Map<String, Object> responseMap = new HashMap<>();
+		UserDetailsLocal store = UserDetailsLocal.get();
+		Long userId = store.getUserId();
         try {
-            ApiHandler apiHandler = new ApiHandler();
-            Long userId = (Long) request.getAttribute("userId");
+        	// fetching data from body, validating, preparing object
+        	Map<String, Object> responseMap = new HashMap<>();
             StringBuilder jsonBody = Parser.getJsonBody(request);
             Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
             Function<String, Object> parseLong = Long::parseLong;
             Long key = (Long) parseLong.apply((String) data.remove("key"));
             EditableFields.validateEditableFields(Customer.class, data);
+            // updating the user table
     		User user = ApiHelper.getPojoFromRequest(data, User.class);
-            apiHandler.updateUser(user, userId, key);
+            new UserFunctions().updateUser(user, key);
+            // updating the employee table
             Customer customer = ApiHelper.getPojoFromRequest(data, Customer.class);
-            apiHandler.updateCustomer(customer, userId, key);
+            new CustomerFunctions().updateCustomer(customer, userId, key);
+            // Activity logger
             new Activity()
             		.setAction("UPDATE")
             		.setTablename("customer")

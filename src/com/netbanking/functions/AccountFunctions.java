@@ -1,22 +1,48 @@
-package com.netbanking.functionalHandler;
+package com.netbanking.functions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netbanking.dao.DataAccessObject;
-import com.netbanking.dao.FunctionHandler;
 import com.netbanking.daoObject.QueryRequest;
 import com.netbanking.daoObject.Where;
+import com.netbanking.enumHelper.GetMetadata;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Account;
 import com.netbanking.util.Redis;
+import com.netbanking.util.UserDetailsLocal;
 
-public class AccountHandler {
-	public long createAccount(Account account, Long userId) throws CustomException, Exception {
+public class AccountFunctions {
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> get(Long id) throws CustomException, Exception
+	{
+		String cacheKey = "ACCOUNT$ACCOUNT_NUMBER:";
+		cacheKey=cacheKey+id;
+		ObjectMapper objectMapper = new ObjectMapper();
+		String cachedData = Redis.get(cacheKey);
+		if(cachedData!=null) {
+			return objectMapper.readValue(cachedData, Map.class);
+		}
+		Class<?> type = Account.class;
+		GetMetadata metadata = GetMetadata.fromClass(type);
+		QueryRequest request = new QueryRequest()
+									.setSelectAllColumns(true)
+									.setTableName(metadata.getTableName())
+									.putWhereConditions(metadata.getPrimaryKeyColumn())
+									.putWhereConditionsValues(id)
+									.putWhereOperators("=");
+		DataAccessObject<Account> daoCaller = new DataAccessObject<>();
+		List<Map<String, Object>> resultList = daoCaller.select(request);
+		Map<String, Object> map = (resultList == null || resultList.isEmpty()) ? null : resultList.get(0);
+		Redis.setex(cacheKey, map);
+		return map;
+	}
+	
+	public long createAccount(Account account) throws CustomException, Exception {
+		UserDetailsLocal store = UserDetailsLocal.get();
+		Long userId = store.getUserId();
 		account.setDateOfOpening(System.currentTimeMillis());
 	    account.setCreationTime(System.currentTimeMillis());
 	    account.setModifiedBy(userId);
@@ -25,7 +51,9 @@ public class AccountHandler {
 		return accountDao.insert(account);
 	}
 	
-	public void updateAccount(Account account, Long userId, Long key) throws Exception {
+	public void updateAccount(Account account, Long key) throws Exception {
+		UserDetailsLocal store = UserDetailsLocal.get();
+		Long userId = store.getUserId();
 		if(account==null) {
 			return;
 		}
@@ -41,8 +69,10 @@ public class AccountHandler {
 		accountDao.update(account);
 	}
 	
-	public List<Map<String, Object>> filteredGetAccount(Long userId, String role, Long branchId, Map<String, Object> filters, Integer limit, Integer currentPage) throws Exception
+	public List<Map<String, Object>> filteredGetAccount(Map<String, Object> filters, Integer limit, Integer currentPage) throws Exception
 	{
+		UserDetailsLocal store = UserDetailsLocal.get();
+		String role = store.getRole();
 		Integer offset = currentPage!=null? (currentPage - 1) * limit:null;		
 		String tableName = "account";
 		@SuppressWarnings("unchecked")
