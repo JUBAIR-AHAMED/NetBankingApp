@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import com.netbanking.dao.DataAccessObject;
 import com.netbanking.daoObject.QueryRequest;
+import com.netbanking.enums.Role;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Account;
 import com.netbanking.object.Transaction;
@@ -19,7 +20,7 @@ public class TransactionFunctions {
 		UserDetailsLocal store = UserDetailsLocal.get();
 		Long userId = store.getUserId();
 		Long branchId = store.getBranchId();
-		String role = store.getRole();
+		Role role = store.getRole();
 		
 		Long accountNumber = (Long) requestData.get("accountNumber");
 		Long fromDate = (Long) requestData.getOrDefault("fromDate", null);
@@ -33,12 +34,12 @@ public class TransactionFunctions {
 		if(accountData == null) {
 			throw new CustomException(HttpServletResponse.SC_NOT_FOUND,"Account not found.");
 		}
-		if(role.equals("CUSTOMER"))
+		if(role.equals(Role.CUSTOMER))
 		{
 			if(userId != Converter.convertToLong(accountData.get("userId"))) {
 				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Permission denied to access this account.");
 			}
-		} else if(role.equals("EMPLOYEE")) {
+		} else if(role.equals(Role.EMPLOYEE)) {
 			if(branchId != Converter.convertToLong(accountData.get("branchId"))) {
 				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Operation failed. Employee belongs to a different branch.");
 			}

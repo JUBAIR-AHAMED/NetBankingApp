@@ -1,10 +1,12 @@
 package com.netbanking.util;
 
+import com.netbanking.enums.Role;
+
 public class UserDetailsLocal {
     private static final ThreadLocal<UserDetailsLocal> threadLocal = ThreadLocal.withInitial(UserDetailsLocal::new);
 
     private Long userId;
-    private String role;
+    private Role role;
     private Long branchId;
 
     private UserDetailsLocal() {}
@@ -21,12 +23,12 @@ public class UserDetailsLocal {
         this.userId = userId;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
     public void setRole(String role) {
-        this.role = role;
+        this.role = Role.valueOf(role);
     }
 
     public Long getBranchId() {

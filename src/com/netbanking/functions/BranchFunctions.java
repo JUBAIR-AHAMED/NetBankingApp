@@ -7,6 +7,7 @@ import java.util.Map;
 import com.netbanking.dao.DataAccessObject;
 import com.netbanking.daoObject.QueryRequest;
 import com.netbanking.daoObject.Where;
+import com.netbanking.enumHelper.GetMetadata;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Branch;
 import com.netbanking.util.Redis;
@@ -18,15 +19,15 @@ public class BranchFunctions {
 		Long userId = store.getUserId();
 		branch.setCreationTime(System.currentTimeMillis());
 	    branch.setModifiedBy(userId);
-	    Redis.deleteKeysWithStartString("BRANCH$COUNT");
 	    DataAccessObject<Branch> accountDao = new DataAccessObject<>();
 		return accountDao.insert(branch);
 	}
 	
 	public List<Map<String, Object>> filteredGetBranch(Map<String, Object> filters, Integer limit, Integer currentPage) throws Exception
 	{
+		GetMetadata metadata = GetMetadata.BRANCH;
 		Integer offset = currentPage!=null? (currentPage - 1) * limit:null;
-		String tableName = "branch";
+		String tableName = metadata.getTableName();
 		Boolean searchSimilar = (Boolean) filters.remove("searchSimilar");
 		QueryRequest request = new QueryRequest()
 									.setSelectAllColumns(true)
@@ -57,12 +58,9 @@ public class BranchFunctions {
 		request.setWhereConditionsType(whereConditionsType);
 		DataAccessObject<Branch> daoCaller = new DataAccessObject<Branch>();
 		List<Map<String, Object>> list = daoCaller.select(request);
-		for(Map<String, Object> map:list) {
-			Long id = (Long) map.get("branchId");
-			String cacheKey = "BRANCH$BRANCH_ID:";
-			cacheKey += id;
-			Redis.setex(cacheKey, map);
-		}
+		Redis.setList(	metadata.getCachKey(), 
+						metadata.getPrimaryKeyColumn(), 
+						list  );
 		return list;
 	}
 }

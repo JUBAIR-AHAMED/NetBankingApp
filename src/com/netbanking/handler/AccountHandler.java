@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.JsonObject;
 import com.netbanking.enumHelper.EditableFields;
 import com.netbanking.enumHelper.RequiredFields;
+import com.netbanking.enums.Role;
 import com.netbanking.exception.CustomException;
 import com.netbanking.functions.AccountFunctions;
 import com.netbanking.object.Account;
@@ -30,7 +31,7 @@ public class AccountHandler {
 		try {
 			UserDetailsLocal store = UserDetailsLocal.get();
 			Long userId = store.getUserId();
-			String role = store.getRole();
+			Role role = store.getRole();
 			Map<String, Object> filters = new HashMap<String, Object>();
 			JsonObject jsonObject = Parser.getJsonObject(request);
 			Parser.storeIfPresent(jsonObject, filters, "accountNumber", Long.class, "Account Number", false);
@@ -39,7 +40,7 @@ public class AccountHandler {
 			Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);
 			Parser.storeIfPresent(jsonObject, filters, "searchSimilarFields", Set.class, "Similar search fields", false);
 			Boolean countReq = (Boolean) filters.get("count");
-			if ("CUSTOMER".equals(role)) {
+			if (role.equals(Role.CUSTOMER)) {
 				if(!filters.isEmpty()) {
 					throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "No parameters allowed for CUSTOMER role.");
 				}
@@ -91,7 +92,7 @@ public class AccountHandler {
 		try {
 			UserDetailsLocal store = UserDetailsLocal.get();
 			Long userId = store.getUserId();
-			String role = store.getRole();
+			Role role = store.getRole();
 			Long branchId = store.getBranchId();
 			
 			StringBuilder jsonBody = Parser.getJsonBody(request);
@@ -101,7 +102,7 @@ public class AccountHandler {
 			Map<String, Object> accountData = new AccountFunctions().get(key);
 
 			// Block the employee from editing the details of the account in another branch
-			if (role.equals("EMPLOYEE")) {
+			if (role.equals(Role.EMPLOYEE)) {
 				Long accountBranchId = Converter.convertToLong(accountData.get("branchId"));
 				if (accountBranchId != branchId) {
 					throw new CustomException(HttpServletResponse.SC_FORBIDDEN,

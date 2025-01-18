@@ -74,7 +74,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 		return refrenceKey;
 	}
 	
-	public Long insertHandler(String tableName, Map<String, Object> insertValues) throws SQLException {
+	private Long insertHandler(String tableName, Map<String, Object> insertValues) throws SQLException {
 		QueryBuilder qb = new QueryBuilder();
 	    qb.insert(tableName, insertValues.keySet());
 	    String sqlQuery = qb.finish();
@@ -94,37 +94,6 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
     	}
 		return generatedKeysList;
 	}
-	
-	//Update operation
-//	public void update(T object, QueryRequest request) throws Exception {
-//		Map<String, Object> pojoValuesMap = null;
-//		pojoValuesMap = new PojoValueMapper<T>().getMapExcludingParent(object);
-//		String tableName = request.getTableName();
-//		List<String> whereConditions = request.getWhereConditions();
-//		List<String> updateFields = new ArrayList<String>(pojoValuesMap.keySet());
-//		List<Object> updateValues = new ArrayList<Object>(pojoValuesMap.values());
-//	    
-//	    if(updateFields==null || updateFields.isEmpty()) {
-//	    	return;
-//	    }
-//	    convertFields(tableName, updateFields);
-//	    
-//	    QueryBuilder qb = new QueryBuilder();
-//	    qb.update(request.getTableName())
-//		    .set(updateFields)
-//	    	.where(whereConditions, request.getWhereOperators(), request.getWhereLogicalOperators());
-//        
-//    	try (Connection connection = DBConnection.getConnection();
-//             PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
-//        	int count = 1;
-//        	count = DBConnection.setValuesInPstm(stmt, updateValues, count);
-//        	if(whereConditions != null && !whereConditions.isEmpty()) {
-//        		DBConnection.setValuesInPstm(stmt, request.getWhereConditionsValues(), count);
-//        	}
-//        	System.out.println(stmt);
-//        	stmt.executeUpdate();
-//        }
-//    }
 	
 	public void update(T object) throws Exception {
 		Map<String, Object> pojoValuesMap = new PojoValueMapper<T>().getMapExcludingParent(object);

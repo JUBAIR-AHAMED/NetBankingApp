@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonObject;
 import com.netbanking.enumHelper.RequiredFields;
+import com.netbanking.enums.Role;
 import com.netbanking.functions.BranchFunctions;
 import com.netbanking.object.Activity;
 import com.netbanking.object.Branch;
@@ -56,12 +57,12 @@ public class BranchHandler {
     	Map<String, Object> responseMap = new HashMap<>();
         try {
         	UserDetailsLocal store = UserDetailsLocal.get();
-			String role = store.getRole();
+			Role role = store.getRole();
             
 			Map<String, Object> filters = new HashMap<String, Object>();
             JsonObject jsonObject = Parser.getJsonObject(request);
             Parser.storeIfPresent(jsonObject, filters, "branchId", Long.class, "Branch Id", false);
-            if(role.equals("MANAGER")) {
+            if(role.equals(Role.MANAGER)) {
             	Parser.storeIfPresent(jsonObject, filters, "employeeId", Long.class, "Employee Id", false);
             	Parser.storeIfPresent(jsonObject, filters, "ifsc", String.class, "IFSC", false);
             	Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);

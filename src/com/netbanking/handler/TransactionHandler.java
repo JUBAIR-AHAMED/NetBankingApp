@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import com.google.gson.JsonObject;
+import com.netbanking.enums.Role;
 import com.netbanking.exception.CustomException;
 import com.netbanking.functions.AccountFunctions;
 import com.netbanking.functions.TransactionFunctions;
@@ -56,7 +59,7 @@ public class TransactionHandler {
 			UserDetailsLocal store = UserDetailsLocal.get();
 			Long userId = store.getUserId();
 			Long branchId = store.getBranchId();
-			String role = store.getRole();
+			Role role = store.getRole();
 			Map<String, Object> details = new HashMap<String, Object>();
 			JsonObject jsonObject = Parser.getJsonObject(request);
 			Parser.storeIfPresent(jsonObject, details, "fromAccount", Long.class, "Sender Account", true);
@@ -78,12 +81,12 @@ public class TransactionHandler {
 			if(fromAccountMap == null) {
 				throw new CustomException(HttpServletResponse.SC_NOT_FOUND, "Sender account not found.");
 			}
-			if(role.equals("CUSTOMER"))
+			if(role.equals(Role.CUSTOMER))
 			{
 				if(userId != Converter.convertToLong(fromAccountMap.get("userId"))) {
 					throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Permission denied to access this account.");
 				}
-			} else if(role.equals("EMPLOYEE")) {
+			} else if(role.equals(Role.EMPLOYEE)) {
 				if(branchId != Converter.convertToLong(fromAccountMap.get("branchId"))) {
 					throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Operation failed. Employee belongs to a different branch.");
 				}

@@ -13,7 +13,6 @@ import com.netbanking.enumHelper.GetMetadata;
 import com.netbanking.enums.Role;
 import com.netbanking.enums.Status;
 import com.netbanking.exception.CustomException;
-import com.netbanking.object.Account;
 import com.netbanking.object.Customer;
 import com.netbanking.util.Redis;
 
@@ -21,15 +20,14 @@ public class CustomerFunctions {
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> get(Long id) throws CustomException, Exception
 	{
-		String cacheKey = "CUSTOMER$USER_ID:";
+		GetMetadata metadata = GetMetadata.CUSTOMER;
+		String cacheKey = metadata.getCachKey()+id;
 		cacheKey=cacheKey+id;
 		ObjectMapper objectMapper = new ObjectMapper();
 		String cachedData = Redis.get(cacheKey);
 		if(cachedData!=null) {
 			return objectMapper.readValue(cachedData, Map.class);
 		}
-		Class<?> type = Customer.class;
-		GetMetadata metadata = GetMetadata.fromClass(type);
 		QueryRequest request = new QueryRequest()
 									.setSelectAllColumns(true)
 									.setTableName(metadata.getTableName())
@@ -56,8 +54,10 @@ public class CustomerFunctions {
 		if(customer==null) {
 			return;
 		}
-		String cacheKeyUser = "USER$USER_ID:"+userId;
-		String cacheKeyCustomer = "CUSTOMER$USER_ID:"+userId;
+		GetMetadata userMetadata = GetMetadata.USER;
+		GetMetadata customerMetadata = GetMetadata.CUSTOMER;
+		String cacheKeyUser = userMetadata.getCachKey()+userId;
+		String cacheKeyCustomer = customerMetadata.getCachKey()+userId;
 		Redis.delete(cacheKeyCustomer);
 		Redis.delete(cacheKeyUser);
 		customer.setCustomerId(key);
@@ -69,11 +69,13 @@ public class CustomerFunctions {
 	
 	public List<Map<String, Object>> getCustomers(Map<String, Object> filters, Integer limit, Integer currentPage) throws Exception
 	{
+		GetMetadata primaryTableMetaData = GetMetadata.USER;
+		GetMetadata secondaryTableMetadata = GetMetadata.CUSTOMER;
 		// offset for supporting pagination
 		Integer offset = currentPage!=null? (currentPage - 1) * limit:null;
 		// required tables
-		String primaryTableName = "user";
-		String secondaryTableName = "customer";
+		String primaryTableName = primaryTableMetaData.getTableName();
+		String secondaryTableName = secondaryTableMetadata.getTableName();
 		// starting to build the request
 		QueryRequest request = new QueryRequest()
 									.setSelectAllColumns(true)
@@ -86,9 +88,9 @@ public class CustomerFunctions {
 		Boolean moreDetails = (Boolean) filters.remove("moreDetails");
 		if(moreDetails) {
 			Join join = new Join();
-			join.putLeftTable(primaryTableName).putLeftColumn("userId")
+			join.putLeftTable(primaryTableName).putLeftColumn(primaryTableMetaData.getPrimaryKeyColumn())
 				.putRightTable(secondaryTableName)
-				.putRightColumn("customerId")
+				.putRightColumn(secondaryTableMetadata.getPrimaryKeyColumn())
 				.putOperator("=").setTableName(secondaryTableName);
 			request.putJoinConditions(join);
 		}
@@ -111,7 +113,7 @@ public class CustomerFunctions {
 			filtersAdded++;
 		}
 		// adding filter - role for fetching only customers
-		whereConditions.add(new Where("role", primaryTableName, "CUSTOMER"));
+		whereConditions.add(new Where("role", primaryTableName, secondaryTableMetadata.toString()));
 		request.putWhereOperators("=");
 		if(filtersAdded>0) {
 			request.putWhereLogicalOperators("AND");
@@ -123,12 +125,11 @@ public class CustomerFunctions {
 		// storing in cache
 		String cacheKey = null;
 		if(moreDetails) {
-			cacheKey = "CUSTOMER$USER_ID:";
+			cacheKey = secondaryTableMetadata.getCachKey();
 		} else {
-			cacheKey = "USER$USER_ID:";
+			cacheKey = primaryTableMetaData.getCachKey();
 		}
-		String id = "userId";
-		Redis.setList(cacheKey, id, list);
+		Redis.setList(cacheKey, primaryTableMetaData.getPrimaryKeyColumn(), list);
 		return list;
 	}
 }

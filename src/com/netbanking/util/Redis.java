@@ -36,11 +36,11 @@ public class Redis {
     	setex(key, stringValue);
     }
     
-    public static void setList(String key, String id, List<Map<String, Object>> list) throws JsonProcessingException {
+    public static void setList(String cacheKey, String valueKey, List<Map<String, Object>> list) throws JsonProcessingException {
     	for(Map<String, Object> map:list) {
-			Long idValue = (Long) map.get(id);
-			String cacheKey = key+idValue;
-			Redis.setex(cacheKey, map);
+			Long value = (Long) map.get(valueKey);
+			String cacheGetter = cacheKey+value;
+			Redis.setex(cacheGetter, map);
 		}
     }
     

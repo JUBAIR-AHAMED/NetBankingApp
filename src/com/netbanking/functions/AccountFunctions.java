@@ -9,6 +9,7 @@ import com.netbanking.dao.DataAccessObject;
 import com.netbanking.daoObject.QueryRequest;
 import com.netbanking.daoObject.Where;
 import com.netbanking.enumHelper.GetMetadata;
+import com.netbanking.enums.Role;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Account;
 import com.netbanking.util.Redis;
@@ -18,15 +19,13 @@ public class AccountFunctions {
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> get(Long id) throws CustomException, Exception
 	{
-		String cacheKey = "ACCOUNT$ACCOUNT_NUMBER:";
-		cacheKey=cacheKey+id;
+		GetMetadata metadata = GetMetadata.ACCOUNT;
+		String cacheKey = metadata.getCachKey()+id;
 		ObjectMapper objectMapper = new ObjectMapper();
 		String cachedData = Redis.get(cacheKey);
 		if(cachedData!=null) {
 			return objectMapper.readValue(cachedData, Map.class);
 		}
-		Class<?> type = Account.class;
-		GetMetadata metadata = GetMetadata.fromClass(type);
 		QueryRequest request = new QueryRequest()
 									.setSelectAllColumns(true)
 									.setTableName(metadata.getTableName())
@@ -46,7 +45,6 @@ public class AccountFunctions {
 		account.setDateOfOpening(System.currentTimeMillis());
 	    account.setCreationTime(System.currentTimeMillis());
 	    account.setModifiedBy(userId);
-	    Redis.deleteKeysWithStartString("ACCOUNT$COUNT");
 	    DataAccessObject<Account> accountDao = new DataAccessObject<>();
 		return accountDao.insert(account);
 	}
@@ -57,11 +55,9 @@ public class AccountFunctions {
 		if(account==null) {
 			return;
 		}
-		String cacheKey = "ACCOUNT$ACCOUNT_NUMBER:"+key;
-		if(Redis.exists(cacheKey)) {
-			Redis.delete(cacheKey);
-		}
-		Redis.deleteKeysWithStartString("ACCOUNT$COUNT");
+		GetMetadata metadata = GetMetadata.ACCOUNT;
+		String cacheKey = metadata.getCachKey()+key;
+		Redis.delete(cacheKey);
 		account.setAccountNumber(key);
 		account.setCreationTime(System.currentTimeMillis());
 		account.setModifiedBy(userId);
@@ -72,9 +68,10 @@ public class AccountFunctions {
 	public List<Map<String, Object>> filteredGetAccount(Map<String, Object> filters, Integer limit, Integer currentPage) throws Exception
 	{
 		UserDetailsLocal store = UserDetailsLocal.get();
-		String role = store.getRole();
+		Role role = store.getRole();
 		Integer offset = currentPage!=null? (currentPage - 1) * limit:null;		
-		String tableName = "account";
+		GetMetadata metadata = GetMetadata.ACCOUNT;
+		String tableName = metadata.getTableName();
 		@SuppressWarnings("unchecked")
 		Set<String> searchSimilarFields = (Set<String>) filters.remove("searchSimilarFields");
 		QueryRequest request = new QueryRequest()
@@ -84,7 +81,7 @@ public class AccountFunctions {
 									.setOffset(offset)
 									.setLimit(limit);
 		List<Where> whereConditionsType = new ArrayList<Where>();
-		if(role.equals("CUSTOMER")) {
+		if(role.equals(Role.EMPLOYEE)) {
 			whereConditionsType.add(new Where("status", tableName, "INACTIVE"));
 			request.putWhereLogicalOperators("AND")
 					.putWhereOperators("!=");
@@ -111,13 +108,10 @@ public class AccountFunctions {
 		request.setWhereConditionsType(whereConditionsType);
 		DataAccessObject<Account> daoCaller = new DataAccessObject<Account>();
 		List<Map<String, Object>> list = daoCaller.select(request);
-		for(Map<String, Object> map:list) {
-			Long id = (Long) map.get("accountNumber");
-			String cacheKey = "ACCOUNT$ACCOUNT_NUMBER:";
-			cacheKey += id;
-			Redis.setex(cacheKey, map);
-		}
-		return list;
+		Redis.setList(	metadata.getCachKey(), 
+						metadata.getPrimaryKeyColumn(), 
+						list	);
+		return list;	
 	}
 	
 }
