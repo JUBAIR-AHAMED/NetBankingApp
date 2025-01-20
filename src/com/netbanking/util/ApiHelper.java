@@ -1,11 +1,13 @@
 package com.netbanking.util;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.netbanking.exception.CustomException;
@@ -37,6 +39,7 @@ public class ApiHelper {
             try {
                 Method setter = findSetterMethod(pojoClass, setterName);
                 if (setter != null) {
+                	System.out.println(value);
                     Class<?> paramType = setter.getParameterTypes()[0];
                     Object convertedValue = convertValue(value, paramType);
                     setter.invoke(pojo, convertedValue);
@@ -82,7 +85,7 @@ public class ApiHelper {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-	private static Object convertValue(Object value, Class<?> targetType) {
+	private static Object convertValue(Object value, Class<?> targetType) throws CustomException {
         if (value == null) {
             return null;
         }
@@ -137,7 +140,7 @@ public class ApiHelper {
                 return value.toString();
             }
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Failed to convert value: " + value + " to type " + targetType.getName(), e);
+            throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Failed to convert value: " + value + " to type " + targetType.getSimpleName());
         }
 
         throw new IllegalArgumentException("Unsupported type conversion: " + targetType.getName());

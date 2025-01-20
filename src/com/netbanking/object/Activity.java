@@ -4,17 +4,33 @@ import com.netbanking.model.Model;
 import com.netbanking.util.ActivityLogger;
 
 public class Activity implements Model{
-	private Long userId;
+	private Long actorId;
+	private Long subjectId;
+	private Long keyValue;
 	private String tablename;
 	private String action;
 	private String details;
 	private Long actionTime;
 	
-	public Long getUserId() {
-		return userId;
+	public Long getActorId() {
+		return actorId;
 	}
-	public Activity setUserId(Long userId) {
-		this.userId = userId;
+	public Activity setActorId(Long actorId) {
+		this.actorId = actorId;
+		return this;
+	}
+	public Long getSubjectId() {
+		return subjectId;
+	}
+	public Activity setSubjectId(Long subjectId) {
+		this.subjectId = subjectId;
+		return this;
+	}
+	public Long getKeyValue() {
+		return keyValue;
+	}
+	public Activity setKeyValue(Long keyValue) {
+		this.keyValue = keyValue;
 		return this;
 	}
 	public String getTablename() {

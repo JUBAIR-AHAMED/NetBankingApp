@@ -3,13 +3,13 @@ package com.netbanking.functions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netbanking.dao.DataAccessObject;
 import com.netbanking.daoObject.Join;
 import com.netbanking.daoObject.QueryRequest;
 import com.netbanking.daoObject.Where;
 import com.netbanking.enumHelper.GetMetadata;
+import com.netbanking.enums.Role;
 import com.netbanking.enums.Status;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Customer;
@@ -21,15 +21,15 @@ public class EmployeeFunctions {
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> get(Long id) throws CustomException, Exception
 	{
-		String cacheKey = "EMPLOYEE$USER_ID:";
+		
+		GetMetadata metadata = GetMetadata.EMPLOYEE;
+		String cacheKey = metadata.getCachKey();
 		cacheKey=cacheKey+id;
 		ObjectMapper objectMapper = new ObjectMapper();
 		String cachedData = Redis.get(cacheKey);
 		if(cachedData!=null) {
 			return objectMapper.readValue(cachedData, Map.class);
 		}
-		Class<?> type = Employee.class;
-		GetMetadata metadata = GetMetadata.fromClass(type);
 		QueryRequest request = new QueryRequest()
 									.setSelectAllColumns(true)
 									.setTableName(metadata.getTableName())
@@ -53,24 +53,26 @@ public class EmployeeFunctions {
 	}
 	
 	public void updateEmployee(Employee employee, Long userId, Long key) throws Exception {
-		String cacheKeyUser = "USER$USER_ID:"+userId;
-		String cacheKeyEmployee = "EMPLOYEE$USER_ID:"+userId;
+		GetMetadata userMetadata = GetMetadata.USER;
+		GetMetadata employeeMetadata = GetMetadata.EMPLOYEE;
+		String cacheKeyUser = userMetadata.getCachKey()+key;
+		String cacheKeyEmployee = employeeMetadata.getCachKey()+key;
 		Redis.delete(cacheKeyEmployee);
 		Redis.delete(cacheKeyUser);
 		employee.setEmployeeId(key);
-		employee.setModifiedTime(System.currentTimeMillis());
-		employee.setModifiedBy(userId);
 		DataAccessObject<Employee> employeeDao = new DataAccessObject<>();
 		employeeDao.update(employee);
 	}
 	
 	public List<Map<String, Object>> getEmployees(Map<String, Object> filters, Integer limit, Integer currentPage) throws Exception
 	{
+		GetMetadata primaryTableMetaData = GetMetadata.USER;
+		GetMetadata secondaryTableMetaData = GetMetadata.EMPLOYEE;
 		// offset for supporting pagination
 		Integer offset = currentPage!=null? (currentPage - 1) * limit:null;
 		// required tables
-		String primaryTableName = "user";
-		String secondaryTableName = "employee";
+		String primaryTableName = primaryTableMetaData.getTableName();
+		String secondaryTableName = secondaryTableMetaData.getTableName();
 		// starting to build the request
 		QueryRequest request = new QueryRequest()
 									.setSelectAllColumns(true)
@@ -83,9 +85,8 @@ public class EmployeeFunctions {
 		Boolean moreDetails = (Boolean) filters.remove("moreDetails");
 		if(moreDetails) {
 			Join join = new Join();
-			join.putLeftTable(primaryTableName).putLeftColumn("userId")
-				.putRightTable(secondaryTableName)
-				.putRightColumn("employeeId")
+			join.putLeftTable(primaryTableName).putLeftColumn(primaryTableMetaData.getPrimaryKeyColumn())
+				.putRightTable(secondaryTableName).putRightColumn(secondaryTableMetaData.getPrimaryKeyColumn())
 				.putOperator("=").setTableName(secondaryTableName);
 			request.putJoinConditions(join);
 		}
@@ -112,7 +113,7 @@ public class EmployeeFunctions {
 			filtersAdded++;
 		}
 		// adding filter - role for fetching only customers
-		whereConditions.add(new Where("role", primaryTableName, "CUSTOMER"));
+		whereConditions.add(new Where("role", primaryTableName, Role.CUSTOMER.toString()));
 		request.putWhereOperators("!=");
 		if(filtersAdded>0) {
 			request.putWhereLogicalOperators("AND");
@@ -124,9 +125,9 @@ public class EmployeeFunctions {
 		// storing in cache
 		String cacheKey = null;
 		if(moreDetails) {
-			cacheKey = "EMPLOYEE$USER_ID:";
+			cacheKey = secondaryTableMetaData.getCachKey();
 		} else {
-			cacheKey = "USER$USER_ID:";
+			cacheKey = primaryTableMetaData.getCachKey();
 		}
 		String id = "userId";
 		Redis.setList(cacheKey, id, list);

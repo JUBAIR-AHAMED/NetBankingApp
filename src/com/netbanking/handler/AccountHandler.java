@@ -6,10 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import com.google.gson.JsonObject;
 import com.netbanking.enumHelper.EditableFields;
 import com.netbanking.enumHelper.RequiredFields;
@@ -76,10 +74,19 @@ public class AccountHandler {
 			Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
 			RequiredFields.validate("ACCOUNT", data);
 			Account account = ApiHelper.getPojoFromRequest(data, Account.class);
-			Long createdBranchId = new AccountFunctions().createAccount(account);
-			new Activity().setAction("CREATE").setTablename("account").setUserId(userId)
-					.setDetails(ApiHelper.dataToString(data)).setActionTime(System.currentTimeMillis()).execute();
-			responseMap.put("accountNumber", createdBranchId);
+			Long createdAccountNumber = new AccountFunctions().createAccount(account);
+			// activity logs
+			Long accountUserId = Converter.convertToLong(data.get("userId"));
+			new Activity()
+				.setAction("CREATE")
+				.setTablename("account")
+				.setActorId(userId)
+				.setSubjectId(accountUserId)
+				.setKeyValue(createdAccountNumber)
+				.setDetails(jsonBody.toString())
+				.setActionTime(System.currentTimeMillis())
+				.execute();
+			responseMap.put("accountNumber", createdAccountNumber);
 			Writer.responseMapWriter(response, HttpServletResponse.SC_OK, HttpServletResponse.SC_OK,
 					"Accounts created successfully", responseMap);
 		} catch (Exception e) {
@@ -118,12 +125,15 @@ public class AccountHandler {
 			EditableFields.validateEditableFields(Account.class, data);
 			Account account = ApiHelper.getPojoFromRequest(data, Account.class);
 			new AccountFunctions().updateAccount(account, key);
-
+			
+			Long subjectId = Converter.convertToLong(accountData.get("userId"));
 			new Activity()
 				.setAction("UPDATE")
 				.setTablename("account")
-				.setUserId(userId)
-				.setDetails(ApiHelper.dataToString(data))
+				.setActorId(userId)
+				.setSubjectId(subjectId)
+				.setKeyValue(key)
+				.setDetails(jsonBody.toString())
 				.setActionTime(System.currentTimeMillis())
 				.execute();
 

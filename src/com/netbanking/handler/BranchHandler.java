@@ -15,6 +15,7 @@ import com.netbanking.functions.BranchFunctions;
 import com.netbanking.object.Activity;
 import com.netbanking.object.Branch;
 import com.netbanking.util.ApiHelper;
+import com.netbanking.util.Converter;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
 import com.netbanking.util.UserDetailsLocal;
@@ -31,13 +32,15 @@ public class BranchHandler {
 			RequiredFields.validate("BRANCH", data);
 			Branch branch = ApiHelper.getPojoFromRequest(data, Branch.class);
 			Long createdBranchId = new BranchFunctions().createBranch(branch);	
-			
+			Long subjectId = Converter.convertToLong(data.get("employeeId"));
 			// Activity logger
 			new Activity()
         		.setAction("CREATE")
         		.setTablename("branch")
-        		.setUserId(userId)
-        		.setDetails(ApiHelper.dataToString(data))
+        		.setActorId(userId)
+        		.setSubjectId(subjectId)
+        		.setKeyValue(createdBranchId)
+        		.setDetails(jsonBody.toString())
         		.setActionTime(System.currentTimeMillis())
         		.execute();
 			// response

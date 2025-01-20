@@ -90,6 +90,12 @@ public class GenericServlet extends HttpServlet {
                 case "/account":
                     AccountHandler.handlePut(request, response);
                     break;
+                case "/employee":
+                    EmployeeHandler.handlePut(request, response);
+                    break;
+                case "/logout":
+                    LoginHandler.handlePut(request, response);
+                    break;
             }
         }
     }

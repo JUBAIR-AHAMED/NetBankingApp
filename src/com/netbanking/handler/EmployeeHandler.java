@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netbanking.enumHelper.EditableFields;
 import com.netbanking.enumHelper.RequiredFields;
+import com.netbanking.enums.Status;
+import com.netbanking.exception.CustomException;
 import com.netbanking.functions.EmployeeFunctions;
 import com.netbanking.functions.UserFunctions;
 import com.netbanking.object.Activity;
@@ -36,8 +38,10 @@ public class EmployeeHandler {
 			new Activity()
         		.setAction("CREATE")
         		.setTablename("employee")
-        		.setUserId(userId)
-        		.setDetails(ApiHelper.dataToString(data))
+        		.setActorId(userId)
+        		.setSubjectId(createdEmployeeId)
+        		.setKeyValue(createdEmployeeId)
+        		.setDetails(jsonBody.toString())
         		.setActionTime(System.currentTimeMillis())
         		.execute();
 
@@ -64,16 +68,22 @@ public class EmployeeHandler {
             EditableFields.validateEditableFields(Employee.class, data);
     		// generating the pojo object 
             User user = ApiHelper.getPojoFromRequest(data, User.class);
-            Employee customer = ApiHelper.getPojoFromRequest(data, Employee.class);
+            Employee employee = ApiHelper.getPojoFromRequest(data, Employee.class);
+            Map<String, Object>  userData = new UserFunctions().get(key);
+            if(userData.get("status").equals(Status.INACTIVE.toString())) {
+            	throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "User is inactive.");
+            }
             // updating using the object
             new UserFunctions().updateUser(user, key);
-            new EmployeeFunctions().updateEmployee(customer, userId, key);
+            new EmployeeFunctions().updateEmployee(employee, userId, key);
             // activity logger
             new Activity()
             		.setAction("UPDATE")
             		.setTablename("customer")
-            		.setUserId(userId)
-            		.setDetails(ApiHelper.dataToString(data))
+            		.setActorId(userId)
+            		.setSubjectId(key)
+            		.setKeyValue(key)
+            		.setDetails(jsonBody.toString())
             		.setActionTime(System.currentTimeMillis())
             		.execute();
             Writer.responseMapWriter(response, 

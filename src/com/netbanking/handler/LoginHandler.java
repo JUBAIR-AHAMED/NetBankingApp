@@ -3,21 +3,22 @@ package com.netbanking.handler;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import com.google.gson.JsonObject;
+import com.netbanking.enums.Role;
+import com.netbanking.enums.Status;
 import com.netbanking.exception.CustomException;
 import com.netbanking.functions.CustomerFunctions;
 import com.netbanking.functions.EmployeeFunctions;
 import com.netbanking.functions.UserFunctions;
 import com.netbanking.object.Activity;
-import com.netbanking.util.Converter;
 import com.netbanking.util.Encryption;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
+import com.netbanking.util.Redis;
 import com.netbanking.util.TokenHelper;
+import com.netbanking.util.UserDetailsLocal;
 import com.netbanking.util.Writer;
 
 public class LoginHandler {
@@ -36,29 +37,33 @@ public class LoginHandler {
 			} else {
 				throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "Invalid customer id.");
 			}
-			String role = (String) userDetails.get("role");
-			Long user_id;
-			if(userDetails.get("userId").getClass().getSimpleName().equals("Integer")) {
-				user_id = ((Integer) userDetails.get("userId")).longValue();
-			} else {
-				user_id = (Long) userDetails.get("userId");
+			Status status =Status.valueOf((String) userDetails.get("status"));
+			if(!status.equals(Status.ACTIVE)) {
+				throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "User is "+status.toString());
 			}
-			if(role.equals("EMPLOYEE")||role.equals("MANAGER")) {
-				userDetails.putAll(new EmployeeFunctions().get(user_id));
+			Role role = Role.valueOf((String) userDetails.get("role"));
+			if(role.equals(Role.EMPLOYEE)||role.equals(Role.MANAGER)) {
+				userDetails.putAll(new EmployeeFunctions().get(userId));
 			}
-			else if(role.equals("CUSTOMER"))
+			else if(role.equals(Role.CUSTOMER))
 			{
-				userDetails.putAll(new CustomerFunctions().get(user_id));
+				userDetails.putAll(new CustomerFunctions().get(userId));
 			}
-        	new Activity()
-        		.setAction("LOGIN")
-        		.setTablename("customer")
-        		.setUserId(Converter.convertToLong(userDetails.get("userId")))
-        		.setDetails("Logged in")
-        		.setActionTime(System.currentTimeMillis())
-        		.execute();
+			
             String jwt = TokenHelper.generateJwt(userDetails);
+            Redis.setex(userId.toString(), jwt);
             responseMap.put("token", jwt);
+            
+            new Activity()
+            .setAction("LOGIN")
+            .setTablename("customer")
+            .setActorId(userId)
+            .setSubjectId(userId)
+            .setKeyValue(userId)
+            .setDetails("Logged in")
+            .setActionTime(System.currentTimeMillis())
+            .execute();
+            
             Writer.responseMapWriter(response, 
             		HttpServletResponse.SC_OK, 
             		HttpServletResponse.SC_OK, 
@@ -68,5 +73,21 @@ public class LoginHandler {
         } catch (Exception e) {
             ErrorHandler.handleException(e, response);
         }
+    }
+    
+    public static void handlePut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    	Map<String, Object> responseMap = new HashMap<>();
+    	UserDetailsLocal store = UserDetailsLocal.get();
+    	Long userId = store.getUserId();
+    	try {
+    		Redis.delete(userId);
+    		Writer.responseMapWriter(response, 
+            		HttpServletResponse.SC_OK, 
+            		HttpServletResponse.SC_OK, 
+            		"Logout successful.", 
+            		responseMap);
+    	} catch (Exception e) {
+    		ErrorHandler.handleException(e, response);
+		}
     }
 }

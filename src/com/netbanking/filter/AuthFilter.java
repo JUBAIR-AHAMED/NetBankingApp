@@ -10,10 +10,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import com.netbanking.enumHelper.UserAccessibleMethods;
+import com.netbanking.util.Redis;
 import com.netbanking.util.UserDetailsLocal;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -61,10 +60,16 @@ public class AuthFilter implements Filter {
         } catch (ExpiredJwtException ex) {
         	setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_UNAUTHORIZED, "Expired token.");
         	return;
-        }
+        } catch (Exception e) {
+        	setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token.");
+		}
         Long userId = claims.get("userId", Long.class);
         String role = claims.get("role", String.class);
         Long branchId = claims.get("branchId", Long.class);
+        if(!(Redis.get(userId.toString()).equals(token))) {
+        	setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token.");
+        	return;
+        }
         
         UserDetailsLocal store = UserDetailsLocal.get();
         store.setUserId(userId);
@@ -75,9 +80,9 @@ public class AuthFilter implements Filter {
         httpRequest.setAttribute("userId", userId);
         httpRequest.setAttribute("role", role);
         httpRequest.setAttribute("branchId", branchId);
+        httpRequest.setAttribute("jwt", token);
         
         String method = httpRequest.getHeader("action") != null? httpRequest.getHeader("action") : httpRequest.getMethod();
-        System.out.println(path+" "+method);
         if ((userId==null||role==null) ||
         	((role.equals("MANAGER")||role.equals("EMPLOYEE"))&&branchId==null)) {
         	setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token.");

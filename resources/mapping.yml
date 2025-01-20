@@ -80,7 +80,9 @@ pojo:
   Activity:
     tablename: "activity_logs"
     table_field_name:
-      userId: "user_id"
+      actorId: "actor_id"
+      subjectId: "subject_id"
+      keyValue: "key_value"
       tablename: "tablename"
       action: "action"
       details: "details"

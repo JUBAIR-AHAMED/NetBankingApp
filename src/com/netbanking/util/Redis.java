@@ -44,18 +44,36 @@ public class Redis {
 		}
     }
     
-    public static boolean exists(String key) {
+//    public static void addToSet(String key, String value) {
+//    	new Redis();
+//    	jedis.sadd(key, value);
+//    }
+//    
+//    public static long removeFromSet(String key, String value) {
+//    	new Redis();
+//    	return jedis.srem(key, value);
+//    }
+//    
+//    public static boolean containsInSet(String key, String value) {
+//    	new Redis();
+//    	return jedis.sismember(key, value);
+//    }
+    
+    public static boolean exists(Object keyObj) {
     	new Redis();
+    	String key = keyObj.toString();
     	return jedis.exists(key);
     }
     
-    public static int delete(String key) {
+    public static int delete(Object keyObj) {
+    	String key = keyObj.toString();
     	new Redis();
     	if(exists(key)) {
     		return (int) jedis.del(key);
     	}
     	return -1;
     }
+    
     
     public static void deleteKeysWithStartString(String cacheKey) {
     	new Redis();

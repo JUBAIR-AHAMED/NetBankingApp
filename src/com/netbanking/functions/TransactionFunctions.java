@@ -3,10 +3,10 @@ package com.netbanking.functions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletResponse;
 import com.netbanking.dao.DataAccessObject;
 import com.netbanking.daoObject.QueryRequest;
-import com.netbanking.enums.Role;
+import com.netbanking.enumHelper.GetMetadata;
+import com.netbanking.enums.TransactionType;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Account;
 import com.netbanking.object.Transaction;
@@ -17,11 +17,6 @@ import com.netbanking.util.Validator;
 
 public class TransactionFunctions {
 	public List<Map<String, Object>> getStatement(Map<String, Object> requestData, Map<String, Object> accountData) throws CustomException, Exception {
-		UserDetailsLocal store = UserDetailsLocal.get();
-		Long userId = store.getUserId();
-		Long branchId = store.getBranchId();
-		Role role = store.getRole();
-		
 		Long accountNumber = (Long) requestData.get("accountNumber");
 		Long fromDate = (Long) requestData.getOrDefault("fromDate", null);
 		Long toDate = (Long) requestData.getOrDefault("toDate", null);
@@ -30,30 +25,6 @@ public class TransactionFunctions {
 		Boolean count = (Boolean) requestData.getOrDefault("count", false);
         Integer offset = currentPage!=null? (currentPage - 1) * limit:null;
 
-		// Validation
-		if(accountData == null) {
-			throw new CustomException(HttpServletResponse.SC_NOT_FOUND,"Account not found.");
-		}
-		if(role.equals(Role.CUSTOMER))
-		{
-			if(userId != Converter.convertToLong(accountData.get("userId"))) {
-				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Permission denied to access this account.");
-			}
-		} else if(role.equals(Role.EMPLOYEE)) {
-			if(branchId != Converter.convertToLong(accountData.get("branchId"))) {
-				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Operation failed. Employee belongs to a different branch.");
-			}
-		}
-		String accountStatus = (String) accountData.get("status");
-		if(!accountStatus.equals("ACTIVE"))
-		{
-			throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Sender Account is "+ accountStatus);
-		}
-		if(fromDate!=null && toDate!=null && fromDate>toDate)
-		{
-			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Time frame is invalid.");
-		}
-		
 		// Query Request Building
 		QueryRequest request = new QueryRequest()
 									.setTableName("transaction")
@@ -146,8 +117,9 @@ public class TransactionFunctions {
 				fromUserId, toUserId,
 				userId, amount, fromAccountBalance, 
 				toAccountBalance, transactionType);
-		String cacheKeyFromAcc = "ACCOUNT$ACCOUNT_NUMBER:"+fromAccountNumber;
-		String cacheKeyToAcc = "ACCOUNT$ACCOUNT_NUMBER:"+toAccountNumber;
+		GetMetadata metadata = GetMetadata.ACCOUNT;
+		String cacheKeyFromAcc = metadata.getCachKey()+fromAccountNumber;
+		String cacheKeyToAcc = metadata.getCachKey()+toAccountNumber;
 		Redis.delete(cacheKeyFromAcc);
 		Redis.delete(cacheKeyToAcc);
 	}
@@ -157,13 +129,7 @@ public class TransactionFunctions {
 			Long user_id, Float amount, 
 			Float from_account_balance, Float to_account_balance, String transactionType) throws Exception
 	{
-		Validator.checkInvalidInput(from_account, user_id, amount);
 		DataAccessObject<Transaction> transactionHandle = new DataAccessObject<Transaction>();
-		if(transactionType.equals("same-bank"))
-		{
-			Validator.checkInvalidInput(to_account, to_account_balance);
-		}
-		
 		Transaction transaction_acc_one = new Transaction();
 		transaction_acc_one.setAccountNumber(from_account);
 		transaction_acc_one.setBalance(from_account_balance);
@@ -173,12 +139,13 @@ public class TransactionFunctions {
 		transaction_acc_one.setTransactionAmount(amount);
 		transaction_acc_one.setUserId(from_user_id);
 		transaction_acc_one.setCreationTime(System.currentTimeMillis());
+		
 		if(transactionType.equalsIgnoreCase("same-bank")||transactionType.equalsIgnoreCase("other-bank")) {
-			transaction_acc_one.setType("DEBIT");
+			transaction_acc_one.setType(TransactionType.DEBIT.toString());
 		} else if(transactionType.equalsIgnoreCase("deposit")){
-			transaction_acc_one.setType("DEPOSIT");
+			transaction_acc_one.setType(TransactionType.DEPOSIT.toString());
 		} else if(transactionType.equalsIgnoreCase("withdraw")) {
-			transaction_acc_one.setType("WITHDRAW");
+			transaction_acc_one.setType(TransactionType.WITHDRAW.toString());
 		} 
 		Long ref_number = transactionHandle.insert(transaction_acc_one);
 		
@@ -194,7 +161,7 @@ public class TransactionFunctions {
 			transaction_acc_two.setUserId(to_user_id);
 			transaction_acc_two.setReferenceNumber(ref_number);
 			transaction_acc_two.setCreationTime(System.currentTimeMillis());
-			transaction_acc_two.setType("CREDIT");
+			transaction_acc_two.setType(TransactionType.CREDIT.toString());
 			transactionHandle.insert(transaction_acc_two);
 		}
 	}

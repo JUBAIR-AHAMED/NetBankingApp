@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.netbanking.enumHelper.EditableFields;
 import com.netbanking.enumHelper.RequiredFields;
+import com.netbanking.enums.Status;
+import com.netbanking.exception.CustomException;
 import com.netbanking.functions.CustomerFunctions;
 import com.netbanking.functions.UserFunctions;
 import com.netbanking.object.Activity;
@@ -36,10 +38,13 @@ public class CustomerHandler {
 			new Activity()
         		.setAction("CREATE")
         		.setTablename("customer")
-        		.setUserId(userId)
-        		.setDetails(ApiHelper.dataToString(data))
+        		.setActorId(userId)
+        		.setSubjectId(createdCustomerId)
+        		.setKeyValue(createdCustomerId)
+        		.setDetails(jsonBody.toString())
         		.setActionTime(System.currentTimeMillis())
         		.execute();
+			
 			responseMap.put("customerId", createdCustomerId);
             Writer.responseMapWriter(response, 
             		HttpServletResponse.SC_OK, 
@@ -62,6 +67,10 @@ public class CustomerHandler {
             Function<String, Object> parseLong = Long::parseLong;
             Long key = (Long) parseLong.apply((String) data.remove("key"));
             EditableFields.validateEditableFields(Customer.class, data);
+            Map<String, Object>  userData = new UserFunctions().get(key);
+            if(userData.get("status").equals(Status.INACTIVE.toString())) {
+            	throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "User is inactive.");
+            }
             // updating the user table
     		User user = ApiHelper.getPojoFromRequest(data, User.class);
             new UserFunctions().updateUser(user, key);
@@ -70,12 +79,14 @@ public class CustomerHandler {
             new CustomerFunctions().updateCustomer(customer, userId, key);
             // Activity logger
             new Activity()
-            		.setAction("UPDATE")
-            		.setTablename("customer")
-            		.setUserId(userId)
-            		.setDetails(ApiHelper.dataToString(data))
-            		.setActionTime(System.currentTimeMillis())
-            		.execute();
+        		.setAction("UPDATE")
+        		.setTablename("customer")
+        		.setActorId(userId)
+        		.setSubjectId(key)
+        		.setKeyValue(key)
+        		.setDetails(jsonBody.toString())
+        		.setActionTime(System.currentTimeMillis())
+        		.execute();
             Writer.responseMapWriter(response, 
             		HttpServletResponse.SC_OK, 
             		HttpServletResponse.SC_OK, 

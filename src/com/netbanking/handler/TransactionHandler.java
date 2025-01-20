@@ -4,15 +4,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import com.google.gson.JsonObject;
 import com.netbanking.enums.Role;
 import com.netbanking.exception.CustomException;
 import com.netbanking.functions.AccountFunctions;
 import com.netbanking.functions.TransactionFunctions;
+import com.netbanking.object.Activity;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Converter;
 import com.netbanking.util.ErrorHandler;
@@ -23,6 +22,11 @@ import com.netbanking.util.Writer;
 
 public class TransactionHandler {
 	public static void handleGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		UserDetailsLocal store = UserDetailsLocal.get();
+		Long userId = store.getUserId();
+		Long branchId = store.getBranchId();
+		Role role = store.getRole();
+		
 		Map<String, Object> responseMap = new HashMap<>();
 		try {
 			Map<String, Object> data = new HashMap<String, Object>();
@@ -35,6 +39,33 @@ public class TransactionHandler {
 			Parser.storeIfPresent(jsonObject, data, "count", Boolean.class, "Count", false);
 			
 			Map<String, Object> accountData = new AccountFunctions().get((Long) data.get("accountNumber"));
+			// Validation
+			if(accountData == null) {
+				throw new CustomException(HttpServletResponse.SC_NOT_FOUND,"Account not found.");
+			}
+			
+			if(role.equals(Role.CUSTOMER))
+			{
+				if(userId != Converter.convertToLong(accountData.get("userId"))) {
+					throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Permission denied to access this account.");
+				}
+			} else if(role.equals(Role.EMPLOYEE)) {
+				if(branchId != Converter.convertToLong(accountData.get("branchId"))) {
+					throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Operation failed. Employee belongs to a different branch.");
+				}
+			}
+			String accountStatus = (String) accountData.get("status");
+			if(!accountStatus.equals("ACTIVE"))
+			{
+				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Sender Account is "+ accountStatus);
+			}
+			Long fromDate = (Long) data.getOrDefault("fromDate", null);
+			Long toDate = (Long) data.getOrDefault("toDate", null);
+			if(fromDate!=null && toDate!=null && fromDate>toDate)
+			{
+				throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Time frame is invalid.");
+			}
+			
             List<Map<String, Object>> statement = new TransactionFunctions().getStatement(data, accountData);
             Long count = ApiHelper.getCount(statement);
             if(count!=null) {
@@ -125,6 +156,17 @@ public class TransactionHandler {
 			}
 			
 			new TransactionFunctions().initiateTransaction(details, fromAccountMap, toAccountMap);	
+			
+//			new Activity()
+//	    		.setAction("TRANSACTION")
+//	    		.setTablename("transaction")
+//	    		.setActorId(userId)
+//	    		.setSubjectId(userId)
+//	    		.setKeyValue(userId)
+//	    		.setDetails(ApiHelper.dataToString(data))
+//	    		.setActionTime(System.currentTimeMillis())
+//	    		.execute();
+			
             Writer.responseMapWriter(response, 
             		HttpServletResponse.SC_OK, 
             		HttpServletResponse.SC_OK, 

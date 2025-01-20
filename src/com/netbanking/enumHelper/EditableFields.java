@@ -11,7 +11,7 @@ public enum EditableFields {
     CUSTOMER(Arrays.asList("name", "email", "status", "dateOfBirth", "aadharNumber", "panNumber")),
     USER(Arrays.asList("name", "email", "mobile")),
     BRANCH(Arrays.asList("name", "address")),
-    EMPLOYEE(Arrays.asList("name", "number", "branchId"));
+    EMPLOYEE(Arrays.asList("name", "email", "dateOfBirth", "branchId", "status", "role"));
 	
     private final List<String> editableFields;
 
@@ -27,7 +27,7 @@ public enum EditableFields {
         // Validate each key in the map
         for (String key : data.keySet()) {
             if (!editableFieldEnum.editableFields.contains(key)) {
-                throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "The requested update fields are either non-editable/present.");
+                throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "The requested update fields are either non-editable/not present.");
             }
         }
     }

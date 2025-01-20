@@ -19,7 +19,7 @@ public class TokenHelper {
                 .claim("role", userDetails.get("role"))
                 .claim("branchId", userDetails.getOrDefault("branchId", null))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000L))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }

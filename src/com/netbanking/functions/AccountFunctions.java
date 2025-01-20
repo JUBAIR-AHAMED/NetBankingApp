@@ -59,7 +59,7 @@ public class AccountFunctions {
 		String cacheKey = metadata.getCachKey()+key;
 		Redis.delete(cacheKey);
 		account.setAccountNumber(key);
-		account.setCreationTime(System.currentTimeMillis());
+		account.setModifiedTime(System.currentTimeMillis());
 		account.setModifiedBy(userId);
 		DataAccessObject<Account> accountDao = new DataAccessObject<>();
 		accountDao.update(account);
@@ -81,7 +81,7 @@ public class AccountFunctions {
 									.setOffset(offset)
 									.setLimit(limit);
 		List<Where> whereConditionsType = new ArrayList<Where>();
-		if(role.equals(Role.EMPLOYEE)) {
+		if(role.equals(Role.CUSTOMER)) {
 			whereConditionsType.add(new Where("status", tableName, "INACTIVE"));
 			request.putWhereLogicalOperators("AND")
 					.putWhereOperators("!=");

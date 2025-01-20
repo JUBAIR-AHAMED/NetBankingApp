@@ -9,6 +9,8 @@ CUSTOMER:
   /profile:
     - GET
     - PUT
+  /logout:
+    - PUT
 
 EMPLOYEE:
   /account:
@@ -30,6 +32,8 @@ EMPLOYEE:
     - POST
   /branch:
     - GET
+  /logout:
+    - PUT
 
 MANAGER:
   /account:
@@ -52,8 +56,11 @@ MANAGER:
     - GET
   /employee:
     - POST
+    - PUT
   /customer:
     - POST
     - PUT
   /user:
     - GET
+  /logout:
+    - PUT

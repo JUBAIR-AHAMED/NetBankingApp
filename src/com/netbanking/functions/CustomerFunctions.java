@@ -56,13 +56,12 @@ public class CustomerFunctions {
 		}
 		GetMetadata userMetadata = GetMetadata.USER;
 		GetMetadata customerMetadata = GetMetadata.CUSTOMER;
-		String cacheKeyUser = userMetadata.getCachKey()+userId;
-		String cacheKeyCustomer = customerMetadata.getCachKey()+userId;
+		String cacheKeyUser = userMetadata.getCachKey()+key;
+		String cacheKeyCustomer = customerMetadata.getCachKey()+key;
+		System.out.println("Redis delete keys: "+cacheKeyUser+" "+cacheKeyCustomer);
 		Redis.delete(cacheKeyCustomer);
 		Redis.delete(cacheKeyUser);
 		customer.setCustomerId(key);
-		customer.setModifiedTime(System.currentTimeMillis());
-		customer.setModifiedBy(userId);
 		DataAccessObject<Customer> customerDao = new DataAccessObject<>();
 		customerDao.update(customer);
 	}
@@ -89,8 +88,7 @@ public class CustomerFunctions {
 		if(moreDetails) {
 			Join join = new Join();
 			join.putLeftTable(primaryTableName).putLeftColumn(primaryTableMetaData.getPrimaryKeyColumn())
-				.putRightTable(secondaryTableName)
-				.putRightColumn(secondaryTableMetadata.getPrimaryKeyColumn())
+				.putRightTable(secondaryTableName).putRightColumn(secondaryTableMetadata.getPrimaryKeyColumn())
 				.putOperator("=").setTableName(secondaryTableName);
 			request.putJoinConditions(join);
 		}

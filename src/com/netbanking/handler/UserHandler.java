@@ -10,12 +10,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonObject;
 import com.netbanking.enumHelper.EditableFields;
+import com.netbanking.enums.Role;
 import com.netbanking.functions.CustomerFunctions;
 import com.netbanking.functions.EmployeeFunctions;
 import com.netbanking.functions.UserFunctions;
 import com.netbanking.object.Activity;
 import com.netbanking.object.User;
 import com.netbanking.util.ApiHelper;
+import com.netbanking.util.Converter;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
 import com.netbanking.util.UserDetailsLocal;
@@ -47,29 +49,20 @@ public class UserHandler {
             Integer currentPage = Parser.getValue(jsonObject, "currentPage", Integer.class);
             String userType = Parser.getValue(jsonObject, "userType", String.class, "User Type", true);
             List<Map<String, Object>> users = null;
-            if(userType.equals("customer")) {
+            if(userType.equalsIgnoreCase(Role.CUSTOMER.toString())) {
             	users = new CustomerFunctions().getCustomers(filters, limit, currentPage);
-            } else if(userType.equals("employee")) {
+            } else if(userType.equalsIgnoreCase(Role.EMPLOYEE.toString())) {
             	Parser.storeIfPresent(jsonObject, filters, "branchId", Long.class, "Branch Id", false);
             	users = new EmployeeFunctions().getEmployees(filters, limit, currentPage);
             }
-            Writer.responseWriter(response, true, HttpServletResponse.SC_OK, "Users fetched successfully", responseMap);
-            Long count = null;
-            if (users.size() >= 1) {
-                Object countValue = users.get(0).getOrDefault("count", null);
-                if (countValue instanceof Integer) {
-                    count = ((Integer) countValue).longValue();
-                } else if (countValue instanceof Long) {
-                    count = (Long) countValue;
-                }
-            }
+            Long count = Converter.convertToLong(users.get(0).getOrDefault("count", null));
 
             if(count!=null) {
             	responseMap.put("count", count);
             } else {
             	responseMap.put("users", users);
             }
-            Writer.writeResponse(response, responseMap);
+            Writer.responseMapWriter(response, HttpServletResponse.SC_OK, HttpServletResponse.SC_OK, "Users fetched successfully", responseMap);
         } catch (Exception e) {
         	ErrorHandler.handleException(e, response);
         }
@@ -88,8 +81,10 @@ public class UserHandler {
             new Activity()
         		.setAction("UPDATE")
         		.setTablename("user")
-        		.setUserId(userId)
-        		.setDetails(ApiHelper.dataToString(data))
+        		.setActorId(userId)
+        		.setSubjectId(userId)
+        		.setKeyValue(userId)
+        		.setDetails(jsonBody.toString())
         		.setActionTime(System.currentTimeMillis())
         		.execute();
 
