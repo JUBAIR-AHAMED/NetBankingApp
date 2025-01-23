@@ -61,6 +61,9 @@ public class ApiHelper {
     }
     
     public static Long getCount(List<Map<String, Object>> list) {
+    	if(list==null||list.isEmpty()) {
+    		return null;
+    	}
     	Object value = list.get(0).getOrDefault("count", null);
     	if(value==null) {
 			return null;

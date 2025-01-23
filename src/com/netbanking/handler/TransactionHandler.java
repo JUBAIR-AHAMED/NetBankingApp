@@ -67,6 +67,7 @@ public class TransactionHandler {
 			}
 			
             List<Map<String, Object>> statement = new TransactionFunctions().getStatement(data, accountData);
+            System.out.println(statement);
             Long count = ApiHelper.getCount(statement);
             if(count!=null) {
             	responseMap.put("count", count);

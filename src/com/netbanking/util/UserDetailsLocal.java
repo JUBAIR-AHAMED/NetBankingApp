@@ -20,7 +20,7 @@ public class UserDetailsLocal {
     }
 
     public void setUserId(Long userId) {
-        this.userId = userId;
+    	threadLocal.get().userId = userId;
     }
 
     public Role getRole() {
@@ -28,7 +28,7 @@ public class UserDetailsLocal {
     }
 
     public void setRole(String role) {
-        this.role = Role.valueOf(role);
+    	threadLocal.get().role = Role.valueOf(role);
     }
 
     public Long getBranchId() {
@@ -36,7 +36,7 @@ public class UserDetailsLocal {
     }
 
     public void setBranchId(Long branchId) {
-        this.branchId = branchId;
+    	threadLocal.get().branchId = branchId;
     }
 
     public static void clear() {

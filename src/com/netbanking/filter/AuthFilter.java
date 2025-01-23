@@ -102,6 +102,7 @@ public class AuthFilter implements Filter {
     	}
     	System.out.println("passed auth filter.");
         chain.doFilter(request, response);
+        
     }
     
     private void setResponse(HttpServletResponse httpResponse, int serverStatus, int actionStatus, String message) throws IOException {
