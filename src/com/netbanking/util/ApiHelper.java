@@ -143,20 +143,9 @@ public class ApiHelper {
                 return value.toString();
             }
         } catch (NumberFormatException e) {
-            throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Failed to convert value: " + value + " to type " + targetType.getSimpleName());
+            throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "The entered value: " + value + " is invalid.");
         }
 
         throw new IllegalArgumentException("Unsupported type conversion: " + targetType.getName());
     }
-    
-    public static String dataToString(Map<String, Object> data) {
-		StringBuilder sb = new StringBuilder();
-		for(Map.Entry<String, Object> entry:data.entrySet()) {
-			sb.append(entry.getKey())
-			.append(" : ")
-			.append(entry.getValue())
-			.append("; ");
-		}
-		return sb.toString();
-	}
 }
