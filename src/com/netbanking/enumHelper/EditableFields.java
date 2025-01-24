@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import com.netbanking.exception.CustomException;
+import com.netbanking.object.pattern.DataValidater;
 
 public enum EditableFields {
     ACCOUNT(Arrays.asList("accountType", "branchId", "status")),
@@ -25,9 +26,15 @@ public enum EditableFields {
         EditableFields editableFieldEnum = EditableFields.valueOf(className);
         
         // Validate each key in the map
-        for (String key : data.keySet()) {
-            if (!editableFieldEnum.editableFields.contains(key)) {
+        for (Map.Entry<String, Object> value : data.entrySet()) {
+        	String dataKey = value.getKey();
+        	String dataValue =(String) value.getValue();
+            if (!editableFieldEnum.editableFields.contains(dataKey)) {
                 throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "The requested update fields are either non-editable/not present.");
+            }
+            if (!DataValidater.isValidField(dataKey, dataValue)) {
+//            	System.out.println(dataKey+" "+dataValue);
+                throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Invalid value for field: " + dataKey + ".");
             }
         }
     }

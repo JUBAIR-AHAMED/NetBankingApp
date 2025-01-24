@@ -6,6 +6,8 @@ import com.netbanking.enums.Role;
 import com.netbanking.enums.Status;
 import com.netbanking.exception.CustomException;
 import com.netbanking.model.Model;
+import java.time.LocalDate;
+import java.time.Period;
 
 public class User implements Model {
     protected Long userId;
@@ -106,6 +108,19 @@ public class User implements Model {
     }
 
     public void setDateOfBirth(Date dateOfBirth) throws CustomException {
+    	LocalDate dob = new java.sql.Date(dateOfBirth.getTime()).toLocalDate();
+
+        // Get the current date
+        LocalDate currentDate = LocalDate.now();
+
+        // Calculate age
+        int age = Period.between(dob, currentDate).getYears();
+
+        // Check if the person is at least 18 years old
+        if (age < 18) {
+            throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Age must be 18 or older.");
+        }
+
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -147,9 +162,5 @@ public class User implements Model {
         }
         this.modifiedBy = modifiedBy;
     }
-
-	public String getIdField() {
-		return "user_id";
-	}
 }
 
