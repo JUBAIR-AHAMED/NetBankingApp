@@ -21,6 +21,13 @@ public class ApiHelper {
         return data;
 	}
 	
+	public static Integer getOffset(Integer limit, Integer currentPage) {
+		if(currentPage!=null&&limit!=null) {
+			return (currentPage - 1) * limit;		
+		}
+		return null;
+	}
+	
     public static <T> T getPojoFromRequest(Map<String, Object> data, Class<T> pojoClass) throws Exception {
         if(data==null) {
         	return null;

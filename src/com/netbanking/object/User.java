@@ -10,17 +10,17 @@ import java.time.LocalDate;
 import java.time.Period;
 
 public class User implements Model {
-    protected Long userId;
-    protected String password;
-    protected Role role;
-    protected String name;
-    protected String email;
-    protected String mobile;
-    protected Date dateOfBirth;
-    protected Status status;
-    protected Long creationTime;
-    protected Long modifiedTime;
-    protected Long modifiedBy;
+    private Long userId;
+    private String password;
+    private Role role;
+    private String name;
+    private String email;
+    private String mobile;
+    private Date dateOfBirth;
+    private Status status;
+    private Long creationTime;
+    private Long modifiedTime;
+    private Long modifiedBy;
     
   //user getter and setters
     public void setUserId(Long userId) throws CustomException {

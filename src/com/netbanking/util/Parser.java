@@ -65,37 +65,7 @@ public class Parser {
 	public static String getJsonResponse(Object toConvert) {
 		return gson.toJson(toConvert);
 	}
-    @SuppressWarnings("unchecked")
-	public static <T> T getValue(JsonObject jsonObject, String key, Class<T> type) {
-        if (jsonObject!=null && jsonObject.has(key) && !jsonObject.get(key).isJsonNull()) {
-            JsonElement element = jsonObject.get(key);
-
-            try {
-            	if (element.isJsonPrimitive() && element.getAsString().isEmpty()) {
-            		return null; // Treat empty string as null for all types
-            	}
-                if (type == String.class) {
-                    return (T) element.getAsString();
-                } else if (type == Integer.class) {
-                    return (T) Integer.valueOf(element.getAsInt());
-                } else if (type == Long.class) {
-                    return (T) Long.valueOf(element.getAsLong());
-                } else if (type == Float.class) {
-                    return (T) Float.valueOf(element.getAsFloat());
-                } else if (type == Double.class) {
-                    return (T) Double.valueOf(element.getAsDouble());
-                } else if (type == Boolean.class) {
-                    return (T) Boolean.valueOf(element.getAsBoolean());
-                } else {
-                    throw new IllegalArgumentException("Unsupported type: " + type.getName());
-                }
-            } catch (ClassCastException | IllegalStateException e) {
-                throw new IllegalArgumentException("Error casting value for key '" + key + "' to type " + type.getName(), e);
-            }
-        }
-        return null; // Return null if the key is not present or the value is null
-    }
-    
+   
     @SuppressWarnings("unchecked")
     public static <T> T getValue(JsonObject jsonObject, String key, Class<T> type, String fieldName, boolean required) throws CustomException {
         if (jsonObject != null && jsonObject.has(key)) {

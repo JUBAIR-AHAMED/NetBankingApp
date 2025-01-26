@@ -14,6 +14,7 @@ import com.netbanking.enums.Role;
 import com.netbanking.enums.Status;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Customer;
+import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Redis;
 
 public class CustomerFunctions {
@@ -71,7 +72,7 @@ public class CustomerFunctions {
 		GetMetadata primaryTableMetaData = GetMetadata.USER;
 		GetMetadata secondaryTableMetadata = GetMetadata.CUSTOMER;
 		// offset for supporting pagination
-		Integer offset = currentPage!=null? (currentPage - 1) * limit:null;
+		Integer offset = ApiHelper.getOffset(limit, currentPage);
 		// required tables
 		String primaryTableName = primaryTableMetaData.getTableName();
 		String secondaryTableName = secondaryTableMetadata.getTableName();

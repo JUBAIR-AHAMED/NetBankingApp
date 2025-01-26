@@ -14,6 +14,7 @@ import com.netbanking.enums.Status;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Customer;
 import com.netbanking.object.Employee;
+import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Encryption;
 import com.netbanking.util.Redis;
 
@@ -69,7 +70,7 @@ public class EmployeeFunctions {
 		GetMetadata primaryTableMetaData = GetMetadata.USER;
 		GetMetadata secondaryTableMetaData = GetMetadata.EMPLOYEE;
 		// offset for supporting pagination
-		Integer offset = currentPage!=null? (currentPage - 1) * limit:null;
+		Integer offset = ApiHelper.getOffset(limit, currentPage);
 		// required tables
 		String primaryTableName = primaryTableMetaData.getTableName();
 		String secondaryTableName = secondaryTableMetaData.getTableName();

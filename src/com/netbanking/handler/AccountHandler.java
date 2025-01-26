@@ -45,8 +45,8 @@ public class AccountHandler {
 				filters.put("userId", userId);
 			}
 
-			Integer limit = Parser.getValue(jsonObject, "limit", Integer.class);
-			Integer currentPage = Parser.getValue(jsonObject, "currentPage", Integer.class);
+			Integer limit = Parser.getValue(jsonObject, "limit", Integer.class, "Limit", false);
+			Integer currentPage = Parser.getValue(jsonObject, "currentPage", Integer.class, "Current Page", false);
 
 			List<Map<String, Object>> accounts = new AccountFunctions().filteredGetAccount(filters, limit, currentPage);
 

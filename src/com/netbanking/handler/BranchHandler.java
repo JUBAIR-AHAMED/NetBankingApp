@@ -72,8 +72,8 @@ public class BranchHandler {
             	Parser.storeIfPresent(jsonObject, filters, "searchSimilar", Boolean.class, "Type of search", false);
             }
             Boolean countReq = (Boolean) filters.get("count");
-            Integer limit=Parser.getValue(jsonObject, "limit", Integer.class);
-            Integer currentPage=Parser.getValue(jsonObject, "currentPage", Integer.class);
+            Integer limit=Parser.getValue(jsonObject, "limit", Integer.class, "Limit", false);
+            Integer currentPage=Parser.getValue(jsonObject, "currentPage", Integer.class, "Current Page", false);
             // fetching branch data
             List<Map<String, Object>> branch =new BranchFunctions().filteredGetBranch(filters, limit, currentPage);            
             // if asked to get count

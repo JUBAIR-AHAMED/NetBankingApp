@@ -5,92 +5,79 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.resps.ScanResult;
 
 public class Redis {
-	static Jedis jedis;
-	static final ObjectMapper objectMapper = new ObjectMapper();
-	
-    private Redis() {
-    	if(jedis==null) {
-    		jedis = new Jedis("localhost", 6379);
-    	}
+    private static final JedisPool jedisPool = new JedisPool(new JedisPoolConfig(), "localhost", 6379);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private Redis() {}
+
+    private static Jedis getJedis() {
+        return jedisPool.getResource();
     }
-    
+
     public static String get(String cacheKey) {
-    	new Redis();
-    	return jedis.get(cacheKey);
+        try (Jedis jedis = getJedis()) {
+            return jedis.get(cacheKey);
+        }
     }
-    
+
     public static void setex(String key, String value) {
-    	new Redis();
-    	jedis.setex(key, 3600, value);
+        try (Jedis jedis = getJedis()) {
+            jedis.setex(key, 3600, value);
+        }
     }
-    
+
     public static <T> void setex(String key, T value) throws JsonProcessingException {
-    	if(exists(key)) {
-    		return;
-    	}
-    	String stringValue = objectMapper.writeValueAsString(value);
-    	setex(key, stringValue);
+        if (exists(key)) {
+            return;
+        }
+        String stringValue = objectMapper.writeValueAsString(value);
+        setex(key, stringValue);
     }
-    
+
     public static void setList(String cacheKey, String valueKey, List<Map<String, Object>> list) throws JsonProcessingException {
-    	for(Map<String, Object> map:list) {
-			Long value = (Long) map.get(valueKey);
-			String cacheGetter = cacheKey+value;
-			Redis.setex(cacheGetter, map);
-		}
+        try (Jedis jedis = getJedis()) {
+            for (Map<String, Object> map : list) {
+                Long value = (Long) map.get(valueKey);
+                String cacheGetter = cacheKey + value;
+                String json = objectMapper.writeValueAsString(map);
+                jedis.setex(cacheGetter, 3600, json);
+            }
+        }
     }
-    
-//    public static void addToSet(String key, String value) {
-//    	new Redis();
-//    	jedis.sadd(key, value);
-//    }
-//    
-//    public static long removeFromSet(String key, String value) {
-//    	new Redis();
-//    	return jedis.srem(key, value);
-//    }
-//    
-//    public static boolean containsInSet(String key, String value) {
-//    	new Redis();
-//    	return jedis.sismember(key, value);
-//    }
-    
+
     public static boolean exists(Object keyObj) {
-    	new Redis();
-    	String key = keyObj.toString();
-    	return jedis.exists(key);
+        try (Jedis jedis = getJedis()) {
+            return jedis.exists(keyObj.toString());
+        }
     }
-    
+
     public static int delete(Object keyObj) {
-    	String key = keyObj.toString();
-    	new Redis();
-    	if(exists(key)) {
-    		return (int) jedis.del(key);
-    	}
-    	return -1;
+        String key = keyObj.toString();
+        try (Jedis jedis = getJedis()) {
+            return jedis.exists(key) ? (int) jedis.del(key) : -1;
+        }
     }
-    
-    
+
     public static void deleteKeysWithStartString(String cacheKey) {
-    	new Redis();
-        String cursor = "0";
-        try {
+        try (Jedis jedis = getJedis()) {
+            String cursor = "0";
             do {
                 ScanResult<String> result = jedis.scan(cursor, 
-                		new redis.clients.jedis.params.ScanParams().match(cacheKey+"*").count(100));                
+                        new redis.clients.jedis.params.ScanParams().match(cacheKey + "*").count(100));
                 cursor = result.getCursor();
                 for (String key : result.getResult()) {
                     jedis.del(key);
                 }
             } while (!cursor.equals("0"));
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            jedis.close();
+            throw new RuntimeException("Error during Redis key deletion: " + e.getMessage(), e);
         }
     }
 }

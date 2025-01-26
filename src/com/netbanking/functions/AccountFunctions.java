@@ -12,6 +12,7 @@ import com.netbanking.enumHelper.GetMetadata;
 import com.netbanking.enums.Role;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Account;
+import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Redis;
 import com.netbanking.util.UserDetailsLocal;
 
@@ -69,7 +70,7 @@ public class AccountFunctions {
 	{
 		UserDetailsLocal store = UserDetailsLocal.get();
 		Role role = store.getRole();
-		Integer offset = currentPage!=null? (currentPage - 1) * limit:null;		
+		Integer offset = ApiHelper.getOffset(limit, currentPage);
 		GetMetadata metadata = GetMetadata.ACCOUNT;
 		String tableName = metadata.getTableName();
 		@SuppressWarnings("unchecked")

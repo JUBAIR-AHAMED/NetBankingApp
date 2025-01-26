@@ -30,7 +30,7 @@ public enum EditableFields {
         	String dataKey = value.getKey();
         	String dataValue =(String) value.getValue();
             if (!editableFieldEnum.editableFields.contains(dataKey)) {
-                throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "The requested update fields are either non-editable/not present.");
+                throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "The requested update fields are either non-editable/not-present.");
             }
             if (!DataValidater.isValidField(dataKey, dataValue)) {
 //            	System.out.println(dataKey+" "+dataValue);

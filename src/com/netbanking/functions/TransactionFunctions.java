@@ -10,6 +10,7 @@ import com.netbanking.enums.TransactionType;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Account;
 import com.netbanking.object.Transaction;
+import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Converter;
 import com.netbanking.util.Redis;
 import com.netbanking.util.UserDetailsLocal;
@@ -23,7 +24,7 @@ public class TransactionFunctions {
 		Integer limit = (Integer) requestData.getOrDefault("limit", null);
 		Integer currentPage = (Integer) requestData.getOrDefault("currentPage", null);
 		Boolean count = (Boolean) requestData.getOrDefault("count", false);
-        Integer offset = currentPage!=null? (currentPage - 1) * limit:null;
+        Integer offset = ApiHelper.getOffset(limit, currentPage);
 
 		// Query Request Building
 		QueryRequest request = new QueryRequest()

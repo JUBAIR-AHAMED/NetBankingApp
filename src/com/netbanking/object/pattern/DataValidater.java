@@ -1,16 +1,17 @@
 package com.netbanking.object.pattern;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletResponse;
 import com.netbanking.enums.AccountType;
 import com.netbanking.enums.Role;
 import com.netbanking.enums.Status;
+import com.netbanking.exception.CustomException;
 
 public class DataValidater {
-    public static boolean validate(String value, DataPattern pattern) {
+    public static boolean validate(String value, DataPattern pattern) throws CustomException {
         if (value == null) {
             return false;
         }
@@ -19,71 +20,62 @@ public class DataValidater {
         }
         Pattern regexPattern = Pattern.compile(pattern.getPattern());
         Matcher matcher = regexPattern.matcher(value);
-        return matcher.matches();
+        if(matcher.matches()) {
+        	return true;
+        }
+        throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, pattern.getMessage());
     }
 
-    public static boolean accountNumber(String value) {
+    public static boolean accountNumber(String value) throws CustomException {
         return validate(value, DataPattern.ACCOUNTNUMBER);
     }
     
-    public static boolean balance(String value) {
+    public static boolean balance(String value) throws CustomException {
         return validate(value, DataPattern.BALANCE);
     }
 
-    public static boolean userId(String value) {
+    public static boolean userId(String value) throws CustomException {
         return validate(value, DataPattern.USERID);
     }
 
-    public static boolean branchId(String value) {
+    public static boolean branchId(String value) throws CustomException {
     	System.out.println(value);
         return validate(value, DataPattern.BRANCHID);
     }
 
-    public static boolean ifsc(String value) {
+    public static boolean ifsc(String value) throws CustomException {
         return validate(value, DataPattern.IFSC);
     }
 
-    public static boolean aadharNumber(String value) {
+    public static boolean aadharNumber(String value) throws CustomException {
         return validate(value, DataPattern.AADHARNUMBER);
     }
 
-    public static boolean panNumber(String value) {
+    public static boolean panNumber(String value) throws CustomException {
         return validate(value, DataPattern.PANNUMBER);
     }
 
-    public static boolean password(String value) {
+    public static boolean password(String value) throws CustomException {
         return validate(value, DataPattern.PASSWORD);
     }
     
-    public static boolean name(String value) {
+    public static boolean name(String value) throws CustomException {
         return validate(value, DataPattern.NAME);
     }
     
-    public static boolean address(String value) {
+    public static boolean address(String value) throws CustomException {
         return validate(value, DataPattern.ADDRESS);
     }
     
-    public static boolean email(String value) {
+    public static boolean email(String value) throws CustomException {
         return validate(value, DataPattern.EMAIL);
     }
 
-    public static boolean mobile(String value) {
+    public static boolean mobile(String value) throws CustomException {
         return validate(value, DataPattern.MOBILE);
     }
     
-//    public static boolean dateOfBirth(String value) {
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//        try {
-//            LocalDate dob = LocalDate.parse(value, formatter);
-//            LocalDate currentDate = LocalDate.now();
-//            int age = Period.between(dob, currentDate).getYears();
-//            return age >= 18;
-//        } catch (Exception e) {
-//            return false;
-//        }
-//    }
-    
-    public static boolean dateOfBirth(String value) {
+    public static boolean dateOfBirth(String value) throws CustomException {
         String datePattern = "^(\\d{4})-(\\d{2})-(\\d{2})$";
         
         if (value.matches(datePattern)) {
@@ -91,41 +83,41 @@ public class DataValidater {
                 LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 return true;
             } catch (Exception e) {
-                return false;
+            	throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Invalid value for the date of birth.");
             }
         }
-        return false;
+        throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Invalid value for the date of birth.");
     }
 
     
-    public static boolean role(String value) {
+    public static boolean role(String value) throws CustomException {
     	try {			
     		Role.valueOf(value);
     		return true;
 		} catch (IllegalArgumentException e) {
-			return false;
+			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Provided role is invalid.");
 		}
     }
     
-    public static boolean accountType(String value) {
+    public static boolean accountType(String value) throws CustomException {
     	try {			
     		AccountType.valueOf(value);
     		return true;
 		} catch (IllegalArgumentException e) {
-			return false;
+			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Account type must be SAVINGS/CURRENT.");
 		}
     }
     
-    public static boolean status(String value) {
+    public static boolean status(String value) throws CustomException {
     	try {			
     		Status.valueOf(value);
     		return true;
 		} catch (IllegalArgumentException e) {
-			return false;
+			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Status must be ACTIVE/INACTIVE/BLOCKED");
 		}
     }
     
-    public static boolean isValidField(String field, String value) {
+    public static boolean isValidField(String field, String value) throws CustomException {
         switch (field) {
             case "accountType":
                 return DataValidater.accountType(value);

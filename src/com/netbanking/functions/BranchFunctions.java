@@ -10,6 +10,7 @@ import com.netbanking.daoObject.Where;
 import com.netbanking.enumHelper.GetMetadata;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Branch;
+import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Redis;
 import com.netbanking.util.UserDetailsLocal;
 
@@ -26,7 +27,7 @@ public class BranchFunctions {
 	public List<Map<String, Object>> filteredGetBranch(Map<String, Object> filters, Integer limit, Integer currentPage) throws Exception
 	{
 		GetMetadata metadata = GetMetadata.BRANCH;
-		Integer offset = currentPage!=null? (currentPage - 1) * limit:null;
+		Integer offset = ApiHelper.getOffset(limit, currentPage);
 		String tableName = metadata.getTableName();
 		Boolean searchSimilar = (Boolean) filters.remove("searchSimilar");
 		QueryRequest request = new QueryRequest()

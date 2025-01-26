@@ -36,7 +36,7 @@ public class UserHandler {
             Parser.storeIfPresent(jsonObject, filters, "moreDetails", Boolean.class, "More Details", false);
             Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);
             Parser.storeIfPresent(jsonObject, filters, "searchSimilar", Boolean.class, "Type of search", false);
-            
+            Boolean countReq = (Boolean)filters.get("count");
 	        if(!filters.containsKey("moreDetails")) {
         		Writer.responseWriter(response,
         				false, HttpServletResponse.SC_BAD_REQUEST,
@@ -45,8 +45,8 @@ public class UserHandler {
         		Writer.writeResponse(response, responseMap);
         		return;
         	}
-            Integer limit = Parser.getValue(jsonObject, "limit", Integer.class);
-            Integer currentPage = Parser.getValue(jsonObject, "currentPage", Integer.class);
+            Integer limit = Parser.getValue(jsonObject, "limit", Integer.class, "Limit", false);
+            Integer currentPage = Parser.getValue(jsonObject, "currentPage", Integer.class, "Current Page", false);
             String userType = Parser.getValue(jsonObject, "userType", String.class, "User Type", true);
             List<Map<String, Object>> users = null;
             if(userType.equalsIgnoreCase(Role.CUSTOMER.toString())) {
@@ -55,9 +55,9 @@ public class UserHandler {
             	Parser.storeIfPresent(jsonObject, filters, "branchId", Long.class, "Branch Id", false);
             	users = new EmployeeFunctions().getEmployees(filters, limit, currentPage);
             }
-            Long count = Converter.convertToLong(users.get(0).getOrDefault("count", null));
+            Long count = ApiHelper.getCount(users);
 
-            if(count!=null) {
+            if(countReq!=null&&countReq) {
             	responseMap.put("count", count);
             } else {
             	responseMap.put("users", users);
