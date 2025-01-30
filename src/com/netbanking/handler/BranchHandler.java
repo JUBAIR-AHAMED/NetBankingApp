@@ -36,7 +36,7 @@ public class BranchHandler {
 			// Activity logger
 			new Activity()
         		.setAction("CREATE")
-        		.setTablename("branch")
+        		.setRecordname("branch")
         		.setActorId(userId)
         		.setSubjectId(subjectId)
         		.setKeyValue(createdBranchId)

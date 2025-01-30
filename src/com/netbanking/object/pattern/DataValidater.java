@@ -23,6 +23,7 @@ public class DataValidater {
         if(matcher.matches()) {
         	return true;
         }
+        System.out.println(value);
         throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, pattern.getMessage());
     }
 

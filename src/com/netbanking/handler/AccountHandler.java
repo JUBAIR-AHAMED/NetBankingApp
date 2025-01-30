@@ -49,7 +49,7 @@ public class AccountHandler {
 			Integer currentPage = Parser.getValue(jsonObject, "currentPage", Integer.class, "Current Page", false);
 
 			List<Map<String, Object>> accounts = new AccountFunctions().filteredGetAccount(filters, limit, currentPage);
-
+			System.out.println(accounts);
 			// Sending the count or account data as requested
 			if (countReq != null && countReq) {
 				Long count = ApiHelper.getCount(accounts);
@@ -79,7 +79,7 @@ public class AccountHandler {
 			Long accountUserId = Converter.convertToLong(data.get("userId"));
 			new Activity()
 				.setAction("CREATE")
-				.setTablename("account")
+				.setRecordname("account")
 				.setActorId(userId)
 				.setSubjectId(accountUserId)
 				.setKeyValue(createdAccountNumber)
@@ -129,7 +129,7 @@ public class AccountHandler {
 			Long subjectId = Converter.convertToLong(accountData.get("userId"));
 			new Activity()
 				.setAction("UPDATE")
-				.setTablename("account")
+				.setRecordname("account")
 				.setActorId(userId)
 				.setSubjectId(subjectId)
 				.setKeyValue(key)

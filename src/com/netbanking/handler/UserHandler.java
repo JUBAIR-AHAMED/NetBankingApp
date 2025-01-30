@@ -80,7 +80,7 @@ public class UserHandler {
             
             new Activity()
         		.setAction("UPDATE")
-        		.setTablename("user")
+        		.setRecordname("user")
         		.setActorId(userId)
         		.setSubjectId(userId)
         		.setKeyValue(userId)

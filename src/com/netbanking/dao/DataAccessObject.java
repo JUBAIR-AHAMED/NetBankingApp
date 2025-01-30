@@ -37,6 +37,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 		}
 		Map<String, Object> pojoValuesMap = null;
 		pojoValuesMap = new PojoValueMapper<T>().getMap(object);
+		System.out.println(pojoValuesMap);
 				
 		Long refrenceKey = null;
 		for(String objectName : objectNames) {

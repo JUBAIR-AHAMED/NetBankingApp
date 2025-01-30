@@ -17,7 +17,7 @@ public enum DataPattern {
 	ADDRESS("^[A-Za-z0-9,.'\\s-/]+$", 
 			"Address can only contain letters, numbers, spaces, and the following punctuation: , . ' - /"),
 	AADHARNUMBER("^[2-9]{1}[0-9]{11}$", 
-			"Aadhar number can only contain number and must be less than 12 digits."),
+			"Aadhar number can only contain number and must 12 digits."),
 	PANNUMBER("^[A-Z]{5}[0-9]{4}[A-Z]{1}$", 
 			"PAN number must be in the format: 5 uppercase letters, followed by 4 digits, and ending with 1 uppercase letter."),
 	PASSWORD("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$", 

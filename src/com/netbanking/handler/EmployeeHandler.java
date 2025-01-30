@@ -37,7 +37,7 @@ public class EmployeeHandler {
 			// Activity Logger
 			new Activity()
         		.setAction("CREATE")
-        		.setTablename("employee")
+        		.setRecordname("employee")
         		.setActorId(userId)
         		.setSubjectId(createdEmployeeId)
         		.setKeyValue(createdEmployeeId)
@@ -79,7 +79,7 @@ public class EmployeeHandler {
             // activity logger
             new Activity()
             		.setAction("UPDATE")
-            		.setTablename("customer")
+            		.setRecordname("customer")
             		.setActorId(userId)
             		.setSubjectId(key)
             		.setKeyValue(key)

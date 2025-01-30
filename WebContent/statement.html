@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>My Account</title>
+<link rel="stylesheet" href="Css/mainframe.css">
+<link rel="stylesheet" href="Css/statement.css">
+</head>
+<body>
+<div id="notification-container"></div>
+	<div class="maincont">
+        <div class="page">
+            <div class = "header">
+                <div class="pageName">Bank Of Utopia</div>
+                <div class="bar"></div>
+                <div class="profileimg" onclick="toggleDropdown()">
+                    <img src="icons/10-profile-picture-ideas-to-make-you-stand-out (1).jpg" alt="profile image">
+                    <div id="profileDropdown" class="dropdown-content">
+                        <a href="profile.html">View Profile</a>
+                    </div>
+                </div>
+            </div>
+            <div style="width: 100%; display: flex; justify-content: center; margin-top: 64px;">
+                <form id="trans" class="trans">
+                    <div class="heading">
+                        <h2>Get Statement</h2>
+                    </div>
+                    <!-- <div class="form-group">
+                        <input id="accountNumber" type="text" required placeholder>
+                        <label for="accountNumber" class="floating-label">Account Number</label>
+                    </div> -->
+                    <div class="form-group">
+                        <input 
+                        type="text" 
+                        id="accountNumber" 
+                        class="form-control" 
+                        placeholder="" 
+                        autocomplete="off" required>
+                        <label for="accountNumber" class="floating-label">Sender Account Number *</label>
+                        <ul id="accountDropdown" class="dropdown-menu"></ul>
+                    </div>
+                    <div class="form-group">
+                        <input type="date" id="fromDate" name="dateOfBirth">
+                        <label for="fromDate" class="floating-label">From Date</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="date" id="toDate" name="dateOfBirth">
+                        <label for="toDate" class="floating-label">To Date</label>
+                    </div>
+                    <button class="submit-btn" type="submit">Get Statement</button>
+                </form>
+            </div>
+            <div class="statement hidden" id="statementid">
+                <div id="transactionHead">Recent Transactions</div>
+                <div class="headerColumn">
+                    <div class="columnName">Transaction ID</div>
+                    <div class="columnName">Account</div>
+                    <div class="columnName">Amount (₹)</div>
+                    <div class="columnName">Balance (₹)</div>
+                    <div class="columnName">Type</div>
+                    <div class="columnName">Date</div>
+                </div>
+                <div id="statementInsert">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="JavaScript/bar.js"></script>
+    <script src="JavaScript/statement.js"></script>
+</body>
+</html>

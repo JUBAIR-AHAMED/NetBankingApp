@@ -83,9 +83,9 @@ public class AccountFunctions {
 									.setLimit(limit);
 		List<Where> whereConditionsType = new ArrayList<Where>();
 		if(role.equals(Role.CUSTOMER)) {
-			whereConditionsType.add(new Where("status", tableName, "INACTIVE"));
+			whereConditionsType.add(new Where("status", tableName, "ACTIVE"));
 			request.putWhereLogicalOperators("AND")
-					.putWhereOperators("!=");
+					.putWhereOperators("=");
 		}
 		int i=0;
 		for(Map.Entry<String, Object> filter:filters.entrySet()) {
@@ -114,5 +114,4 @@ public class AccountFunctions {
 						list	);
 		return list;	
 	}
-	
 }

@@ -158,15 +158,27 @@ public class TransactionHandler {
 			
 			new TransactionFunctions().initiateTransaction(details, fromAccountMap, toAccountMap);	
 			
-//			new Activity()
-//	    		.setAction("TRANSACTION")
-//	    		.setTablename("transaction")
-//	    		.setActorId(userId)
-//	    		.setSubjectId(userId)
-//	    		.setKeyValue(userId)
-//	    		.setDetails(ApiHelper.dataToString(data))
-//	    		.setActionTime(System.currentTimeMillis())
-//	    		.execute();
+			new Activity()
+	    		.setAction("TRANSACTION")
+	    		.setRecordname("transaction")
+	    		.setActorId(userId)
+	    		.setSubjectId(Converter.convertToLong(fromAccountMap.get("userId")))
+	    		.setKeyValue(fromAccount)
+	    		.setDetails(jsonObject.toString())
+	    		.setActionTime(System.currentTimeMillis())
+	    		.execute();
+			
+			if(transactionType.equals("same-bank")) {
+				new Activity()
+	    		.setAction("TRANSACTION")
+	    		.setRecordname("transaction")
+	    		.setActorId(userId)
+	    		.setSubjectId(Converter.convertToLong(toAccountMap.get("userId")))
+	    		.setKeyValue(toAccount)
+	    		.setDetails(jsonObject.toString())
+	    		.setActionTime(System.currentTimeMillis())
+	    		.execute();
+			}
 			
             Writer.responseMapWriter(response, 
             		HttpServletResponse.SC_OK, 

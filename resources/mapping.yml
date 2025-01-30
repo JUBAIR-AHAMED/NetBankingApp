@@ -83,7 +83,7 @@ pojo:
       actorId: "actor_id"
       subjectId: "subject_id"
       keyValue: "key_value"
-      tablename: "tablename"
+      recordname: "tablename"
       action: "action"
       details: "details"
       actionTime: "action_time"

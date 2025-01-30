@@ -36,20 +36,22 @@ public class AuthFilter implements Filter {
         	return;
         }
         
-        String path = httpRequest.getServletPath();
+        String path = httpRequest.getPathInfo();
+        String servletPath = httpRequest.getServletPath();
         // Exclude login endpoints from authentication
-        if (path.equals("/login")) {
-        	System.out.println("login");
+        if ((servletPath!=null && (servletPath.startsWith("/static/") || servletPath.endsWith(".html") || servletPath.endsWith(".png") || servletPath.endsWith(".jpg") || servletPath.endsWith(".css") || servletPath.endsWith(".svg") || servletPath.endsWith(".js"))) || (path!=null && path.equals("/login"))) {
             chain.doFilter(request, response);
             return;
         }
+
         
         String token = httpRequest.getHeader("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
             httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            httpResponse.getWriter().write("{\"status\":false,\"message\":\"Authorization token is required.\"}");
+            httpResponse.getWriter().write("{\"status\":401,\"message\":\"Authorization token is required.\"}");
             return;
         }
+        
         Claims claims = null;
         try {
         	token = token.replace("Bearer ", "");
@@ -66,7 +68,8 @@ public class AuthFilter implements Filter {
         Long userId = claims.get("userId", Long.class);
         String role = claims.get("role", String.class);
         Long branchId = claims.get("branchId", Long.class);
-        if(!(Redis.get(userId.toString()).equals(token))) {
+        String redisStoredToken = Redis.get(userId.toString());
+        if(userId==null || token==null || redisStoredToken==null || !(redisStoredToken.equals(token))) {
         	setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token.");
         	return;
         }

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make Transactions</title>
+    <link rel="stylesheet" href="Css/mainframe.css">
+    <link rel="stylesheet" href="Css/transaction.css">
+</head>
+<body>
+<div id="notification-container"></div>
+    <div class="maincont">
+        <div class="page">
+            <div class="header">
+                <div class="pageName">Bank Of Utopia</div>
+                <div class="bar"></div>
+                <div class="profileimg" onclick="toggleDropdown()">
+                    <img src="icons/10-profile-picture-ideas-to-make-you-stand-out (1).jpg" alt="Profile">
+                    <div id="profileDropdown" class="dropdown-content">
+                        <a href="profile.html">View Profile</a>
+                    </div>
+                </div>
+            </div>
+            <div class="pagebody">
+                <div class="transaction-form">
+                    <div class="bank-logo">
+                        <h2>Make Transactions</h2>
+                    </div>
+                    <form id="transactionForm">
+                        <div class="form-group">
+                            <select id="transactionType" name="transactionType" required style="background-color: white;" class="selected">
+                                <option value="same-bank">Same Bank</option>
+                                <option value="other-bank">Other Bank</option>
+                            </select>
+                            <label for="transactionType" class="floating-label">Transaction Type *</label>
+                        </div>
+                        
+                        <div id="otherBankFields" class="hidden">
+                            <div class="form-group">
+                                <select id="bankName" style="background-color: white;" class="selected">
+                                    <option value="" disabled selected></option>
+                                    <option value="bank1">HDFC Bank</option>
+                                    <option value="bank2">Canara Bank</option>
+                                    <option value="bank3">State Bank Of India</option>
+                                    <option value="bank3">Karur Vysya Bank</option>
+                                </select>
+                                <label for="bankName" class="floating-label">Bank Name *</label>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="ifscCode" placeholder="" maxlength="11">
+                                <label for="ifscCode" class="floating-label">IFSC Code *</label>
+                            </div>
+                        </div>
+                        <!-- <div class="form-group">
+                            <select id="fromAccountNumberDropdown" class="selected" style="background-color: white;" >
+                            </select>
+                            <label for="fromAccountNumberDropdown" class="floating-label">Sender Account</label>
+                        </div> -->
+                        <!-- <div class="form-group">
+                            <input type="text" id="fromAccountNumber" class="form-control hidden" placeholder="Enter Account Number">
+                            <select id="fromAccountNumberDropdown" class="form-control selected"></select>
+                            <label id="fromAccountNumberLabel" class="floating-label">Sender Account Number</label>
+                        </div> -->
+                        <div class="form-group">
+                            <input 
+                            type="text" 
+                            id="fromAccountNumber" 
+                            class="form-control" 
+                            placeholder="" 
+                            autocomplete="off" required>
+                            <label for="fromAccountNumber" class="floating-label">Sender Account Number *</label>
+                            <ul id="fromAccountDropdown" class="dropdown-menu"></ul>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="text" id="toAccountNumber" placeholder="" maxlength="16">
+                            <label for="toAccountNumber" class="floating-label">Receiver Account *</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="amount" required placeholder="">
+                            <label for="amount" class="floating-label">Amount *</label>
+                        </div>
+                        <button class="submit-btn" type="submit">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="JavaScript/transaction.js"></script>
+    <script src="JavaScript/bar.js"></script>
+    <script>
+        // Ensure only numeric input for account numbers and amount
+        document.getElementById('fromAccountNumber').addEventListener('input', function(event) {
+            let value = this.value;
+            // Allow only numeric input and limit length to 16
+            if (/[^0-9]/.test(value)) {
+                this.value = value.replace(/[^0-9]/g, '');
+            }
+        });
+
+        document.getElementById('toAccountNumber').addEventListener('input', function(event) {
+            let value = this.value;
+            // Allow only numeric input and limit length to 16
+            if (/[^0-9]/.test(value)) {
+                this.value = value.replace(/[^0-9]/g, '');
+            }
+        });
+
+        document.getElementById('ifscCode').addEventListener('input', function(event) {
+            let value = this.value;
+
+            // Allow only alphanumeric characters and limit to 11 characters
+            value = value.replace(/[^A-Za-z0-9]/g, '').slice(0, 11);
+
+            // Enforce the pattern: first 4 uppercase letters, then up to 7 digits
+            const letters = value.substring(0, 4).replace(/[^A-Za-z]/g, '').toUpperCase(); // Extract letters and ensure uppercase
+            const digits = value.substring(4).replace(/[^0-9]/g, ''); // Extract digits only
+
+            // Combine letters and digits
+            this.value = letters + digits;
+        });
+
+        document.getElementById('amount').addEventListener('input', function(event) {
+            let value = this.value;
+            // Allow only numeric input
+            if (/[^0-9.]/.test(value)) {
+                this.value = value.replace(/[^0-9.]/g, '');
+            }
+            // Ensure it is a positive number
+            if (parseFloat(this.value) <= 0) {
+                this.value = '';
+            }
+        });
+    </script>
+</body>
+</html>

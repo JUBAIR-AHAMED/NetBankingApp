@@ -7,7 +7,7 @@ public class Activity implements Model{
 	private Long actorId;
 	private Long subjectId;
 	private Long keyValue;
-	private String tablename;
+	private String recordname;
 	private String action;
 	private String details;
 	private Long actionTime;
@@ -33,11 +33,11 @@ public class Activity implements Model{
 		this.keyValue = keyValue;
 		return this;
 	}
-	public String getTablename() {
-		return tablename;
+	public String getRecordname() {
+		return recordname;
 	}
-	public Activity setTablename(String tablename) {
-		this.tablename = tablename;
+	public Activity setRecordname(String recordname) {
+		this.recordname = recordname;
 		return this;
 	}
 	public String getAction() {

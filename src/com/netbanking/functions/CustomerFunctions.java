@@ -15,6 +15,7 @@ import com.netbanking.enums.Status;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.Customer;
 import com.netbanking.util.ApiHelper;
+import com.netbanking.util.Encryption;
 import com.netbanking.util.Redis;
 
 public class CustomerFunctions {
@@ -43,6 +44,7 @@ public class CustomerFunctions {
 	}
 	
 	public long createCustomer(Customer customer, Long userId) throws Exception {
+		customer.setPassword(Encryption.hashPassword(customer.getPassword()));
 		customer.setCreationTime(System.currentTimeMillis());
 		customer.setModifiedBy(userId);
 		customer.setRole(Role.CUSTOMER);

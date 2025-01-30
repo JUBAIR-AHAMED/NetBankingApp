@@ -56,7 +56,7 @@ public class LoginHandler {
             
             new Activity()
             .setAction("LOGIN")
-            .setTablename("customer")
+            .setRecordname("customer")
             .setActorId(userId)
             .setSubjectId(userId)
             .setKeyValue(userId)

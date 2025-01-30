@@ -37,7 +37,7 @@ public class CustomerHandler {
 			// Activity logger
 			new Activity()
         		.setAction("CREATE")
-        		.setTablename("customer")
+        		.setRecordname("customer")
         		.setActorId(userId)
         		.setSubjectId(createdCustomerId)
         		.setKeyValue(createdCustomerId)
@@ -80,7 +80,7 @@ public class CustomerHandler {
             // Activity logger
             new Activity()
         		.setAction("UPDATE")
-        		.setTablename("customer")
+        		.setRecordname("customer")
         		.setActorId(userId)
         		.setSubjectId(key)
         		.setKeyValue(key)

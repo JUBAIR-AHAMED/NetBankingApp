@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Customer | Bank of Utopia</title>
+    <link rel="stylesheet" href="Css/mainframe.css">
+    <link rel="stylesheet" href="Css/createcustomer.css">
+</head>
+<body>
+<div id="notification-container"></div>
+    <div class="maincont">
+        <div class="page">
+            <div class="header">
+                <div class="pageName">Bank Of Utopia</div>
+                <div class="bar"></div>
+                <div class="profileimg" onclick="toggleDropdown()">
+                    <img src="icons/10-profile-picture-ideas-to-make-you-stand-out (1).jpg" alt="Profile">
+                    <div id="profileDropdown" class="dropdown-content">
+                        <a href="profile.html">View Profile</a>
+                    </div>
+                </div>
+            </div>
+            <div class="pagebody">
+                <div class="customer-form">
+                    <div class="bank-logo">
+                        <h2>Create New Customer</h2>
+                    </div>
+                    <form id="createCustomerForm">
+                        <div class="form-group">
+                            <input type="text" id="name" name="name" placeholder required>
+                            <label class="floating-label" for="name">Full Name</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" name="email" placeholder required>
+                            <label class="floating-label" for="email">Email Address</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="mobile" name="mobile" required 
+                            pattern="[0-9]{10}" 
+                            title="Please enter a 10-digit mobile number" placeholder>
+                            <label class="floating-label" for="mobile">Mobile Number</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="date" id="dateOfBirth" name="dateOfBirth" required 
+                            max=""  placeholder
+                            onchange="validateAge(this)">
+                            <label class="floating-label" for="dateOfBirth">Date of Birth</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="aadharNumber" name="aadharNumber" required 
+                            pattern="[0-9]{12}" 
+                            title="Please enter a 12-digit Aadhar number" placeholder>
+                            <label class="floating-label" for="aadharNumber">Aadhar Number</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="panNumber" name="panNumber" required 
+                            pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" 
+                            title="Please enter a valid PAN number (e.g., ABCDE1234F)" placeholder>
+                            <label class="floating-label" for="panNumber">PAN Number</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="password" name="password" required 
+                            minlength="8" 
+                            title="Password must be at least 8 characters long" placeholder>
+                            <label class="floating-label" for="password">Password</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="confirmPassword" name="confirmPassword" required placeholder>
+                            <label class="floating-label" for="confirmPassword">Confirm Password</label>
+                        </div>
+                        <button type="submit" class="submit-btn">Create Account</button>
+                    </form>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script>
+	    function showNotification(message, type = "success", duration = 5000) {
+	        // Icons for each type
+	        const icons = {
+	            success: "✅",
+	            error: "❌",
+	            warning: "⚠️",
+	            info: "ℹ️",
+	        };
+	
+	        // Create the notification element
+	        const notification = document.createElement("div");
+	        notification.classList.add("notification", type);
+	
+	        // Add icon and message
+	        notification.innerHTML = `
+	            <span class="icon">${icons[type] || ""}</span>
+	            <span class="message">${message}</span>
+	        `;
+	
+	        // Get the notification container
+	        const container = document.getElementById("notification-container");
+	        if (!container) {
+	            console.error("Notification container not found.");
+	            return;
+	        }
+	
+	        // Add the notification to the container
+	        container.appendChild(notification);
+	
+	        // Automatically remove the notification after the specified duration
+	        setTimeout(() => {
+	            notification.style.opacity = "0";
+	            notification.style.transform = "translateX(100%)";
+	            setTimeout(() => notification.remove(), 400); // Wait for animation to complete
+	        }, duration);
+	    }
+    	
+        // Set max date to today to prevent future dates
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('dateOfBirth').setAttribute('max', today);
+
+        // Age validation function
+        function validateAge(dateInput) {
+            const dob = new Date(dateInput.value);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                age--;
+            }
+
+            if (age < 18) {
+                showNotification('You must be at least 18 years old to create an account.', "warning");
+                dateInput.value = '';
+            }
+        }
+
+        document.getElementById('createCustomerForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            // Password confirmation check
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showNotification('Passwords do not match!', 'warning');
+                return;
+            }
+
+            const formData = {
+                password: password,
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                mobile: document.getElementById('mobile').value,
+                dateOfBirth: document.getElementById('dateOfBirth').value,
+                aadharNumber: document.getElementById('aadharNumber').value,
+                panNumber: document.getElementById('panNumber').value,
+            };
+
+            try {
+                const token = sessionStorage.getItem('jwt');
+                const response = await fetch('api/customer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.status==200) {
+                    showNotification(`Customer created successfully! Your User ID is: ${result.customerId}`);
+                    window.location.href = '/login.html';
+                } else {
+                    showNotification(result.message || 'Failed to create customer', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('An error occurred while creating the customer.', 'error');
+            }
+        });
+    </script>
+    <script src="JavaScript/bar.js"></script>
+</body>
+</html>

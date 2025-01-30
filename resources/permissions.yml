@@ -64,3 +64,5 @@ MANAGER:
     - GET
   /logout:
     - PUT
+  /logs:
+    - GET

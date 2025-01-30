@@ -3,6 +3,9 @@ package com.netbanking.functions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
 import com.netbanking.dao.DataAccessObject;
 import com.netbanking.daoObject.QueryRequest;
 import com.netbanking.enumHelper.GetMetadata;
@@ -81,6 +84,9 @@ public class TransactionFunctions {
 		
 		if(transactionType.equals("same-bank"))
 		{
+			if(toAccountMap==null||toAccountMap.isEmpty()) {
+				throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Reciever account is invalid.");
+			}
 			Validator.checkInvalidInput(toAccountNumber);
 			Object toBalance = toAccountMap.get("balance");
 			if (toBalance instanceof Double) {

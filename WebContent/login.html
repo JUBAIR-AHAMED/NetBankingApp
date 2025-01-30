@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floating Label Login</title>
+    <link rel="stylesheet" href="Css/login.css">
+</head>
+<body>
+    <div class="maincontainer">
+<div id="notification-container"></div>
+        <div class="firsthalf">
+            <img src="images/Group.png" alt="Bank Logo">
+        </div>
+        <div class="secondhalf">
+            <div class="login-form">
+                <div class="bank-logo">
+                    <h2>Welcome To</h2>
+                    <h1>Bank of Utopia</h1>
+                </div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <input type="text" id="username" name="username" required placeholder=" ">
+                        <label for="username" class="floating-label">User ID / Customer ID</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" name="password" required placeholder=" ">
+                        <label for="password" class="floating-label">Password</label>
+                    </div>
+                    <button type="submit" class="submit-btn">Sign In</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        token = sessionStorage.getItem("jwt");
+        if(token){
+            window.location.href = "accounts.html";
+        }
+        document.getElementById('loginForm').addEventListener('submit', async function (event) {
+            event.preventDefault(); 
+
+            const userId = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId, password })
+                });
+
+                const result = await response.json();
+
+                if (result.status==200) {
+                    const token = result.token
+                    sessionStorage.setItem('jwt', token);
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    const role = payload.role; 
+                    if (role === 'CUSTOMER') {
+                        window.location.href = 'accounts.html';
+                    } else {
+                        window.location.href = 'accountsmanager.html';
+                    }
+                } else {
+                    showNotification(result.message, 'warning');
+                }
+            } catch (error) {
+                console.error('Error during login:', error);
+                showNotification('An error occurred during login. Please try again.', "error");
+            }
+        });
+        
+        function showNotification(message, type = "success", duration = 5000) {
+            // Icons for each type
+            const icons = {
+                success: "✅",
+                error: "❌",
+                warning: "⚠️",
+                info: "ℹ️",
+            };
+
+            // Create the notification element
+            const notification = document.createElement("div");
+            notification.classList.add("notification", type);
+
+            // Add icon and message
+            notification.innerHTML = `
+                <span class="icon">${icons[type] || ""}</span>
+                <span class="message">${message}</span>
+            `;
+
+            // Get the notification container
+            const container = document.getElementById("notification-container");
+            if (!container) {
+                console.error("Notification container not found.");
+                return;
+            }
+
+            // Add the notification to the container
+            container.appendChild(notification);
+
+            // Automatically remove the notification after the specified duration
+            setTimeout(() => {
+                notification.style.opacity = "0";
+                notification.style.transform = "translateX(100%)";
+                setTimeout(() => notification.remove(), 400); // Wait for animation to complete
+            }, duration);
+        }
+    </script>
+</body>
+</html>

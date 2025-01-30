@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.netbanking.handler.AccountHandler;
+import com.netbanking.handler.ActivityHandler;
 import com.netbanking.handler.BranchHandler;
 import com.netbanking.handler.CustomerHandler;
 import com.netbanking.handler.EmployeeHandler;
@@ -20,7 +21,8 @@ public class GenericServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String path = request.getServletPath();
+        String path = request.getPathInfo();
+        System.out.println(path);
         if (path != null) {
             switch (path) {
 	            case "/profile":
@@ -32,9 +34,9 @@ public class GenericServlet extends HttpServlet {
     
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String path = request.getServletPath();
+        String path = request.getPathInfo();
         String action = request.getHeader("action");
-        
+        System.out.println("Post: "+action);
         if ("GET".equalsIgnoreCase(action)) {
             // Handle as a GET request
             switch (path) {
@@ -50,6 +52,9 @@ public class GenericServlet extends HttpServlet {
                 case "/transaction":
                     TransactionHandler.handleGet(request, response);
                     break;
+                case "/logs":
+	                ActivityHandler.handleGet(request, response);
+	                break;
             }
         } else {
             // Handle as a POST request
@@ -78,7 +83,8 @@ public class GenericServlet extends HttpServlet {
 
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String path = request.getServletPath();
+        String path = request.getPathInfo();
+        System.out.println(path);
         if (path != null) {
             switch (path) {
                 case "/profile":
