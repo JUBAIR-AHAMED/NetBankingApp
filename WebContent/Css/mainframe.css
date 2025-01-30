@@ -156,7 +156,9 @@ a.active::after {
     font-size: 28px;
     padding: 10px;
     color: white;
-    width: 12%;
+    width: 18%;
+    display: flex;
+    align-items: center;
 }
 
 .pagebody {
@@ -178,7 +180,7 @@ a.active::after {
 } */
 
 .profileimg {
-    width: 12%;
+    width: 18%;
     display: flex;
     justify-content: flex-end;
     position: relative;

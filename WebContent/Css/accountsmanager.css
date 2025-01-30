@@ -321,8 +321,9 @@
     flex-direction: column; /* Ensure content is stacked vertically */
 }
 #accountsHead {
-    font-size: 25px;
-    padding-left: 17px;
+	font-weight: 500;
+    font-size: 22px;
+	padding-left: 17px;
     padding-top: 18px;
 }
 .headerColumn {

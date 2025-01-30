@@ -15,6 +15,32 @@ function decodeJWT(token) {
     }
 }
 
+function millisToDate(millis, format = "locale") {  // Added a 'format' parameter
+  const date = new Date(millis);
+
+  if (isNaN(date)) { // Check for invalid date (important!)
+    return "Invalid Date"; // Or throw an error, or return null, as you prefer
+  }
+
+  switch (format) {
+    case "locale":
+      return date.toLocaleDateString(); // Default: locale-specific
+    case "detailed":
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    case "iso":
+      return date.toISOString();
+    case "ymd": // Year-Month-Day (YYYY-MM-DD)
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      return `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
+    // Add more cases as needed (e.g., "mdy", "dmy", etc.)
+    default:
+      return date.toLocaleDateString(); // Default if format is not recognized
+  }
+}
+
+
 function setupNumericInputValidation(inputElement, maxLength) {
     // Prevent non-numeric input during typing
     inputElement.addEventListener('keypress', function (event) {
@@ -41,7 +67,7 @@ function setupNumericInputValidation(inputElement, maxLength) {
     });
 }
 
-setupNumericInputValidation(document.getElementById('accountNumber'), 16);
+setupNumericInputValidation(document.getElementById('actorId'), 16);
 setupNumericInputValidation(document.getElementById('userId'), 6);
 setupNumericInputValidation(document.getElementById('branchId'), 5);
 
@@ -56,52 +82,7 @@ function showAccountDetails(account) {
 
     // Format account details
     modalContent.innerHTML = `
-        <div class="info-row">
-            <label for="accountNumberField">Account Number</label>
-            <div class="non-editable-field">
-                <span id="accountNumberField">${account.accountNumber}</span>
-            </div>
-        </div>
-        <div class="info-row">
-            <label for="balance">Balance</label>
-            <div class="non-editable-field">
-                <span id="balance">${formatIndianCurrency(account.balance)}</span>
-            </div>
-        </div>
-        <div class="info-row">
-            <label for="dateOfOpening">Date of Opening</label>
-            <div class="non-editable-field">
-                <span id="dateOfOpening">${formatDate(account.dateOfOpening)}</span>
-            </div>
-        </div>
-        <div class="info-row">
-            <label for="name">Account Holder</label>
-            <div class="non-editable-field">
-                <span id="name">${account.name}</span>
-            </div>
-        </div>
-        <div class="info-row">
-            <label for="accountTypeField">Account Type</label>
-            <div class="non-editable-field">
-                <span id="accountTypeField">${account.accountType}</span>
-            </div>
-        </div>
-        <div class="info-row">
-            <label for="branchIdField">Branch ID:</label>
-            <div class="${isBranchEditable ? 'editable-field' : 'non-editable-field'} editable-field-wrapper">
-                <span id="branchIdField">${account.branchId}</span>
-                <ul id="branchIdDropdown" class="dropdown-menu"></ul>
-                ${isBranchEditable ? `<button class="edit-icon" onclick="toggleEdit('branchIdField')"><img src="icons/pen.png" alt="edit-logo"></button>` : ''}
-            </div>
-        </div>
-        <div class="info-row">
-            <label for="statusField">Status:</label>
-            <div class="${isBranchEditable ? 'editable-field' : 'non-editable-field'}">
-                <span id="statusField">${account.status}</span>
-                ${isBranchEditable ? `<button class="edit-icon" onclick="toggleEdit('statusField')"><img src="icons/pen.png" alt="edit-logo"></button>` : ''}
-            </div>
-        </div>
-        <button class="save-button" onclick="saveChanges()">Save Changes</button>
+abc
     `;
 
     // Show the modal
@@ -314,15 +295,12 @@ function createAccountCard(account) {
             <div class="columnValues">${subjectId}</div>
             <div class="columnValues branchValue">
                 ${recordname}
-                <div class="moreBranch" style="position: fixed; z-index: 2; width: 17%; align-self: center; cursor: pointer; justify-items: flex-end;" data-branch='${JSON.stringify(account)}'>
-                    <img class="eye-logo-branch moreBranch" src="icons/eye-svgrepo-com.svg" alt="view icon" data-branch='${JSON.stringify(account)}'>
-                </div>
             </div>
             <div class="columnValues" style="display: flex;">${keyValue}
             </div>
             <div class="columnValues" style="display: flex;">${action}
             </div>
-            <div class="columnValues" style="display: flex;">${actionTime}
+            <div class="columnValues" style="display: flex;">${millisToDate(actionTime)}
             </div>
         </div>
     `;
@@ -500,21 +478,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const debouncedSearch = debounce(handleRealTimeSearch, 300);
 
-    const accountNumberField = document.getElementById('accountNumber');
+    const actorIdField = document.getElementById('actorId');
     const userIdField = document.getElementById('userId');
     const branchIdField = document.getElementById('branchId');
-
-    accountNumberField.addEventListener('input', debouncedSearch);
+	const recordnameField = document.getElementById('recordname');
+	const actionField = document.getElementById('action');
+	
+    actorIdField.addEventListener('input', debouncedSearch);
     userIdField.addEventListener('input', debouncedSearch);
     branchIdField.addEventListener('input', debouncedSearch);
+	recordnameField.addEventListener('input', debouncedSearch);
+	actionField.addEventListener('input', debouncedSearch);
 
     async function handleRealTimeSearch() {
-        const accountNumber = document.getElementById('accountNumber').value.trim();
-        const userId = document.getElementById('userId').value.trim();
-        const branchId = document.getElementById('branchId').value.trim();
-
+        const actorId = document.getElementById('actorId').value.trim();
+        const subjectId = document.getElementById('userId').value.trim();
+        const keyValue = document.getElementById('branchId').value.trim();
+		const recordname = document.getElementById('recordname').value.trim();
+		const action = document.getElementById('action').value.trim();
         // Set search criteria
-        searchCriteria = { accountNumber, userId, branchId };
+        searchCriteria = { actorId, subjectId, keyValue, recordname, action };
 
         // Fetch total count and accounts
         await fetchTotalCount(searchCriteria);
@@ -524,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to fetch total count based on search criteria
     async function fetchTotalCount(criteria) {
-        console.log(criteria)
+        console.log("tc: ",criteria)
         try {
             const token = sessionStorage.getItem('jwt');
             const url = new URL('http://localhost:8080/NetBanking/api/logs ');
@@ -564,11 +547,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const criteria = {}
             criteria.currentPage = currentPage;
             criteria.limit = limit;
-            if (searchCriteria.accountNumber) criteria.actorId = searchCriteria.accountNumber;
-            if (searchCriteria.userId) criteria.subjectId = searchCriteria.userId;
-            if (searchCriteria.branchId) criteria.keyValue = searchCriteria.branchId;
-            criteria.searchSimilar = true;
-            console.log(criteria.searchSimilarFields == null)
+            if (searchCriteria.actorId) criteria.actorId = searchCriteria.actorId;
+            if (searchCriteria.subjectId) criteria.subjectId = searchCriteria.subjectId;
+            if (searchCriteria.keyValue) criteria.keyValue = searchCriteria.keyValue;
+			if (searchCriteria.recordname) criteria.recordname = searchCriteria.recordname;
+			if (searchCriteria.action) criteria.action = searchCriteria.action;
             if (searchSimilarFields == null) {
                 criteria.searchSimilarFields = ["actorId", "keyValue", "subjectId"];
             }
@@ -683,40 +666,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Event listener for the search form
-    document.getElementById('searchForm').addEventListener('submit', async function (event) {
-        event.preventDefault(); // Prevent default form submission
-
-        // Get the input values
-        const accountNumber = document.getElementById('accountNumber').value.trim();
-        const userId = document.getElementById('userId').value.trim();
-        const branchId = document.getElementById('branchId').value.trim();
-
-        // Validation: At least one input must be provided
-        if (!accountNumber && !userId && !branchId) {
-            alert("Please enter at least one search criterion.");
-            return;
-        }
-
-        try {
-            // Set the search criteria
-            searchCriteria.accountNumber = accountNumber;
-            searchCriteria.userId = userId;
-            searchCriteria.branchId = branchId;
-
-            // Reset to the first page
-            currentPage = 1;
-
-            // Fetch total count and accounts
-            await fetchTotalCount(searchCriteria);
-            await fetchAccounts();
-        } catch (error) {
-            console.error('Error during search:', error);
-            alert("Failed to retrieve accounts. Check console for details.");
-        }
-    });
-
-
     // Initialize with no filters (default behavior)
     async function initialize() {
         try {
@@ -794,57 +743,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    async function saveChanges() {
-        const modal = document.getElementById("accountModal");
-        const accountString = modal.dataset.account;
-        const originalProfile = JSON.parse(accountString);
-        const updatedProfile = {};
-
-        // Compare each field with the original data
-        const branchIdField = document.getElementById("branchIdField").innerText;
-        if (branchIdField != originalProfile.branchId) updatedProfile.branchId = branchIdField;
-
-        const status = document.getElementById("statusField").innerText; // Corrected to statusField
-        if (status != originalProfile.status) updatedProfile.status = status;
-
-        // If no changes, notify and return
-        if (Object.keys(updatedProfile).length === 0) {
-            alert("No changes detected.");
-            return;
-        }
-        const accountNumber = document.getElementById("accountNumberField").innerText;
-        updatedProfile.accountNumber = accountNumber
-        try {
-            // Retrieve the JWT token from local storage
-            const token = sessionStorage.getItem("jwt");
-
-            // Send updated profile data to the server
-            const response = await fetch('http://localhost:8080/NetBanking/api/account', {
-                method: "PUT",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(updatedProfile)
-            });
-
-            const result = await response.json();
-
-            if (result.status == 200) {
-             //   alert("Profile updated successfully!");
-				showNotification("Profile updated successfully!", "success")
-                closeModal(); // Close modal after save
-                fetchAccounts(); // Refresh accounts list
-            } else {
-				showNotification(result.message, "error")
-            }
-        } catch (error) {
-            console.error(error);
-            alert("An error occurred while updating the profile.");
-        }
-    }
-
-
     // Event listener to show account details when eye icon is clicked
     document.addEventListener("click", async function (event) {
         if (event.target.classList.contains("more")) {
@@ -900,6 +798,24 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     });
+
+	const recordElement = document.getElementById('recordname');
+    recordElement.addEventListener('change', function() {
+        if (this.value) {
+            this.classList.add('selected');
+        } else {
+            this.classList.remove('selected');
+        }
+    });
+	const actionElement = document.getElementById('action');
+    actionElement.addEventListener('change', function() {
+        if (this.value) {
+            this.classList.add('selected');
+        } else {
+            this.classList.remove('selected');
+        }
+    });
+
 
     createModal();
     createBranchModal();

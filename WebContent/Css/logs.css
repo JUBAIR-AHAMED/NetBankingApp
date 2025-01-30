@@ -159,7 +159,6 @@
     margin-right: 5px;
 }
 
-/* Input styling */
 .form-group input,
 .form-group select {
     width: 94%;
@@ -171,16 +170,17 @@
     transition: all 0.3s ease;
 }
 
+
 .floating-label {
-    position: absolute;
-    left: 16px;
-    top: 18px;
-    color: #5f6368;
-    font-size: 16px;
-    transition: 0.3s ease all;
-    pointer-events: none;
-    background-color: #ffffff;
-    padding: 0 4px;
+position: absolute;
+left: 16px;
+top: 18px;
+color: #5f6368;
+font-size: 16px;
+transition: 0.3s ease all;
+pointer-events: none;
+background-color: #ffffff;
+padding: 0 4px;
 }
 
 /* Animation to move label on focus */
@@ -201,6 +201,27 @@
     box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
 }
 
+select {
+    appearance: none; /* Removes default OS styling */
+    -webkit-appearance: none; /* Safari-specific */
+    -moz-appearance: none; /* Firefox-specific */
+    /* padding: 10px; */ /* Remove padding to avoid double padding */
+    border: 1px solid #dadce0; /* Apply border */
+    border-radius: 8px;
+    background-color: #fff;
+    color: #333;
+    font-size: 16px;
+    cursor: pointer;
+    width: 94%; /* Set width to match input */
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+select:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
 #paginationControls {
     display: flex;
     justify-content: center;
@@ -325,7 +346,8 @@
     flex-direction: column; /* Ensure content is stacked vertically */
 }
 #accountsHead {
-    font-size: 25px;
+	font-weight: 500;
+    font-size: 22px;
     padding-left: 17px;
     padding-top: 18px;
 }
@@ -570,19 +592,6 @@
 .save-button:hover {
     background-color: #218838;
 }
-
-select {
-    appearance: none; /* Removes default OS styling */
-    -webkit-appearance: none; /* Safari-specific */
-    -moz-appearance: none; /* Firefox-specific */
-    padding: 10px;
-    border: 2px solid #4CAF50;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    color: #333;
-    font-size: 16px;
-    cursor: pointer;
-  }
 
   /* .editable-input {
     border: 1px solid #ccc;

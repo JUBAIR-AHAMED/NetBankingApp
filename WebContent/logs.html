@@ -14,7 +14,10 @@
         <div class="page">
             <div>
                 <div class="header">
-                    <div class="pageName">Bank Of Utopia</div>
+                    <div class="pageName">
+	                	<img alt="logo" src="images/logo.png" style="width: 40px; height: 40px; padding-right: 8px">
+	                    Bank Of Utopia
+                    </div>
                     <div class="bar"></div>
                     <div class="profileimg" onclick="toggleDropdown()">
                         <img src="icons/10-profile-picture-ideas-to-make-you-stand-out (1).jpg" alt="Profile">
@@ -26,28 +29,42 @@
     
                 <div class="pagebody">
                     <div class="bank-logo">
-                        <h2>Search Accounts</h2>
+                        <h2>Search Logs</h2>
                     </div>
                     <form class="search-container" id="searchForm">
                         <div class="form-group">
-                            <!-- <input type="text" id="accountNumber" placeholder="">
-                            <label for="accountNumber" class="floating-label">Account Number</label> -->
-                            <input type="text" id="accountNumber" placeholder="" inputmode="numeric" pattern="^\d{1,16}$" maxlength="16">
+                            <select id="recordname" style="background-color: white;width: 160px;border: 2px solid #1a73e8;margin-right: 20px;">
+                            <option value selected></option>
+                            <option value="account">Account</option>
+                            <option value="branch">Branch</option>
+                            <option value="user">User</option>
+                            <option value="customer">Customer</option>
+                            <option value="employee">Employee</option>
+                            <option value="transaction">Transaction</option>
+                            </select>
+                            <label for="recordname" class="floating-label">Record Name</label>
+                        </div>
+                        <div class="form-group">
+                            <select id="action" style="background-color: white;width: 160px;border: 2px solid #1a73e8;margin-right: 20px;">
+	                            <option value selected></option>
+	                            <option value="UPDATE">Update</option>
+	                            <option value="LOGIN">Login</option>
+	                            <option value="CREATE">Create</option>
+	                            <option value="TRANSACTION">Transaction</option>
+                            </select>
+                            <label for="action" class="floating-label">Action Type</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="branchId" placeholder="">
+                            <label for="branchId" class="floating-label">Record Id</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="actorId" placeholder="" inputmode="numeric" pattern="^\d{1,16}$" maxlength="16">
                             <label for="accountNumber" class="floating-label">Actor Id</label>
                         </div>
                         <div class="form-group">
                             <input type="text" id="userId" placeholder="">
                             <label for="userId" class="floating-label">Subject Id</label>
-                        </div>
-                        <div class="form-group">
-                            <select id="recordname">
-                            <option value="account">Account</option>
-                            </select>
-                            <label for="branchId" class="floating-label">Record Name</label>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="branchId" placeholder="">
-                            <label for="branchId" class="floating-label">Record Id</label>
                         </div>
                     </form>
                 </div>

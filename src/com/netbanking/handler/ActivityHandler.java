@@ -22,7 +22,7 @@ public class ActivityHandler {
 			JsonObject jsonObject = Parser.getJsonObject(request);
 			Parser.storeIfPresent(jsonObject, filters, "actorId", Long.class, "Actor Id", false);
 			Parser.storeIfPresent(jsonObject, filters, "subjectId", Long.class, "Subject Id", false);
-			Parser.storeIfPresent(jsonObject, filters, "recordName", String.class, "Record Name", false);
+			Parser.storeIfPresent(jsonObject, filters, "recordname", String.class, "Record Name", false);
 			Parser.storeIfPresent(jsonObject, filters, "keyValue", String.class, "Id Value", false);
 			Parser.storeIfPresent(jsonObject, filters, "action", String.class, "Action", false);
 			Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);
