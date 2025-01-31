@@ -38,11 +38,10 @@ public class UserHandler {
             Parser.storeIfPresent(jsonObject, filters, "searchSimilar", Boolean.class, "Type of search", false);
             Boolean countReq = (Boolean)filters.get("count");
 	        if(!filters.containsKey("moreDetails")) {
-        		Writer.responseWriter(response,
-        				false, HttpServletResponse.SC_BAD_REQUEST,
+        		Writer.responseMapWriter(response,
+        				HttpServletResponse.SC_OK, HttpServletResponse.SC_BAD_REQUEST,
         				"User Type and/or More details not found.", 
         				responseMap);
-        		Writer.writeResponse(response, responseMap);
         		return;
         	}
             Integer limit = Parser.getValue(jsonObject, "limit", Integer.class, "Limit", false);
@@ -63,6 +62,7 @@ public class UserHandler {
             	responseMap.put("users", users);
             }
             Writer.responseMapWriter(response, HttpServletResponse.SC_OK, HttpServletResponse.SC_OK, "Users fetched successfully", responseMap);
+            return;
         } catch (Exception e) {
         	ErrorHandler.handleException(e, response);
         }
@@ -95,6 +95,7 @@ public class UserHandler {
             		HttpServletResponse.SC_OK, 
             		"Profile updated successfully.", 
             		responseMap);
+            return;
         } catch (Exception e) {
             ErrorHandler.handleException(e, response);
         }

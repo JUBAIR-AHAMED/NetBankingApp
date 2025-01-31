@@ -1,7 +1,7 @@
 package com.netbanking.filter;
 
 import java.io.IOException;
-
+import java.io.PrintWriter;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -11,13 +11,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.netbanking.enumHelper.UserAccessibleMethods;
+import com.netbanking.exception.CustomException;
+import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Redis;
 import com.netbanking.util.UserDetailsLocal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 
-//@WebFilter("/*")
 public class AuthFilter implements Filter {
     private static final String SECRET_KEY = "018d7a1625d1d217ffde1629409edbdb889f373aaef7032d6a711d2d40848fef";
 
@@ -31,66 +32,58 @@ public class AuthFilter implements Filter {
         httpResponse.setHeader("Access-Control-Allow-Methods", "*");
         httpResponse.setHeader("Access-Control-Allow-Headers", "*");
         httpResponse.setHeader("Access-Control-Allow-Credentials", "false");
-        if ("OPTIONS".equalsIgnoreCase(httpRequest.getMethod())) {
-        	chain.doFilter(request, response);
-        	return;
-        }
         
         String path = httpRequest.getPathInfo();
         String servletPath = httpRequest.getServletPath();
         // Exclude login endpoints from authentication
-        if ((servletPath!=null && (servletPath.startsWith("/static/") || servletPath.endsWith(".html") || servletPath.endsWith(".png") || servletPath.endsWith(".jpg") || servletPath.endsWith(".css") || servletPath.endsWith(".svg") || servletPath.endsWith(".js"))) || (path!=null && path.equals("/login"))) {
+        if (servletPath!=null && 
+			(
+			servletPath.startsWith("/static/") || servletPath.endsWith(".html") || servletPath.endsWith(".png") ||
+			servletPath.endsWith(".jpg") || servletPath.endsWith(".css") || servletPath.endsWith(".svg") || 
+			servletPath.endsWith(".js")
+			)
+        ) {
             chain.doFilter(request, response);
             return;
         }
 
-        
         String token = httpRequest.getHeader("Authorization");
-        if (token == null || !token.startsWith("Bearer ")) {
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            httpResponse.getWriter().write("{\"status\":401,\"message\":\"Authorization token is required.\"}");
+
+        if (path!=null && path.equals("/login")) {
+			chain.doFilter(request, response);
             return;
         }
         
         Claims claims = null;
         try {
-        	token = token.replace("Bearer ", "");
-        	claims = Jwts.parser()
-        			.setSigningKey(SECRET_KEY)
-        			.parseClaimsJws(token)
-        			.getBody();
-        } catch (ExpiredJwtException ex) {
-        	setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_UNAUTHORIZED, "Expired token.");
-        	return;
-        } catch (Exception e) {
-        	setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token.");
+        	claims = tokenValidator(token, claims);			
+		} catch (Exception e) {
+			ErrorHandler.handleException(e, httpResponse);
+			return;
 		}
+        
         Long userId = claims.get("userId", Long.class);
         String role = claims.get("role", String.class);
         Long branchId = claims.get("branchId", Long.class);
         String redisStoredToken = Redis.get(userId.toString());
+
+        token = token.replace("Bearer ", "");
         if(userId==null || token==null || redisStoredToken==null || !(redisStoredToken.equals(token))) {
         	setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token.");
         	return;
-        }
+        }        
         
-        UserDetailsLocal store = UserDetailsLocal.get();
-        store.setUserId(userId);
-        store.setRole(role);
-        store.setBranchId(branchId);
-        
-        // Add claims to request attributes for further use
-        httpRequest.setAttribute("userId", userId);
-        httpRequest.setAttribute("role", role);
-        httpRequest.setAttribute("branchId", branchId);
-        httpRequest.setAttribute("jwt", token);
-        
-        String method = httpRequest.getHeader("action") != null? httpRequest.getHeader("action") : httpRequest.getMethod();
         if ((userId==null||role==null) ||
         	((role.equals("MANAGER")||role.equals("EMPLOYEE"))&&branchId==null)) {
         	setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token.");
         	return;
         }
+        if(path.equals("/validate-token")) {
+        	setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_OK, "Token is valid.");
+        	return;
+        }
+        
+        String method = httpRequest.getHeader("action") != null? httpRequest.getHeader("action") : httpRequest.getMethod();
         if(!UserAccessibleMethods.isPathPresent(path, method)) {
         	setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_NOT_FOUND, "The requested resource was not found on the server.");
         	return;
@@ -103,16 +96,39 @@ public class AuthFilter implements Filter {
     		setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_FORBIDDEN, "You are not authorized to perform this action.");
         	return;
     	}
-    	System.out.println("passed auth filter.");
+    	
+    	UserDetailsLocal store = UserDetailsLocal.get();
+    	store.setUserId(userId);
+    	store.setRole(role);
+    	store.setBranchId(branchId);
         chain.doFilter(request, response);
-        
+    }
+    
+    private Claims tokenValidator(String token, Claims claims) throws CustomException {
+    	if (token == null || !token.startsWith("Bearer ")) {
+    		throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "Authorization token is required.");
+        }
+    	try {
+        	token = token.replace("Bearer ", "");
+        	claims = Jwts.parser()
+        			.setSigningKey(SECRET_KEY)
+        			.parseClaimsJws(token)
+        			.getBody();
+        } catch (ExpiredJwtException ex) {
+        	throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "Expired token.");
+        } catch (Exception e) {
+        	throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token.");
+		}
+    	return claims;
     }
     
     private void setResponse(HttpServletResponse httpResponse, int serverStatus, int actionStatus, String message) throws IOException {
     	httpResponse.setStatus(serverStatus);
     	httpResponse.setContentType("application/json");
     	httpResponse.setCharacterEncoding("UTF-8");
-    	httpResponse.getWriter().write("{\"status\":"+actionStatus+",\"message\":\""+message+"\"}");
+    	PrintWriter writer = httpResponse.getWriter();
+    	writer.write("{\"status\":"+actionStatus+",\"message\":\""+message+"\"}");
+    	writer.close();
     }
     
     @Override

@@ -60,7 +60,8 @@ public class EmployeeHandler {
 	public static void handlePut(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Map<String, Object> responseMap = new HashMap<>();
         try {
-            Long userId = (Long) request.getAttribute("userId");
+        	UserDetailsLocal store = UserDetailsLocal.get();
+            Long userId = store.getUserId();
             StringBuilder jsonBody = Parser.getJsonBody(request);
             Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
             Function<String, Object> parseLong = Long::parseLong;
