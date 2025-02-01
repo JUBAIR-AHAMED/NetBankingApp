@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app>
+	<context-param>
+        <param-name>disableTLDScanner</param-name>
+        <param-value>true</param-value>
+    </context-param>
+	
 	<filter>
 	  <filter-name>AuthFilter</filter-name>
 	  <filter-class>com.netbanking.filter.AuthFilter</filter-class>
@@ -7,7 +12,7 @@
 	
 	<filter-mapping>
 	  <filter-name>AuthFilter</filter-name>
-	  <url-pattern>/*</url-pattern>
+	  <url-pattern>/api/*</url-pattern>
 	</filter-mapping>
 	
     <servlet>
@@ -23,4 +28,17 @@
     <welcome-file-list>
         <welcome-file>login.html</welcome-file>
     </welcome-file-list>
+    
+    <error-page>
+        <error-code>404</error-code>
+        <location>/notfound.html</location>
+    </error-page>
+
+	<listener>
+	    <listener-class>com.netbanking.listener.DriverCleanupListener</listener-class>
+	</listener>
+	
+	<listener>
+	    <listener-class>com.netbanking.listener.ActivityLoggerShutdownListener</listener-class>
+	</listener>
 </web-app>

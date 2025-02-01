@@ -39,7 +39,7 @@ public class UserDetailsLocal {
     	threadLocal.get().branchId = branchId;
     }
 
-    public static void clear() {
+    public void clear() {
     	threadLocal.remove();
     }
 }

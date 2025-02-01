@@ -1,9 +1,9 @@
-package com.netbanking.util;
+package com.netbanking.activityLogger;
 
-import com.netbanking.activityLogger.Logger;
 import com.netbanking.dao.Dao;
 import com.netbanking.dao.DataAccessObject;
 import com.netbanking.object.Activity;
+import com.netbanking.util.Executor;
 
 public class ActivityLogger implements Logger {
     @Override

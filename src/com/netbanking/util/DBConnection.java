@@ -3,9 +3,7 @@ package com.netbanking.util;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Properties;
 
 public class DBConnection {
@@ -42,15 +40,4 @@ public class DBConnection {
     	Connection connection = DriverManager.getConnection(url, username, password);
         return connection;
     }
-    
-    public static int setValuesInPstm(PreparedStatement pstm, Collection<Object> values, int count) throws SQLException {
-		if(values==null || values.isEmpty()) {
-			return count;
-		}
-		for(Object value:values) {
-			pstm.setObject(count, value);
-			count++;
-		}
-		return count;
-	}
 }

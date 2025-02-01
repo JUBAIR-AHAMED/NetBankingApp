@@ -24,7 +24,7 @@ public class Writer {
         httpResponse.setCharacterEncoding("UTF-8");
         PrintWriter out = httpResponse.getWriter();
         out.write("{\"status\":" + statusCode + ", \"message\":\"" + message + "\"}");
-        out.flush();
+        out.close();
     }
     
     public static void setResponse(HttpServletResponse httpResponse, int serverStatus, int actionStatus, String message) throws IOException {
@@ -33,6 +33,6 @@ public class Writer {
         httpResponse.setCharacterEncoding("UTF-8");
         PrintWriter out = httpResponse.getWriter();
         out.write("{\"status\":"+actionStatus+",\"message\":\""+message+"\"}");
-        out.flush();
+        out.close();
     }
 }

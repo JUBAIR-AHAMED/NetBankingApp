@@ -1,5 +1,24 @@
 let tokenBranchId = null;
 let tokenRole = null;
+validate()
+async function validate() {
+    try {
+        const token = sessionStorage.getItem('jwt'); // Get the stored JWT token
+        const decodedToken = decodeJWT(token)
+        if (!token) {
+            window.location.href = "login.html";
+            return;
+        }
+        
+        const role = decodedToken ? decodedToken.role : null;
+        if(role == "CUSTOMER") {
+            window.location.href = "accounts.html"
+        }
+    } catch(error) {
+        console.error('Error validating:', error);
+        showNotification('Failed to validate user.', "error");
+    }
+}
 // // Function to decode JWT token and extract role and branchId
 function decodeJWT(token) {
     try {

@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ import com.netbanking.enumHelper.GetMetadata;
 import com.netbanking.mapper.PojoValueMapper;
 import com.netbanking.mapper.YamlMapper;
 import com.netbanking.model.Model;
-import com.netbanking.util.DBConnection;
+import com.netbanking.util.DBConnectionPool;
 
 public class DataAccessObject<T extends Model> implements Dao<T> {
 	//Insert operation
@@ -80,10 +81,10 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 	    qb.insert(tableName, insertValues.keySet());
 	    String sqlQuery = qb.finish();
 	    Long generatedKeysList = null;
-	    try (Connection connection = DBConnection.getConnection();
+	    try (Connection connection = DBConnectionPool.getConnection();
     	    PreparedStatement stmt = connection.prepareStatement(sqlQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
 	    	
-    	    DBConnection.setValuesInPstm(stmt, insertValues.values(), 1);
+    	    setValuesInPstm(stmt, insertValues.values(), 1);
     	    System.out.println(stmt);
     	    stmt.executeUpdate();
 
@@ -127,11 +128,11 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 		    .set(updateFields)
 	    	.where(request.getWhereConditions(), request.getWhereOperators(), request.getWhereLogicalOperators());
         
-    	try (Connection connection = DBConnection.getConnection();
+    	try (Connection connection = DBConnectionPool.getConnection();
              PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
         	int count = 1;
-        	count = DBConnection.setValuesInPstm(stmt, updateValues, count);
-    		DBConnection.setValuesInPstm(stmt, request.getWhereConditionsValues(), count);
+        	count = setValuesInPstm(stmt, updateValues, count);
+    		setValuesInPstm(stmt, request.getWhereConditionsValues(), count);
         	System.out.println(stmt);
         	stmt.executeUpdate();
         }
@@ -164,10 +165,10 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
         }
         
         List<Map<String, Object>> list = new ArrayList<>();
-        try (Connection connection = DBConnection.getConnection();
+        try (Connection connection = DBConnectionPool.getConnection();
             PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
         	int count = 1;
-        	DBConnection.setValuesInPstm(stmt, request.getWhereConditionsValues(), count);
+        	setValuesInPstm(stmt, request.getWhereConditionsValues(), count);
         	System.out.println(stmt);
         	ResultSet rs = stmt.executeQuery();
         	// Preparing map for the purpose of returning the selected values from the database
@@ -212,5 +213,16 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 	            fields.add(i, fieldToColumnMap.get(fieldName));
 	        }
 		}
+	}
+    
+    public static int setValuesInPstm(PreparedStatement pstm, Collection<Object> values, int count) throws SQLException {
+		if(values==null || values.isEmpty()) {
+			return count;
+		}
+		for(Object value:values) {
+			pstm.setObject(count, value);
+			count++;
+		}
+		return count;
 	}
 }

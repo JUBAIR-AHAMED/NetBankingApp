@@ -32,28 +32,20 @@ public class AuthFilter implements Filter {
         httpResponse.setHeader("Access-Control-Allow-Methods", "*");
         httpResponse.setHeader("Access-Control-Allow-Headers", "*");
         httpResponse.setHeader("Access-Control-Allow-Credentials", "false");
+        httpResponse.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+        httpResponse.setHeader("Pragma", "no-cache"); // HTTP 1.0
         
         String path = httpRequest.getPathInfo();
         String servletPath = httpRequest.getServletPath();
-        // Exclude login endpoints from authentication
-        if (servletPath!=null && 
-			(
-			servletPath.startsWith("/static/") || servletPath.endsWith(".html") || servletPath.endsWith(".png") ||
-			servletPath.endsWith(".jpg") || servletPath.endsWith(".css") || servletPath.endsWith(".svg") || 
-			servletPath.endsWith(".js")
-			)
-        ) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        String token = httpRequest.getHeader("Authorization");
+        System.out.println("path: "+path+" servlet path: "+servletPath);
+        
 
         if (path!=null && path.equals("/login")) {
 			chain.doFilter(request, response);
             return;
         }
         
+        String token = httpRequest.getHeader("Authorization");
         Claims claims = null;
         try {
         	claims = tokenValidator(token, claims);			
@@ -102,6 +94,7 @@ public class AuthFilter implements Filter {
     	store.setRole(role);
     	store.setBranchId(branchId);
         chain.doFilter(request, response);
+        store.clear();
     }
     
     private Claims tokenValidator(String token, Claims claims) throws CustomException {

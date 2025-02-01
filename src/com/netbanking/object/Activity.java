@@ -1,7 +1,7 @@
 package com.netbanking.object;
 
+import com.netbanking.activityLogger.ActivityLogger;
 import com.netbanking.model.Model;
-import com.netbanking.util.ActivityLogger;
 
 public class Activity implements Model{
 	private Long actorId;

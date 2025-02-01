@@ -4,8 +4,16 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.redisson.Redisson;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+
 import com.google.gson.JsonObject;
 import com.netbanking.enums.Role;
 import com.netbanking.exception.CustomException;
@@ -21,6 +29,14 @@ import com.netbanking.util.Validator;
 import com.netbanking.util.Writer;
 
 public class TransactionHandler {
+	private static RedissonClient redisson;
+
+    static {
+        Config config = new Config();
+        config.useSingleServer().setAddress("redis://127.0.0.1:6379");
+        redisson = Redisson.create(config);
+    }
+
 	public static void handleGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		UserDetailsLocal store = UserDetailsLocal.get();
 		Long userId = store.getUserId();
@@ -67,7 +83,6 @@ public class TransactionHandler {
 			}
 			
             List<Map<String, Object>> statement = new TransactionFunctions().getStatement(data, accountData);
-            System.out.println(statement);
             Long count = ApiHelper.getCount(statement);
             if(count!=null) {
             	responseMap.put("count", count);
@@ -104,82 +119,115 @@ public class TransactionHandler {
 			Float amount = (Float) details.get("amount");
 			String transactionType = (String) details.get("transactionType");
 			
-			Map<String, Object> fromAccountMap = new AccountFunctions().get(fromAccount);
-			Map<String, Object> toAccountMap=null;
+			Long fromAccountUserId = null;
+			Long toAccountUserId = null;
 			
-			if(toAccount!=null) {
-				toAccountMap = new AccountFunctions().get(toAccount);
-			}
-			if(fromAccountMap == null) {
-				throw new CustomException(HttpServletResponse.SC_NOT_FOUND, "Sender account not found.");
-			}
-			if(role.equals(Role.CUSTOMER))
-			{
-				if(userId != Converter.convertToLong(fromAccountMap.get("userId"))) {
-					throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Permission denied to access this account.");
-				}
-			} else if(role.equals(Role.EMPLOYEE)) {
-				if(branchId != Converter.convertToLong(fromAccountMap.get("branchId"))) {
-					throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Operation failed. Employee belongs to a different branch.");
-				}
-			}
-			String fromAccountStatus = (String) fromAccountMap.get("status");
-			String toAccountStatus = toAccountMap!=null? (String) toAccountMap.get("status"):null;
-			if(!fromAccountStatus.equals("ACTIVE"))
-			{
-				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Sender Account is "+ fromAccountStatus);
-			}
-			if(toAccountStatus!=null&&!toAccountStatus.equals("ACTIVE"))
-			{
-				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Reciever Account is "+ toAccountStatus);
-			}
-			
-			if(fromAccount.equals(toAccount))
-			{
-				throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Cannot send money to the same account.");
-			}
-			if(amount<0)
-			{
-				throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Amount cannot be negative.");
-			}
-			float decimalPart = amount - amount.intValue();
-			if(decimalPart!=0&&decimalPart<0.01)
-			{
-				throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Cannot send amount less than 0.01 rupees.");
-			}
-			if(!Validator.decimalChecker(amount))
-			{
-				throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Can have only 2 digits after the decimal.");
-			}
-			if((transactionType.equals("same-bank")||transactionType.equals("other-bank"))&&toAccount==null)
-			{				
-				throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Reciever account is required.");
-			}
-			
-			new TransactionFunctions().initiateTransaction(details, fromAccountMap, toAccountMap);	
-			
-			new Activity()
-	    		.setAction("TRANSACTION")
-	    		.setRecordname("transaction")
-	    		.setActorId(userId)
-	    		.setSubjectId(Converter.convertToLong(fromAccountMap.get("userId")))
-	    		.setKeyValue(fromAccount)
-	    		.setDetails(jsonObject.toString())
-	    		.setActionTime(System.currentTimeMillis())
-	    		.execute();
-			
-			if(transactionType.equals("same-bank")) {
-				new Activity()
-	    		.setAction("TRANSACTION")
-	    		.setRecordname("transaction")
-	    		.setActorId(userId)
-	    		.setSubjectId(Converter.convertToLong(toAccountMap.get("userId")))
-	    		.setKeyValue(toAccount)
-	    		.setDetails(jsonObject.toString())
-	    		.setActionTime(System.currentTimeMillis())
-	    		.execute();
-			}
-			
+			Long lockAccount1 = Math.min(fromAccount, toAccount);
+	        Long lockAccount2 = Math.max(fromAccount, toAccount);
+	        
+	        RLock firstLock = redisson.getLock("account-lock:" + lockAccount1);
+	        RLock secondLock = redisson.getLock("account-lock:" + lockAccount2);
+	        
+	        try {
+	        	boolean locked;
+	        	if (transactionType.equals("same-bank") && secondLock != null) {
+	                locked = redisson.getMultiLock(firstLock, secondLock).tryLock(10, 30, TimeUnit.SECONDS);
+	            } else {
+	                locked = firstLock.tryLock(10, 30, TimeUnit.SECONDS);
+	            }
+
+	        	
+	        	if (!locked) {
+	        		throw new CustomException(HttpServletResponse.SC_CONFLICT, "Transaction failed due to concurrent access.");
+	        	}
+	        	Map<String, Object> fromAccountMap = new AccountFunctions().get(fromAccount);
+	        	Map<String, Object> toAccountMap=null;
+	        	
+	        	if(toAccount!=null) {
+	        		toAccountMap = new AccountFunctions().get(toAccount);
+	        	}
+	        	if(fromAccountMap == null) {
+	        		throw new CustomException(HttpServletResponse.SC_NOT_FOUND, "Sender account not found.");
+	        	}
+	        	if(role.equals(Role.CUSTOMER))
+	        	{
+	        		if(userId != Converter.convertToLong(fromAccountMap.get("userId"))) {
+	        			throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Permission denied to access this account.");
+	        		}
+	        	} else if(role.equals(Role.EMPLOYEE)) {
+	        		if(branchId != Converter.convertToLong(fromAccountMap.get("branchId"))) {
+	        			throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Operation failed. Employee belongs to a different branch.");
+	        		}
+	        	}
+	        	String fromAccountStatus = (String) fromAccountMap.get("status");
+	        	String toAccountStatus = toAccountMap!=null? (String) toAccountMap.get("status"):null;
+	        	if(!fromAccountStatus.equals("ACTIVE"))
+	        	{
+	        		throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Sender Account is "+ fromAccountStatus);
+	        	}
+	        	if(toAccountStatus!=null&&!toAccountStatus.equals("ACTIVE"))
+	        	{
+	        		throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Reciever Account is "+ toAccountStatus);
+	        	}
+	        	
+	        	if(fromAccount.equals(toAccount))
+	        	{
+	        		throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Cannot send money to the same account.");
+	        	}
+	        	if(amount<0)
+	        	{
+	        		throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Amount cannot be negative.");
+	        	}
+	        	float decimalPart = amount - amount.intValue();
+	        	if(decimalPart!=0&&decimalPart<0.01)
+	        	{
+	        		throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Cannot send amount less than 0.01 rupees.");
+	        	}
+	        	if(!Validator.decimalChecker(amount))
+	        	{
+	        		throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Can have only 2 digits after the decimal.");
+	        	}
+	        	if((transactionType.equals("same-bank")||transactionType.equals("other-bank"))&&toAccount==null)
+	        	{				
+	        		throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Reciever account is required.");
+	        	}
+	        	
+	        	fromAccountUserId = Converter.convertToLong(fromAccountMap.get("userId"));
+	        	if(transactionType.equals("same-bank")) {
+	        		toAccountUserId = Converter.convertToLong(toAccountMap.get("userId"));
+	        	}
+	        	new TransactionFunctions().initiateTransaction(details, fromAccountMap, toAccountMap);	
+	        } finally {
+	        	if (firstLock.isHeldByCurrentThread()) {
+	        		firstLock.unlock();
+	        	}
+	        	if (secondLock.isHeldByCurrentThread()) {
+	        		secondLock.unlock();
+	        	}
+	        }
+	        	
+        	new Activity()
+        	.setAction("TRANSACTION")
+        	.setRecordname("transaction")
+        	.setActorId(userId)
+        	.setSubjectId(fromAccountUserId)
+        	.setKeyValue(fromAccount)
+        	.setDetails(jsonObject.toString())
+        	.setActionTime(System.currentTimeMillis())
+        	.execute();
+        	
+        	if(transactionType.equals("same-bank")) {
+        		new Activity()
+        		.setAction("TRANSACTION")
+        		.setRecordname("transaction")
+        		.setActorId(userId)
+        		.setSubjectId(toAccountUserId)
+        		.setKeyValue(toAccount)
+        		.setDetails(jsonObject.toString())
+        		.setActionTime(System.currentTimeMillis())
+        		.execute();
+        	}
+
             Writer.responseMapWriter(response, 
             		HttpServletResponse.SC_OK, 
             		HttpServletResponse.SC_OK, 
