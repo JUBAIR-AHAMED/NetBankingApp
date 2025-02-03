@@ -4,7 +4,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public enum Executor {
-	EXECUTOR(Executors.newFixedThreadPool(5));
+	EXECUTOR(Executors.newFixedThreadPool(10));
 	
 	ExecutorService executor;
 	

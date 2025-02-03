@@ -328,8 +328,7 @@ public class QueryRequest {
 		}
 		String newField = fieldToColumnMap.get(field);
 		if(newField==null) {
-			System.out.println(field);
-			throw new Exception("Field name is invalid.");
+			throw new Exception("Field name is invalid: "+field);
 		}
 		return newField;
 	}
@@ -340,7 +339,7 @@ public class QueryRequest {
     	}
 		Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(tableName);
 		if(fieldToColumnMap==null) {
-			throw new Exception("Table name is invalid");
+			throw new Exception("Table name is invalid: "+tableName);
 		}
 		for(int i=0;i<fields.size();i++) {
 			String fieldName = fields.remove(i);

@@ -1,9 +1,9 @@
 package com.netbanking.mapper;
 
+import org.apache.logging.log4j.Level;
 import org.yaml.snakeyaml.Yaml;
-
+import com.netbanking.activityLogger.AsyncLoggerUtil;
 import com.netbanking.enumHelper.UserAccessibleMethods;
-
 import java.io.InputStream;
 import java.util.*;
 
@@ -29,6 +29,7 @@ public class PermissionLoader {
                 permissions.put(userRole, pathPermissions);
             });
         } catch (Exception e) {
+        	AsyncLoggerUtil.log(PermissionLoader.class, Level.ERROR, e.getMessage());
             e.printStackTrace();
         }
         return permissions;

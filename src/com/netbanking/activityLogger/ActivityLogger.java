@@ -1,5 +1,7 @@
 package com.netbanking.activityLogger;
 
+import org.apache.logging.log4j.Level;
+
 import com.netbanking.dao.Dao;
 import com.netbanking.dao.DataAccessObject;
 import com.netbanking.object.Activity;
@@ -14,6 +16,7 @@ public class ActivityLogger implements Logger {
         		try {
 					daoHandler.insert(activity);
 				} catch (Exception e) {
+					AsyncLoggerUtil.log(ActivityLogger.class, Level.ERROR, e.getMessage());
 					e.printStackTrace();
 				}
             });

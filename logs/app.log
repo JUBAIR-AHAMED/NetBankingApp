@@ -1,0 +1,137 @@
+2025-02-03 00:48:16,199 INFO c.n.d.DataAccessObject [pool-6-thread-1] lambda$0 - HikariProxyPreparedStatement@1179974809 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-03 00:48:16,251 INFO c.n.h.AccountHandler [pool-6-thread-2] lambda$0 - Accounts fetched successfully.
+2025-02-03 00:48:16,281 INFO c.n.d.DataAccessObject [pool-6-thread-3] lambda$0 - HikariProxyPreparedStatement@154130055 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-03 00:48:16,321 INFO c.n.h.AccountHandler [pool-6-thread-4] lambda$0 - Accounts fetched successfully.
+2025-02-03 00:48:34,385 INFO c.n.l.RedissonClientShutdownListener [pool-6-thread-5] lambda$0 - RedissonClient is shutdown successfully.
+2025-02-03 00:48:34,386 INFO c.n.l.ActivityLoggerShutdownListener [pool-6-thread-6] lambda$0 - Shutting down ActivityLogger executor...
+2025-02-03 00:48:57,043 INFO c.n.l.RedissonClientShutdownListener [pool-8-thread-1] lambda$0 - RedissonClient is shutdown successfully.
+2025-02-03 00:48:57,043 INFO c.n.l.ActivityLoggerShutdownListener [pool-8-thread-2] lambda$0 - Shutting down ActivityLogger executor...
+2025-02-03 00:49:11,077 INFO c.n.d.DataAccessObject [pool-2-thread-1] lambda$0 - HikariProxyPreparedStatement@749044101 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-03 00:49:11,140 INFO c.n.h.AccountHandler [pool-2-thread-2] lambda$0 - Accounts fetched successfully.
+2025-02-03 00:49:11,167 INFO c.n.d.DataAccessObject [pool-2-thread-3] lambda$0 - HikariProxyPreparedStatement@338632782 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-03 00:49:11,206 INFO c.n.h.AccountHandler [pool-2-thread-4] lambda$0 - Accounts fetched successfully.
+2025-02-03 00:49:28,457 INFO c.n.l.RedissonClientShutdownListener [pool-2-thread-5] lambda$0 - RedissonClient is shutdown successfully.
+2025-02-03 00:49:28,457 INFO c.n.l.ActivityLoggerShutdownListener [pool-2-thread-6] lambda$0 - Shutting down ActivityLogger executor...
+2025-02-03 06:50:24,402 INFO c.n.l.ActivityLoggerShutdownListener [pool-4-thread-2] lambda$0 - Shutting down ActivityLogger executor...
+2025-02-03 06:50:24,402 INFO c.n.l.RedissonClientShutdownListener [pool-4-thread-1] lambda$0 - RedissonClient is shutdown successfully.
+2025-02-03 06:50:59,628 INFO c.n.l.ActivityLoggerShutdownListener [pool-6-thread-2] lambda$0 - Shutting down ActivityLogger executor...
+2025-02-03 06:50:59,628 INFO c.n.l.RedissonClientShutdownListener [pool-6-thread-1] lambda$0 - RedissonClient is shutdown successfully.
+2025-02-03 06:50:59,640 INFO c.n.l.ActivityLoggerShutdownListener [Catalina-utility-2] contextDestroyed - Executor service shut down successfully.
+2025-02-03 06:52:42,466 INFO c.n.l.RedissonClientShutdownListener [pool-8-thread-1] lambda$0 - RedissonClient is shutdown successfully.
+2025-02-03 06:52:42,466 INFO c.n.l.ActivityLoggerShutdownListener [main] contextDestroyed - Shutting down ActivityLogger executor...
+2025-02-03 06:52:42,478 INFO c.n.l.ActivityLoggerShutdownListener [main] contextDestroyed - Executor service shut down successfully.
+2025-02-03 06:53:10,434 INFO c.n.d.DataAccessObject [pool-2-thread-1] lambda$0 - HikariProxyPreparedStatement@2047473311 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM user WHERE user_id = 3;
+2025-02-03 06:53:10,746 INFO c.n.d.DataAccessObject [pool-2-thread-2] lambda$0 - HikariProxyPreparedStatement@21429869 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM employee WHERE employee_id = 3;
+2025-02-03 06:53:10,943 INFO c.n.d.DataAccessObject [pool-2-thread-4] lambda$0 - HikariProxyPreparedStatement@1363873298 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: INSERT INTO activity_logs(subject_id, action_time, action, details, actor_id, tablename, key_value) VALUES (3, 1738545790935, 'LOGIN', 'Logged in', 3, 'customer', 3);
+2025-02-03 06:53:11,418 INFO c.n.d.DataAccessObject [pool-2-thread-5] lambda$0 - HikariProxyPreparedStatement@13470936 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-03 06:53:11,422 INFO c.n.h.AccountHandler [pool-2-thread-6] lambda$0 - Accounts fetched successfully.
+2025-02-03 06:53:11,453 INFO c.n.d.DataAccessObject [pool-2-thread-7] lambda$0 - HikariProxyPreparedStatement@696682443 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-03 06:53:11,463 INFO c.n.h.AccountHandler [pool-2-thread-8] lambda$0 - Accounts fetched successfully.
+2025-02-03 06:53:17,376 INFO c.n.l.ActivityLoggerShutdownListener [main] contextDestroyed - Shutting down ActivityLogger executor...
+2025-02-03 06:53:17,378 INFO c.n.l.ActivityLoggerShutdownListener [main] contextDestroyed - Executor service shut down successfully.
+2025-02-03 06:58:02,905 INFO c.n.d.DataAccessObject [pool-2-thread-1] lambda$0 - HikariProxyPreparedStatement@1246305525 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-03 06:58:02,961 INFO c.n.h.AccountHandler [pool-2-thread-2] lambda$0 - Accounts fetched successfully.
+2025-02-03 06:58:02,993 INFO c.n.d.DataAccessObject [pool-2-thread-3] lambda$0 - HikariProxyPreparedStatement@1627834907 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-03 06:58:03,030 INFO c.n.h.AccountHandler [pool-2-thread-4] lambda$0 - Accounts fetched successfully.
+2025-02-03 06:58:10,011 INFO c.n.d.DataAccessObject [pool-2-thread-5] lambda$0 - HikariProxyPreparedStatement@656726360 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-03 06:58:10,014 INFO c.n.h.AccountHandler [pool-2-thread-6] lambda$0 - Accounts fetched successfully.
+2025-02-03 06:58:10,070 INFO c.n.d.DataAccessObject [pool-2-thread-7] lambda$0 - HikariProxyPreparedStatement@1104437795 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-03 06:58:10,078 INFO c.n.h.AccountHandler [pool-2-thread-8] lambda$0 - Accounts fetched successfully.
+2025-02-03 06:58:25,361 INFO c.n.l.ActivityLoggerShutdownListener [main] contextDestroyed - Shutting down ActivityLogger executor...
+2025-02-03 06:58:25,364 INFO c.n.l.ActivityLoggerShutdownListener [main] contextDestroyed - Executor service shut down successfully.
+2025-02-03 06:58:25,425 INFO c.n.l.RedissonClientShutdownListener [main] contextDestroyed - RedissonClient is shutdown successfully.
+2025-02-03 06:58:25,426 INFO c.n.l.DriverCleanupListener [main] contextDestroyed - Deregistered JDBC driver: com.mysql.cj.jdbc.Driver@34bfd98c
+2025-02-03 06:58:25,427 INFO c.n.l.DriverCleanupListener [main] contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-03 06:58:25,444 INFO c.n.l.DriverCleanupListener [main] contextDestroyed - Database connection pool closed successfully.
+2025-02-03 06:58:25,445 INFO c.n.l.DriverCleanupListener [main] contextDestroyed - HikariCP connection pool closed.
+2025-02-03 07:17:17,244 INFO c.n.f.AuthFilter [pool-2-thread-1] lambda$0 - Auth filter is being applied.
+2025-02-03 07:22:15,955 INFO c.n.l.ActivityLoggerShutdownListener [Catalina-utility-1] contextDestroyed - Shutting down ActivityLogger executor...
+2025-02-03 07:22:15,956 INFO c.n.l.ActivityLoggerShutdownListener [Catalina-utility-1] contextDestroyed - Executor service shut down successfully.
+2025-02-03 07:22:15,998 INFO c.n.l.RedissonClientShutdownListener [Catalina-utility-1] contextDestroyed - RedissonClient is shutdown successfully.
+2025-02-03 07:22:16,002 INFO c.n.l.DriverCleanupListener [Catalina-utility-1] contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-03 07:22:25,541 INFO c.n.f.AuthFilter [pool-4-thread-2] lambda$0 - Auth filter is being applied.
+2025-02-03 07:22:25,541 INFO c.n.f.AuthFilter [pool-4-thread-1] lambda$0 - Auth filter is being applied.
+2025-02-03 07:22:26,363 INFO c.n.u.DBConnectionPool [pool-4-thread-3] lambda$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-03 07:22:26,834 INFO c.n.d.DataAccessObject [pool-4-thread-4] lambda$0 - HikariProxyPreparedStatement@78520083 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-03 07:22:26,893 INFO c.n.h.AccountHandler [pool-4-thread-5] lambda$0 - Accounts fetched successfully.
+2025-02-03 07:22:26,916 INFO c.n.f.AuthFilter [pool-4-thread-6] lambda$0 - Auth filter is being applied.
+2025-02-03 07:22:26,922 INFO c.n.d.DataAccessObject [pool-4-thread-7] lambda$0 - HikariProxyPreparedStatement@1330459055 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-03 07:22:26,960 INFO c.n.h.AccountHandler [pool-4-thread-8] lambda$0 - Accounts fetched successfully.
+2025-02-03 07:22:38,216 INFO c.n.f.AuthFilter [pool-4-thread-9] lambda$0 - Auth filter is being applied.
+2025-02-03 07:22:38,326 INFO c.n.f.AuthFilter [pool-4-thread-10] lambda$0 - Auth filter is being applied.
+2025-02-03 07:22:38,333 INFO c.n.d.DataAccessObject [pool-4-thread-2] lambda$0 - HikariProxyPreparedStatement@2015855392 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-03 07:22:38,335 INFO c.n.h.AccountHandler [pool-4-thread-1] lambda$0 - Accounts fetched successfully.
+2025-02-03 07:22:38,362 INFO c.n.f.AuthFilter [pool-4-thread-3] lambda$0 - Auth filter is being applied.
+2025-02-03 07:22:38,366 INFO c.n.d.DataAccessObject [pool-4-thread-4] lambda$0 - HikariProxyPreparedStatement@174715382 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-03 07:22:38,373 INFO c.n.h.AccountHandler [pool-4-thread-5] lambda$0 - Accounts fetched successfully.
+2025-02-03 07:23:18,096 INFO c.n.f.AuthFilter [pool-4-thread-6] lambda$0 - Auth filter is being applied.
+2025-02-03 07:23:18,101 INFO c.n.d.DataAccessObject [pool-4-thread-7] lambda$0 - HikariProxyPreparedStatement@1099613750 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.account_number LIKE '%8%';
+2025-02-03 07:23:18,103 INFO c.n.h.AccountHandler [pool-4-thread-8] lambda$0 - Accounts fetched successfully.
+2025-02-03 07:23:18,121 INFO c.n.f.AuthFilter [pool-4-thread-9] lambda$0 - Auth filter is being applied.
+2025-02-03 07:23:18,125 INFO c.n.d.DataAccessObject [pool-4-thread-10] lambda$0 - HikariProxyPreparedStatement@1796178878 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM account WHERE account.account_number LIKE '%8%' LIMIT 8 OFFSET 0;
+2025-02-03 07:23:18,133 INFO c.n.h.AccountHandler [pool-4-thread-2] lambda$0 - Accounts fetched successfully.
+2025-02-03 07:23:18,406 INFO c.n.f.AuthFilter [pool-4-thread-1] lambda$0 - Auth filter is being applied.
+2025-02-03 07:23:18,411 INFO c.n.d.DataAccessObject [pool-4-thread-3] lambda$0 - HikariProxyPreparedStatement@858319065 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.account_number LIKE '%82%';
+2025-02-03 07:23:18,413 INFO c.n.h.AccountHandler [pool-4-thread-4] lambda$0 - Accounts fetched successfully.
+2025-02-03 07:23:18,424 INFO c.n.f.AuthFilter [pool-4-thread-5] lambda$0 - Auth filter is being applied.
+2025-02-03 07:23:18,428 INFO c.n.d.DataAccessObject [pool-4-thread-6] lambda$0 - HikariProxyPreparedStatement@2034736012 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM account WHERE account.account_number LIKE '%82%' LIMIT 8 OFFSET 0;
+2025-02-03 07:23:18,434 INFO c.n.h.AccountHandler [pool-4-thread-7] lambda$0 - Accounts fetched successfully.
+2025-02-03 07:25:44,138 INFO c.n.l.ActivityLoggerShutdownListener [Catalina-utility-2] contextDestroyed - Shutting down ActivityLogger executor...
+2025-02-03 07:25:44,141 INFO c.n.l.ActivityLoggerShutdownListener [Catalina-utility-2] contextDestroyed - Executor service shut down successfully.
+2025-02-03 07:25:44,182 INFO c.n.l.RedissonClientShutdownListener [Catalina-utility-2] contextDestroyed - RedissonClient is shutdown successfully.
+2025-02-03 07:25:44,183 INFO c.n.l.DriverCleanupListener [Catalina-utility-2] contextDestroyed - Deregistered JDBC driver: com.mysql.cj.jdbc.Driver@7c4493cc
+2025-02-03 07:25:44,184 INFO c.n.l.DriverCleanupListener [Catalina-utility-2] contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-03 07:25:44,205 INFO c.n.l.DriverCleanupListener [Catalina-utility-2] contextDestroyed - Database connection pool closed successfully.
+2025-02-03 07:25:44,205 INFO c.n.l.DriverCleanupListener [Catalina-utility-2] contextDestroyed - HikariCP connection pool closed.
+2025-02-03 07:26:19,019 INFO c.n.l.ActivityLoggerShutdownListener [Catalina-utility-1] contextDestroyed - Shutting down ActivityLogger executor...
+2025-02-03 07:26:19,031 INFO c.n.l.ActivityLoggerShutdownListener [Catalina-utility-1] contextDestroyed - Executor service shut down successfully.
+2025-02-03 07:26:19,069 INFO c.n.l.RedissonClientShutdownListener [Catalina-utility-1] contextDestroyed - RedissonClient is shutdown successfully.
+2025-02-03 07:26:19,072 INFO c.n.l.DriverCleanupListener [Catalina-utility-1] contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-03 07:28:39,436 INFO c.n.l.ActivityLoggerShutdownListener [main] contextDestroyed - Shutting down ActivityLogger executor...
+2025-02-03 07:28:39,448 INFO c.n.l.ActivityLoggerShutdownListener [main] contextDestroyed - Executor service shut down successfully.
+2025-02-03 07:28:39,489 INFO c.n.l.RedissonClientShutdownListener [main] contextDestroyed - RedissonClient is shutdown successfully.
+2025-02-03 07:28:39,493 INFO c.n.l.DriverCleanupListener [main] contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-03 07:29:59,110 INFO c.n.l.ActivityLoggerShutdownListener [main] contextDestroyed - Shutting down ActivityLogger executor...
+2025-02-03 07:29:59,125 INFO c.n.l.ActivityLoggerShutdownListener [main] contextDestroyed - Executor service shut down successfully.
+2025-02-03 07:29:59,182 INFO c.n.l.RedissonClientShutdownListener [main] contextDestroyed - RedissonClient is shutdown successfully.
+2025-02-03 07:29:59,186 INFO c.n.l.DriverCleanupListener [main] contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-03 07:32:18,273 INFO c.n.f.AuthFilter [pool-2-thread-1] lambda$0 - Auth filter is being applied.
+2025-02-03 07:32:18,330 INFO c.n.f.AuthFilter [pool-2-thread-2] lambda$0 - Auth filter is being applied.
+2025-02-03 07:32:19,429 INFO c.n.u.DBConnectionPool [pool-2-thread-3] lambda$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-03 07:32:19,810 INFO c.n.d.DataAccessObject [pool-2-thread-4] lambda$0 - HikariProxyPreparedStatement@124432527 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-03 07:32:19,871 INFO c.n.h.AccountHandler [pool-2-thread-5] lambda$0 - Accounts fetched successfully.
+2025-02-03 07:32:19,894 INFO c.n.f.AuthFilter [pool-2-thread-6] lambda$0 - Auth filter is being applied.
+2025-02-03 07:32:19,900 INFO c.n.d.DataAccessObject [pool-2-thread-7] lambda$0 - HikariProxyPreparedStatement@948292457 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-03 07:32:19,940 INFO c.n.h.AccountHandler [pool-2-thread-8] lambda$0 - Accounts fetched successfully.
+2025-02-03 07:36:42,539 INFO c.n.l.ActivityLoggerShutdownListener [Catalina-utility-2] contextDestroyed - Shutting down ActivityLogger executor...
+2025-02-03 07:36:42,542 INFO c.n.l.ActivityLoggerShutdownListener [Catalina-utility-2] contextDestroyed - Executor service shut down successfully.
+2025-02-03 07:36:42,598 INFO c.n.l.RedissonClientShutdownListener [Catalina-utility-2] contextDestroyed - RedissonClient is shutdown successfully.
+2025-02-03 07:36:42,599 INFO c.n.l.DriverCleanupListener [Catalina-utility-2] contextDestroyed - Deregistered JDBC driver: com.mysql.cj.jdbc.Driver@35d5ad52
+2025-02-03 07:36:42,600 INFO c.n.l.DriverCleanupListener [Catalina-utility-2] contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-03 07:36:42,616 INFO c.n.l.DriverCleanupListener [Catalina-utility-2] contextDestroyed - Database connection pool closed successfully.
+2025-02-03 07:36:42,616 INFO c.n.l.DriverCleanupListener [Catalina-utility-2] contextDestroyed - HikariCP connection pool closed.
+2025-02-03 07:36:55,789 INFO c.n.f.AuthFilter [pool-4-thread-1] lambda$0 - Auth filter is being applied.
+2025-02-03 07:36:55,859 INFO c.n.f.AuthFilter [pool-4-thread-2] lambda$0 - Auth filter is being applied.
+2025-02-03 07:36:56,847 INFO c.n.u.DBConnectionPool [pool-4-thread-3] lambda$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-03 07:36:57,141 INFO c.n.d.DataAccessObject [pool-4-thread-4] lambda$0 - HikariProxyPreparedStatement@1363086053 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-03 07:36:57,185 INFO c.n.h.AccountHandler [pool-4-thread-5] lambda$0 - Accounts fetched successfully.
+2025-02-03 07:36:57,201 INFO c.n.f.AuthFilter [pool-4-thread-6] lambda$0 - Auth filter is being applied.
+2025-02-03 07:36:57,207 INFO c.n.d.DataAccessObject [pool-4-thread-7] lambda$0 - HikariProxyPreparedStatement@224790130 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-03 07:36:57,250 INFO c.n.h.AccountHandler [pool-4-thread-8] lambda$0 - Accounts fetched successfully.
+2025-02-03 07:36:58,978 INFO c.n.f.AuthFilter [pool-4-thread-9] lambda$0 - Auth filter is being applied.
+2025-02-03 07:36:58,983 INFO c.n.f.AuthFilter [pool-4-thread-10] lambda$0 - Auth filter is being applied.
+2025-02-03 07:36:58,988 INFO c.n.d.DataAccessObject [pool-4-thread-1] lambda$0 - HikariProxyPreparedStatement@57961563 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-03 07:36:58,990 INFO c.n.h.AccountHandler [pool-4-thread-2] lambda$0 - Accounts fetched successfully.
+2025-02-03 07:36:59,092 INFO c.n.f.AuthFilter [pool-4-thread-3] lambda$0 - Auth filter is being applied.
+2025-02-03 07:36:59,095 INFO c.n.d.DataAccessObject [pool-4-thread-4] lambda$0 - HikariProxyPreparedStatement@1610149554 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-03 07:36:59,099 INFO c.n.h.AccountHandler [pool-4-thread-5] lambda$0 - Accounts fetched successfully.
+2025-02-03 07:37:01,599 INFO c.n.f.AuthFilter [pool-4-thread-6] lambda$0 - Auth filter is being applied.
+2025-02-03 07:37:01,612 INFO c.n.f.AuthFilter [pool-4-thread-7] lambda$0 - Auth filter is being applied.
+2025-02-03 07:37:01,619 INFO c.n.d.DataAccessObject [pool-4-thread-8] lambda$0 - HikariProxyPreparedStatement@1677539380 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM user JOIN employee ON user.user_id = employee.employee_id WHERE user.role != 'CUSTOMER';
+2025-02-03 07:37:01,637 INFO c.n.f.AuthFilter [pool-4-thread-9] lambda$0 - Auth filter is being applied.
+2025-02-03 07:37:01,641 INFO c.n.d.DataAccessObject [pool-4-thread-10] lambda$0 - HikariProxyPreparedStatement@1602879128 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM user JOIN employee ON user.user_id = employee.employee_id WHERE user.role != 'CUSTOMER' LIMIT 8 OFFSET 0;
+2025-02-03 07:37:05,770 INFO c.n.f.AuthFilter [pool-4-thread-1] lambda$0 - Auth filter is being applied.
+2025-02-03 07:37:05,784 INFO c.n.f.AuthFilter [pool-4-thread-2] lambda$0 - Auth filter is being applied.
+2025-02-03 07:37:05,791 INFO c.n.d.DataAccessObject [pool-4-thread-3] lambda$0 - HikariProxyPreparedStatement@1508963875 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM user WHERE user.role = 'CUSTOMER';
+2025-02-03 07:37:05,810 INFO c.n.f.AuthFilter [pool-4-thread-4] lambda$0 - Auth filter is being applied.
+2025-02-03 07:37:05,814 INFO c.n.d.DataAccessObject [pool-4-thread-5] lambda$0 - HikariProxyPreparedStatement@1993099788 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM user JOIN customer ON user.user_id = customer.customer_id WHERE user.role = 'CUSTOMER' LIMIT 8 OFFSET 0;

@@ -46,7 +46,6 @@ public class ApiHelper {
             try {
                 Method setter = findSetterMethod(pojoClass, setterName);
                 if (setter != null) {
-                	System.out.println(value);
                     Class<?> paramType = setter.getParameterTypes()[0];
                     Object convertedValue = convertValue(value, paramType);
                     setter.invoke(pojo, convertedValue);

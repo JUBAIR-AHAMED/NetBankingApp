@@ -61,7 +61,6 @@ public class CustomerFunctions {
 		GetMetadata customerMetadata = GetMetadata.CUSTOMER;
 		String cacheKeyUser = userMetadata.getCachKey()+key;
 		String cacheKeyCustomer = customerMetadata.getCachKey()+key;
-		System.out.println("Redis delete keys: "+cacheKeyUser+" "+cacheKeyCustomer);
 		Redis.delete(cacheKeyCustomer);
 		Redis.delete(cacheKeyUser);
 		customer.setCustomerId(key);

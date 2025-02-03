@@ -132,6 +132,8 @@ public class Parser {
             } catch (ClassCastException | IllegalStateException e) {
                 throw new IllegalArgumentException("Error casting value for key '" + key + "' to type " + type.getName(), e);
             }
+        } else if(required) {
+        	throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " is required and cannot be null or empty.");
         }
         return null; // Return null if the key is not present or jsonObject is null
     }

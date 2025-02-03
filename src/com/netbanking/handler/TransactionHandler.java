@@ -9,12 +9,14 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.logging.log4j.Level;
 import org.redisson.Redisson;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 
 import com.google.gson.JsonObject;
+import com.netbanking.activityLogger.AsyncLoggerUtil;
 import com.netbanking.enums.Role;
 import com.netbanking.exception.CustomException;
 import com.netbanking.functions.AccountFunctions;
@@ -24,18 +26,13 @@ import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Converter;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
+import com.netbanking.util.RedissonHelper;
 import com.netbanking.util.UserDetailsLocal;
 import com.netbanking.util.Validator;
 import com.netbanking.util.Writer;
 
 public class TransactionHandler {
-	private static RedissonClient redisson;
-
-    static {
-        Config config = new Config();
-        config.useSingleServer().setAddress("redis://127.0.0.1:6379");
-        redisson = Redisson.create(config);
-    }
+	private static RedissonClient redisson = RedissonHelper.getInstance();
 
 	public static void handleGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		UserDetailsLocal store = UserDetailsLocal.get();
@@ -89,6 +86,7 @@ public class TransactionHandler {
             } else {
             	responseMap.put("statement", statement);
             }
+            AsyncLoggerUtil.log(TransactionHandler.class, Level.INFO, "Statement fetched successfully.");
             Writer.responseMapWriter(response, 
             		HttpServletResponse.SC_OK, 
             		HttpServletResponse.SC_OK, 
@@ -122,17 +120,20 @@ public class TransactionHandler {
 			Long fromAccountUserId = null;
 			Long toAccountUserId = null;
 			
-			Long lockAccount1 = Math.min(fromAccount, toAccount);
-	        Long lockAccount2 = Math.max(fromAccount, toAccount);
 	        
-	        RLock firstLock = redisson.getLock("account-lock:" + lockAccount1);
-	        RLock secondLock = redisson.getLock("account-lock:" + lockAccount2);
+	        RLock firstLock = null;
+	        RLock secondLock = null;
 	        
 	        try {
 	        	boolean locked;
-	        	if (transactionType.equals("same-bank") && secondLock != null) {
+	        	if (transactionType.equals("same-bank")) {
+	        		Long lockAccount1 = Math.min(fromAccount, toAccount);
+	        		Long lockAccount2 = Math.max(fromAccount, toAccount);
+	        		firstLock = redisson.getLock("account-lock:" + lockAccount1);
+	    	        secondLock = redisson.getLock("account-lock:" + lockAccount2);
 	                locked = redisson.getMultiLock(firstLock, secondLock).tryLock(10, 30, TimeUnit.SECONDS);
 	            } else {
+	            	firstLock = redisson.getLock("account-lock:" + fromAccount);
 	                locked = firstLock.tryLock(10, 30, TimeUnit.SECONDS);
 	            }
 
@@ -197,11 +198,19 @@ public class TransactionHandler {
 	        		toAccountUserId = Converter.convertToLong(toAccountMap.get("userId"));
 	        	}
 	        	new TransactionFunctions().initiateTransaction(details, fromAccountMap, toAccountMap);	
+	        } catch(Exception ex){
+	        	if (firstLock.isHeldByCurrentThread()) {
+	        		firstLock.unlock();
+	        	}
+	        	if (secondLock!=null && secondLock.isHeldByCurrentThread()) {
+	        		secondLock.unlock();
+	        	}
+	        	throw ex;
 	        } finally {
 	        	if (firstLock.isHeldByCurrentThread()) {
 	        		firstLock.unlock();
 	        	}
-	        	if (secondLock.isHeldByCurrentThread()) {
+	        	if (secondLock!=null && secondLock.isHeldByCurrentThread()) {
 	        		secondLock.unlock();
 	        	}
 	        }
@@ -227,7 +236,8 @@ public class TransactionHandler {
         		.setActionTime(System.currentTimeMillis())
         		.execute();
         	}
-
+        	
+        	AsyncLoggerUtil.log(TransactionHandler.class, Level.INFO, "Transaction success.");
             Writer.responseMapWriter(response, 
             		HttpServletResponse.SC_OK, 
             		HttpServletResponse.SC_OK, 

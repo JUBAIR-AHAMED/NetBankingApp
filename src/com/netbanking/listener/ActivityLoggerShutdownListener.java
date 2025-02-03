@@ -1,18 +1,21 @@
 package com.netbanking.listener;
 
 import java.util.concurrent.TimeUnit;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import com.netbanking.activityLogger.AsyncLoggerUtil;
 import com.netbanking.util.Executor;
 
 public class ActivityLoggerShutdownListener implements ServletContextListener {
-
+	private static Logger logger = LogManager.getLogger(ActivityLoggerShutdownListener.class);
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         // Shutting down the executor service gracefully
-        System.out.println("Shutting down ActivityLogger executor...");
-        
+    	logger.info("Shutting down ActivityLogger executor...");
         Executor executor = Executor.EXECUTOR;
         executor.getInstance().shutdown(); // Initiates the shutdown process
         try {
@@ -25,8 +28,7 @@ public class ActivityLoggerShutdownListener implements ServletContextListener {
             executor.getInstance().shutdownNow();
             Thread.currentThread().interrupt();  // Preserve the interrupt status
         }
-        
-        System.out.println("Executor service shut down successfully.");
+        logger.info("Executor service shut down successfully.");
     }
 
     @Override

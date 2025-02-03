@@ -122,7 +122,6 @@ public class Transaction implements Model {
 
     public void setModifiedBy(Long modifiedBy) throws CustomException {
     	String userIdStr = String.valueOf(modifiedBy);
-    	System.out.println("id: "+userIdStr);
     	if (userIdStr != null && !userIdStr.matches("\\d{1,6}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,
@@ -138,7 +137,6 @@ public class Transaction implements Model {
     
     // change to enum
     public void setType(String type) throws CustomException {
-    	System.out.println(type);
     	if (TransactionType.valueOf(type) == null) {
                 throw new CustomException(
                     HttpServletResponse.SC_BAD_REQUEST,

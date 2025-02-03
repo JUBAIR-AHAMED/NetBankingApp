@@ -14,7 +14,6 @@ function decodeJWT(token) {
 }
 
 function formatIndianCurrency(amount) {
-    const isNegative = amount < 0;
 
     const absoluteAmount = Math.abs(amount);
 
@@ -100,12 +99,6 @@ function createAccountCard(account) {
         ifsc
     } = account;
 
-    // Get the JWT token and decode it to get role and branchId
-    const token = sessionStorage.getItem('jwt');
-    const decodedToken = decodeJWT(token);
-
-    const userRole = decodedToken?.role;  // Extract user role (e.g., 'MANAGER' or 'EMPLOYEE')
-    const userBranchId = decodedToken?.branchId;  // Extract user branchId
 
     return `
         <div class="valueColumn">
@@ -170,8 +163,7 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
     let currentPage = 1; // Current page
     const limit = 8; // Items per page
-    let totalPages = 1; // Total pages will be calculated later
-    let branch
+    let totalPages = 1;
     let searchCriteria = {}; 
 
     const debounce = (func, delay) => {

@@ -1,15 +1,16 @@
 package com.netbanking.util;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
-
 import javax.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.Level;
+import com.netbanking.activityLogger.AsyncLoggerUtil;
 import com.netbanking.exception.CustomException;
 
 public class ErrorHandler {
     public static void handleException(Exception ex, HttpServletResponse httpResponse) throws IOException {
     	ex.printStackTrace();
+    	AsyncLoggerUtil.log(ErrorHandler.class, Level.ERROR, ex);
         if (ex instanceof CustomException) {
         	CustomException customException = (CustomException) ex;
             int statusCode = customException.getStatusCode();
@@ -53,7 +54,7 @@ public class ErrorHandler {
                 duplicateValue = matcher.group(1); // Extract the value (e.g., '87')
             }
         } catch (Exception ex) {
-            System.err.println("Error parsing duplicate value: " + ex.getMessage());
+        	AsyncLoggerUtil.log(ErrorHandler.class, Level.ERROR, "Error parsing duplicate value: " + ex.getMessage());
         }
         return duplicateValue;
     }

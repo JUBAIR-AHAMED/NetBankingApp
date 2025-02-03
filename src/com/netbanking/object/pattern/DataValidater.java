@@ -23,7 +23,6 @@ public class DataValidater {
         if(matcher.matches()) {
         	return true;
         }
-        System.out.println(value);
         throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, pattern.getMessage());
     }
 
@@ -40,7 +39,6 @@ public class DataValidater {
     }
 
     public static boolean branchId(String value) throws CustomException {
-    	System.out.println(value);
         return validate(value, DataPattern.BRANCHID);
     }
 

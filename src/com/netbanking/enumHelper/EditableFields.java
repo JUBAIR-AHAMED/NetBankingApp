@@ -33,7 +33,6 @@ public enum EditableFields {
                 throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "The requested update fields are either non-editable/not-present.");
             }
             if (!DataValidater.isValidField(dataKey, dataValue)) {
-//            	System.out.println(dataKey+" "+dataValue);
                 throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Invalid value for field: " + dataKey + ".");
             }
         }

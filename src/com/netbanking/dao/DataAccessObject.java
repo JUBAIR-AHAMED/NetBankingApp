@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.Level;
+
+import com.netbanking.activityLogger.AsyncLoggerUtil;
 import com.netbanking.daoObject.Join;
 import com.netbanking.daoObject.QueryBuilder;
 import com.netbanking.daoObject.QueryRequest;
@@ -38,8 +41,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 		}
 		Map<String, Object> pojoValuesMap = null;
 		pojoValuesMap = new PojoValueMapper<T>().getMap(object);
-		System.out.println(pojoValuesMap);
-				
+		
 		Long refrenceKey = null;
 		for(String objectName : objectNames) {
 			String tableName = YamlMapper.getTableName(objectName);
@@ -83,9 +85,8 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 	    Long generatedKeysList = null;
 	    try (Connection connection = DBConnectionPool.getConnection();
     	    PreparedStatement stmt = connection.prepareStatement(sqlQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
-	    	
     	    setValuesInPstm(stmt, insertValues.values(), 1);
-    	    System.out.println(stmt);
+    	    AsyncLoggerUtil.log(DataAccessObject.class, Level.INFO, stmt);
     	    stmt.executeUpdate();
 
     	    try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
@@ -133,7 +134,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
         	int count = 1;
         	count = setValuesInPstm(stmt, updateValues, count);
     		setValuesInPstm(stmt, request.getWhereConditionsValues(), count);
-        	System.out.println(stmt);
+    		AsyncLoggerUtil.log(DataAccessObject.class, Level.INFO, stmt);
         	stmt.executeUpdate();
         }
     }
@@ -169,7 +170,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
             PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
         	int count = 1;
         	setValuesInPstm(stmt, request.getWhereConditionsValues(), count);
-        	System.out.println(stmt);
+        	AsyncLoggerUtil.log(DataAccessObject.class, Level.INFO, stmt);
         	ResultSet rs = stmt.executeQuery();
         	// Preparing map for the purpose of returning the selected values from the database
         	if(request.getCount()) {

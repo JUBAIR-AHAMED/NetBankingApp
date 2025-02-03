@@ -4,6 +4,10 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
+
+import org.apache.logging.log4j.Level;
+
+import com.netbanking.activityLogger.AsyncLoggerUtil;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -14,7 +18,7 @@ public class DBConnectionPool {
     static {
     	try {
             Class.forName("com.mysql.cj.jdbc.Driver"); // Ensure driver is loaded
-            System.out.println("MySQL JDBC Driver Loaded Successfully");
+            AsyncLoggerUtil.log(DBConnectionPool.class, Level.INFO, "MySQL JDBC Driver Loaded Successfully");
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("MySQL JDBC Driver Not Found!", e);
         }
@@ -35,12 +39,9 @@ public class DBConnectionPool {
             config.setMinimumIdle(Integer.parseInt(properties.getProperty("db.pool.minIdle", "5")));
             config.setIdleTimeout(Long.parseLong(properties.getProperty("db.pool.idleTimeout", "30000")));
             config.setConnectionTimeout(Long.parseLong(properties.getProperty("db.pool.connectionTimeout", "30000")));
-            System.out.println("pool size: "+properties.getProperty("db.pool.maxSize"));
-            System.out.println("DB URL: " + properties.getProperty("db.url")); // Debugging log
 
             dataSource = new HikariDataSource(config);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new ExceptionInInitializerError("Failed to initialize DBConnectionPool: " + e.getMessage());
         }
     }
@@ -52,7 +53,6 @@ public class DBConnectionPool {
     public static void shutdown() {
         if (dataSource != null) {
             dataSource.close();
-            System.out.println("HikariCP connection pool shut down.");
         }
     }
     

@@ -26,7 +26,6 @@ public class Account implements Model {
 
     public void setAccountNumber(Long accountNumber) throws CustomException{
     	String accountNumberStr = String.valueOf(accountNumber);
-    	System.out.println("acc no: "+accountNumberStr);
         if (accountNumberStr != null && !accountNumberStr.matches("\\d{16}")) {
             throw new CustomException(
                 HttpServletResponse.SC_BAD_REQUEST,

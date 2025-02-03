@@ -6,9 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.gson.JsonObject;
+import com.netbanking.activityLogger.AsyncLoggerUtil;
 import com.netbanking.enumHelper.EditableFields;
 import com.netbanking.enumHelper.RequiredFields;
 import com.netbanking.enums.Role;
@@ -49,7 +56,6 @@ public class AccountHandler {
 			Integer currentPage = Parser.getValue(jsonObject, "currentPage", Integer.class, "Current Page", false);
 
 			List<Map<String, Object>> accounts = new AccountFunctions().filteredGetAccount(filters, limit, currentPage);
-			System.out.println(accounts);
 			// Sending the count or account data as requested
 			if (countReq != null && countReq) {
 				Long count = ApiHelper.getCount(accounts);
@@ -57,7 +63,7 @@ public class AccountHandler {
 			} else {
 				responseMap.put("accounts", accounts);
 			}
-
+			AsyncLoggerUtil.log(AccountHandler.class, Level.INFO, "Accounts fetched successfully.");
 			Writer.responseMapWriter(response, HttpServletResponse.SC_OK, HttpServletResponse.SC_OK,
 					"Accounts fetched successfully", responseMap);
 		} catch (Exception e) {
@@ -87,6 +93,7 @@ public class AccountHandler {
 				.setActionTime(System.currentTimeMillis())
 				.execute();
 			responseMap.put("accountNumber", createdAccountNumber);
+			AsyncLoggerUtil.log(AccountHandler.class, Level.INFO, "Accounts created successfully.");
 			Writer.responseMapWriter(response, HttpServletResponse.SC_OK, HttpServletResponse.SC_OK,
 					"Accounts created successfully", responseMap);
 		} catch (Exception e) {
@@ -136,7 +143,7 @@ public class AccountHandler {
 				.setDetails(jsonBody.toString())
 				.setActionTime(System.currentTimeMillis())
 				.execute();
-
+			AsyncLoggerUtil.log(AccountHandler.class, Level.INFO, "Account updated successfully");
 			Writer.responseMapWriter(response, HttpServletResponse.SC_OK, HttpServletResponse.SC_OK,
 					"Account updated successfully", responseMap);
 			return;

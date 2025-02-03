@@ -11,7 +11,6 @@ public enum UserAccessibleMethods {
 
     static {
         rolePermissions = PermissionLoader.loadPermissions("permissions.yml");
-        System.out.println(rolePermissions);
     }
 
     public static boolean isAuthorized(UserAccessibleMethods role, String path, String method) {

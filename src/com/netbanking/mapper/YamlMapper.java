@@ -3,7 +3,10 @@ package com.netbanking.mapper;
 import java.io.InputStream;
 import java.util.Map;
 
+import org.apache.logging.log4j.Level;
 import org.yaml.snakeyaml.Yaml;
+
+import com.netbanking.activityLogger.AsyncLoggerUtil;
 
 public class YamlMapper {
 	private static Map<String, Object> map;
@@ -21,6 +24,7 @@ public class YamlMapper {
 		}
 		catch(Exception e)
 		{
+			AsyncLoggerUtil.log(YamlMapper.class, Level.ERROR, e.getMessage());
 			e.printStackTrace();
 		}
 	}

@@ -10,6 +10,10 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.logging.log4j.Level;
+
+import com.netbanking.activityLogger.AsyncLoggerUtil;
 import com.netbanking.enumHelper.UserAccessibleMethods;
 import com.netbanking.exception.CustomException;
 import com.netbanking.util.ErrorHandler;
@@ -25,7 +29,7 @@ public class AuthFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-    	System.out.println("Auth filter is being applied.");
+    	AsyncLoggerUtil.log(AuthFilter.class, Level.INFO, "Auth filter is being applied.");
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         httpResponse.setHeader("Access-Control-Allow-Origin", "*");
@@ -37,8 +41,6 @@ public class AuthFilter implements Filter {
         
         String path = httpRequest.getPathInfo();
         String servletPath = httpRequest.getServletPath();
-        System.out.println("path: "+path+" servlet path: "+servletPath);
-        
 
         if (path!=null && path.equals("/login")) {
 			chain.doFilter(request, response);
