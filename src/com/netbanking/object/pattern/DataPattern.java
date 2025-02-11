@@ -4,7 +4,7 @@ public enum DataPattern {
 	
 	ACCOUNTNUMBER("\\d{16}", 
 			"Account number must be exactly 16 digits and contain only numeric characters."),
-	BALANCE("^(0|[1-9]\\d*)(\\.\\d+)?$\n",
+	BALANCE("^(0|[1-9]\\d*)(\\.\\d+)?$",
 			"Balance must be a non-negative number with optional decimal(upto 2)."),
 	USERID("\\d{1,6}", 
 			"User ID must be within 6 digits and contain only numeric characters."),
@@ -17,7 +17,7 @@ public enum DataPattern {
 	ADDRESS("^[A-Za-z0-9,.'\\s-/]+$", 
 			"Address can only contain letters, numbers, spaces, and the following punctuation: , . ' - /"),
 	AADHARNUMBER("^[2-9]{1}[0-9]{11}$", 
-			"Aadhar number can only contain number and must 12 digits."),
+			"Aadhar number can only contain number and must 12 digits and cannot start with 0 or 1."),
 	PANNUMBER("^[A-Z]{5}[0-9]{4}[A-Z]{1}$", 
 			"PAN number must be in the format: 5 uppercase letters, followed by 4 digits, and ending with 1 uppercase letter."),
 	PASSWORD("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$", 

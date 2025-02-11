@@ -582,8 +582,9 @@ document.addEventListener('DOMContentLoaded', function () {
     
             const result = await response.json();
     
-            if (result.data==200) {
-                showNotification("Profile updated successfully!", "success");
+            if (result.status==200) {
+                showNotification("Customer profile updated successfully!", "success");
+				initialize();
             } else {
                 showNotification(result.message || "Failed to update profile.", "warning");
             }

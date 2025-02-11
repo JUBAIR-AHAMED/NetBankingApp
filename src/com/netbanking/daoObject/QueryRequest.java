@@ -134,7 +134,8 @@ public class QueryRequest {
         return this;
     }
     
-    public List<String> getUpdateField() {
+    public List<String> getUpdateField() throws Exception {
+    	convertFields(tableName, updateField);
         return updateField;
     }
 
@@ -183,7 +184,16 @@ public class QueryRequest {
         return this;
     }
     
-    public List<String> getSelectColumns() {
+    public List<String> getSelectColumns() throws Exception {
+    	if(selectColumns==null) {
+    		return null;
+    	}
+    	List<String> selectColsToReturn = new ArrayList<String>(selectColumns);
+    	convertFields(getTableName(), selectColsToReturn);
+        return selectColsToReturn;
+    }
+    
+    public List<String> getSelectColumnsPojoVer() throws Exception {
         return selectColumns;
     }
 
@@ -211,6 +221,17 @@ public class QueryRequest {
 				String table = select.getTable();
 				String field = select.getField();
 				field = convertField(table, field);
+				selectColumns.add(field);
+			}
+		}
+        return selectColumns;
+    }
+    
+    public List<String> getSelectsPojoVer() throws Exception {
+    	List<String> selectColumns = new ArrayList<String>();
+    	if(selects!=null && !selects.isEmpty()) {
+			for(Condition select:selects) {
+				String field = select.getField();
 				selectColumns.add(field);
 			}
 		}

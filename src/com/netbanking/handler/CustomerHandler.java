@@ -30,7 +30,7 @@ public class CustomerHandler {
     		Map<String, Object> responseMap = new HashMap<>();
     		StringBuilder jsonBody = Parser.getJsonBody(request);
     		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
-    		RequiredFields.validate("CUSTOMER", data);
+    		RequiredFields.CUSTOMER.validate(data);
     		Customer customer = ApiHelper.getPojoFromRequest(data, Customer.class);
     		// initiating creation
 			Long createdCustomerId = new CustomerFunctions().createCustomer(customer, userId);	

@@ -7,8 +7,7 @@ import com.netbanking.dao.DataAccessObject;
 import com.netbanking.object.Activity;
 import com.netbanking.util.Executor;
 
-public class ActivityLogger implements Logger {
-    @Override
+public class ActivityLogger {
     public void log(Activity activity) {
     	Executor executor = Executor.EXECUTOR;
         executor.getInstance().submit(() -> {

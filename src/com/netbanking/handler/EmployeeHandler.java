@@ -30,7 +30,7 @@ public class EmployeeHandler {
     	try {
     		StringBuilder jsonBody = Parser.getJsonBody(request);
     		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
-    		RequiredFields.validate("EMPLOYEE", data);
+    		RequiredFields.EMPLOYEE.validate(data);
     		Employee employee = ApiHelper.getPojoFromRequest(data, Employee.class);
     		// initiating creation
 			Long createdEmployeeId = new EmployeeFunctions().createEmployee(employee, userId);

@@ -11,11 +11,15 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.JsonObject;
 import com.netbanking.enumHelper.RequiredFields;
 import com.netbanking.enums.Role;
+import com.netbanking.exception.CustomException;
 import com.netbanking.functions.BranchFunctions;
+import com.netbanking.functions.EmployeeFunctions;
+import com.netbanking.functions.UserFunctions;
 import com.netbanking.object.Activity;
 import com.netbanking.object.Branch;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Converter;
+import com.netbanking.util.PasswordUtility;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
 import com.netbanking.util.UserDetailsLocal;
@@ -28,9 +32,14 @@ public class BranchHandler {
     	try {			
 			StringBuilder jsonBody = Parser.getJsonBody(request);
 			Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
-			
-			RequiredFields.validate("BRANCH", data);
+			RequiredFields.BRANCH.validate(data);
 			Branch branch = ApiHelper.getPojoFromRequest(data, Branch.class);
+			Map<String, Object> userDetails = new EmployeeFunctions().get(branch.getEmployeeId());
+			if(userDetails != null && !userDetails.isEmpty()) {	
+				throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "Invalid employee id.");
+			} else if(userDetails.get("role").equals(Role.MANAGER.toString())) {
+				throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "The employee is not a manager.");
+			}
 			Long createdBranchId = new BranchFunctions().createBranch(branch);	
 			Long subjectId = Converter.convertToLong(data.get("employeeId"));
 			// Activity logger

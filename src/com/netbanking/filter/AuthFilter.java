@@ -2,6 +2,7 @@ package com.netbanking.filter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -19,12 +20,13 @@ import com.netbanking.exception.CustomException;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Redis;
 import com.netbanking.util.UserDetailsLocal;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 
 public class AuthFilter implements Filter {
-    private static final String SECRET_KEY = "018d7a1625d1d217ffde1629409edbdb889f373aaef7032d6a711d2d40848fef";
+    private static final String SECRET_KEY = System.getenv("JWT_SECRET");
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -32,16 +34,9 @@ public class AuthFilter implements Filter {
     	AsyncLoggerUtil.log(AuthFilter.class, Level.INFO, "Auth filter is being applied.");
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        httpResponse.setHeader("Access-Control-Allow-Origin", "*");
-        httpResponse.setHeader("Access-Control-Allow-Methods", "*");
-        httpResponse.setHeader("Access-Control-Allow-Headers", "*");
-        httpResponse.setHeader("Access-Control-Allow-Credentials", "false");
-        httpResponse.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
-        httpResponse.setHeader("Pragma", "no-cache"); // HTTP 1.0
-        
-        String path = httpRequest.getPathInfo();
-        String servletPath = httpRequest.getServletPath();
+        setHeader(httpResponse);
 
+        String path = httpRequest.getPathInfo();
         if (path!=null && path.equals("/login")) {
 			chain.doFilter(request, response);
             return;
@@ -62,16 +57,16 @@ public class AuthFilter implements Filter {
         String redisStoredToken = Redis.get(userId.toString());
 
         token = token.replace("Bearer ", "");
-        if(userId==null || token==null || redisStoredToken==null || !(redisStoredToken.equals(token))) {
+        if(userId==null || token==null || role==null || redisStoredToken==null || !(redisStoredToken.equals(token))) {
         	setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token.");
         	return;
         }        
         
-        if ((userId==null||role==null) ||
-        	((role.equals("MANAGER")||role.equals("EMPLOYEE"))&&branchId==null)) {
+        if (!role.equals("CUSTOMER")&&branchId==null){
         	setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token.");
         	return;
         }
+        
         if(path.equals("/validate-token")) {
         	setResponse(httpResponse, HttpServletResponse.SC_OK, HttpServletResponse.SC_OK, "Token is valid.");
         	return;
@@ -91,12 +86,13 @@ public class AuthFilter implements Filter {
         	return;
     	}
     	
+    	UserDetailsLocal.set(new UserDetailsLocal());
     	UserDetailsLocal store = UserDetailsLocal.get();
     	store.setUserId(userId);
     	store.setRole(role);
     	store.setBranchId(branchId);
         chain.doFilter(request, response);
-        store.clear();
+        UserDetailsLocal.clear();
     }
     
     private Claims tokenValidator(String token, Claims claims) throws CustomException {
@@ -126,6 +122,14 @@ public class AuthFilter implements Filter {
     	writer.close();
     }
     
+    private void setHeader(HttpServletResponse httpResponse) {
+    	httpResponse.setHeader("Access-Control-Allow-Origin", "http://localhost:8080/");
+        httpResponse.setHeader("Access-Control-Allow-Methods", "GET, PUT, POST");
+        httpResponse.setHeader("Access-Control-Allow-Headers", "Authorization, Action");
+        httpResponse.setHeader("Access-Control-Allow-Credentials", "false");
+        httpResponse.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+        httpResponse.setHeader("Pragma", "no-cache"); // HTTP 1.0
+    }
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {}
 

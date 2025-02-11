@@ -6,7 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 public class TokenHelper {
-	private static final String SECRET_KEY = "018d7a1625d1d217ffde1629409edbdb889f373aaef7032d6a711d2d40848fef";
+	private static final String SECRET_KEY = System.getenv("JWT_SECRET");
 	public static String generateJwt(Map<String, Object> userDetails) {
         if (userDetails == null) {
             throw new IllegalArgumentException("User details cannot be null");

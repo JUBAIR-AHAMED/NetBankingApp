@@ -13,7 +13,7 @@ import com.netbanking.functions.CustomerFunctions;
 import com.netbanking.functions.EmployeeFunctions;
 import com.netbanking.functions.UserFunctions;
 import com.netbanking.object.Activity;
-import com.netbanking.util.Encryption;
+import com.netbanking.util.PasswordUtility;
 import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
 import com.netbanking.util.Redis;
@@ -30,7 +30,7 @@ public class LoginHandler {
 			String password = Parser.getValue(jsonObject, "password", String.class, "Password", true);
 			Map<String, Object> userDetails = new UserFunctions().get(userId);
 			if(userDetails != null && !userDetails.isEmpty()) {
-				Boolean check=Encryption.verifyPassword(password, (String) userDetails.get("password"));
+				Boolean check=PasswordUtility.verifyPassword(password, (String) userDetails.get("password"));
 				if(!check) {
 					throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "Invalid password.");
 				}

@@ -12,7 +12,7 @@ public enum RequiredFields {
 
     ACCOUNT(createSet("userId", "branchId", "accountType", "balance", "status")),
     BRANCH(createSet("name", "ifsc", "address", "employeeId")),
-    EMPLOYEE(createSet("name", "password", "email", "mobile", "dateOfBirth", "branchId", "role", "status")),
+    EMPLOYEE(createSet("name", "password", "email", "mobile", "dateOfBirth", "role", "status")),
     CUSTOMER(createSet("name", "password", "email", "mobile", "dateOfBirth", "aadharNumber", "panNumber"));
 
     private final Set<String> requiredFields;
@@ -25,27 +25,23 @@ public enum RequiredFields {
         return requiredFields;
     }
 
-    public static void validate(String table, Map<String, Object> data) throws CustomException {
-        // Step 1: Get the required fields for the table
-        RequiredFields requiredFields = RequiredFields.valueOf(table.toUpperCase());
-        Set<String> required = requiredFields.getRequiredFields();
-
-        // Step 2: Check if all required fields are present
-        for (String field : required) {
+    public void validate(Map<String, Object> data) throws CustomException {
+        for (String field : requiredFields) {
             if (!data.containsKey(field) || data.get(field) == null) {
                 throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Missing required field: " + field + ".");
             }
 
-            // Step 3: Validate each field value using DataValidater
             String value = data.get(field).toString();
             if (!DataValidater.isValidField(field, value)) {
                 throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Invalid value for field: " + field + ".");
             }
         }
 
-        // Step 4: Check if there are any extra fields that are not allowed
         for (String field : data.keySet()) {
-            if (!required.contains(field)) {
+        	if(this.equals(RequiredFields.EMPLOYEE) && field.equals("branchId")) {
+        		continue;
+        	}
+            if (!requiredFields.contains(field)) {
                 throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Field not allowed: " + field + ".");
             }
         }

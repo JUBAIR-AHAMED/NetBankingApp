@@ -73,10 +73,19 @@ public class AccountFunctions {
 		Integer offset = ApiHelper.getOffset(limit, currentPage);
 		GetMetadata metadata = GetMetadata.ACCOUNT;
 		String tableName = metadata.getTableName();
+		List<String> selectColumns = new ArrayList<String>();
+		selectColumns.add("branchId");
+		selectColumns.add("balance");
+		selectColumns.add("dateOfOpening");
+		selectColumns.add("accountType");
+		selectColumns.add("accountNumber");
+		selectColumns.add("userId");
+		selectColumns.add("status");
 		@SuppressWarnings("unchecked")
 		Set<String> searchSimilarFields = (Set<String>) filters.remove("searchSimilarFields");
 		QueryRequest request = new QueryRequest()
-									.setSelectAllColumns(true)
+									.setSelectAllColumns(false)
+									.setSelectColumns(selectColumns)
 									.setTableName(tableName)
 									.setCount((Boolean) filters.getOrDefault("count", false))
 									.setOffset(offset)

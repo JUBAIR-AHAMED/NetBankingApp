@@ -43,10 +43,10 @@ public class YamlMapper {
 	
 	@SuppressWarnings("unchecked")
 	public static Map<String, String> getFieldToColumnMap(String objectName) {		
-		return (Map<String, String>) getObjectData(objectName).get("table_field_name");
+		return (Map<String, String>) getObjectData(objectName).get("tablePojoNameRelation");
 	}
 	
-	// Method to get the 'table_field_name' map for a given tablename
+	// Method to get the 'tablePojoNameRelation' map for a given tablename
 	@SuppressWarnings("unchecked")
 	public static Map<String, String> getFieldToColumnMapByTableName(String tablename) {
 		if (map == null) {
@@ -57,7 +57,7 @@ public class YamlMapper {
 			Map<String, Object> tableData = (Map<String, Object>) entry.getValue();  // This will be the map for the object
 	        
 	        if (tableData.containsKey("tablename") && tableData.get("tablename").equals(tablename)) {
-	            return (Map<String, String>) tableData.get("table_field_name");
+	            return (Map<String, String>) tableData.get("tablePojoNameRelation");
 	        }
 	    }
 	    return null;

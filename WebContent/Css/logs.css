@@ -411,7 +411,7 @@ select:focus {
     height: 25px;
     align-self: center;
     /* padding: 10px; */
-    /* margin-right: 14px; */
+    margin-right: 44px; 
     position: absolute; /* Removed from layout */
     transition: opacity 0.3s ease;
 }
@@ -632,4 +632,38 @@ select:focus {
 .editable-field-wrapper {
     position: relative; 
     display: block; 
+}
+
+/* Modal styling */
+#accountModal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#accountModal .modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.details-container {
+    margin-top: 10px;
+}
+
+.details-container p {
+    margin: 5px 0;
+}
+
+.details-container strong {
+    color: #333;
 }

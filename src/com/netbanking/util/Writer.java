@@ -17,7 +17,7 @@ public class Writer {
         out.write(jsonResponse);
         out.close();
 	}
-	
+
 	public static void setResponse(HttpServletResponse httpResponse, int statusCode, String message) throws IOException {
         httpResponse.setStatus(statusCode);
         httpResponse.setContentType("application/json");
@@ -26,7 +26,7 @@ public class Writer {
         out.write("{\"status\":" + statusCode + ", \"message\":\"" + message + "\"}");
         out.close();
     }
-    
+
     public static void setResponse(HttpServletResponse httpResponse, int serverStatus, int actionStatus, String message) throws IOException {
     	httpResponse.setStatus(serverStatus);
     	httpResponse.setContentType("application/json");

@@ -1,9 +1,9 @@
 pojo:
   User:
-    autoincrement_field: "userId"
+    autoIncrementKey: "userId"
     primaryKey: "userId"
     tablename: "user"
-    table_field_name:
+    tablePojoNameRelation:
       userId: "user_id"
       password: "password"
       role: "role"
@@ -20,7 +20,7 @@ pojo:
     primaryKey: "customerId"
     refrenceingKey: "customerId"
     tablename: "customer"
-    table_field_name:
+    tablePojoNameRelation:
       customerId: "customer_id"
       aadharNumber: "aadhar_number"
       panNumber: "pan_number"
@@ -29,15 +29,15 @@ pojo:
     primaryKey: "employeeId"
     refrenceingKey: "employeeId"
     tablename: "employee"
-    table_field_name:
+    tablePojoNameRelation:
       employeeId: "employee_id"
       branchId: "branch_id"
 
   Branch:
     primaryKey: "branchId"
-    autoincrement_field: "branchId"
+    autoIncrementKey: "branchId"
     tablename: "branch"
-    table_field_name:
+    tablePojoNameRelation:
       branchId: "branch_id"
       ifsc: "ifsc"
       name: "name"
@@ -49,9 +49,9 @@ pojo:
 
   Account:
     primaryKey: "accountNumber"
-    autoincrement_field: "accountNumber"
+    autoIncrementKey: "accountNumber"
     tablename: "account"
-    table_field_name:
+    tablePojoNameRelation:
       accountNumber: "account_number"
       userId: "user_id"
       branchId: "branch_id"
@@ -65,7 +65,7 @@ pojo:
 
   Transaction:
     tablename: "transaction"
-    table_field_name:
+    tablePojoNameRelation:
       referenceNumber: "reference_number"
       transactionAmount: "transaction_amount"
       timestamp: "timestamp"
@@ -79,7 +79,7 @@ pojo:
 
   Activity:
     tablename: "activity_logs"
-    table_field_name:
+    tablePojoNameRelation:
       actorId: "actor_id"
       subjectId: "subject_id"
       keyValue: "key_value"

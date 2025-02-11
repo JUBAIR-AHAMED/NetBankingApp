@@ -15,7 +15,7 @@ import com.netbanking.exception.CustomException;
 import com.netbanking.object.Customer;
 import com.netbanking.object.Employee;
 import com.netbanking.util.ApiHelper;
-import com.netbanking.util.Encryption;
+import com.netbanking.util.PasswordUtility;
 import com.netbanking.util.Redis;
 
 public class EmployeeFunctions {
@@ -45,7 +45,7 @@ public class EmployeeFunctions {
 	}
 	
 	public long createEmployee(Employee employee, Long userId) throws Exception {
-		employee.setPassword(Encryption.hashPassword(employee.getPassword()));
+		employee.setPassword(PasswordUtility.hashPassword(employee.getPassword()));
 		employee.setStatus(Status.ACTIVE);
 		employee.setCreationTime(System.currentTimeMillis());
 		employee.setModifiedBy(userId);

@@ -28,10 +28,9 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 	public Long insert(T object) throws Exception {
 		if(object==null) {
 			throw new Exception("Object is null.");
-		}		
+		}
 		Class<?> clazz = object.getClass();
 		Class<?> superClass = clazz.getSuperclass();
-		
 		//Getting Table Names
 		List<String> objectNames = new ArrayList<String>();
 		objectNames.add(clazz.getSimpleName());
@@ -39,26 +38,24 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 			objectNames.add(0, superClass.getSimpleName());
 			superClass = superClass.getSuperclass();
 		}
-		Map<String, Object> pojoValuesMap = null;
-		pojoValuesMap = new PojoValueMapper<T>().getMap(object);
+		Map<String, Object> pojoValuesMap = new PojoValueMapper<T>().getMap(object);
 		
 		Long refrenceKey = null;
 		for(String objectName : objectNames) {
 			String tableName = YamlMapper.getTableName(objectName);
 			Map<String, Object> objectData = YamlMapper.getObjectData(objectName);
-			@SuppressWarnings("unchecked")
-			Map<String, Object> objectFieldData = (Map<String, Object>) objectData.get("table_field_name");
+			Map<String, String> objectFieldData = YamlMapper.getFieldToColumnMap(objectName);
 			Map<String, Object> insertValues = new HashMap<String, Object>();
-			String autoinc = null;
-			if(objectData.containsKey("autoincrement_field"))
+			String autoIncrementKey = null;
+			if(objectData.containsKey("autoIncrementKey"))
 			{
-				autoinc = (String) objectData.get("autoincrement_field");
+				autoIncrementKey = (String) objectData.get("autoIncrementKey");
 			}
-			for(Map.Entry<String, Object> tempMap : objectFieldData.entrySet())
+			for(Map.Entry<String, String> tempMap : objectFieldData.entrySet())
 			{
 				String key = tempMap.getKey();
-				String keyNameInTable  = (String)objectFieldData.get(key);
-				if(key.equals(autoinc))
+				String keyNameInTable  = objectFieldData.get(key);
+				if(key.equals(autoIncrementKey))
 				{
 					continue;
 				} 
@@ -82,7 +79,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 		QueryBuilder qb = new QueryBuilder();
 	    qb.insert(tableName, insertValues.keySet());
 	    String sqlQuery = qb.finish();
-	    Long generatedKeysList = null;
+	    Long generatedKey = null;
 	    try (Connection connection = DBConnectionPool.getConnection();
     	    PreparedStatement stmt = connection.prepareStatement(sqlQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
     	    setValuesInPstm(stmt, insertValues.values(), 1);
@@ -91,17 +88,21 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 
     	    try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    generatedKeysList = generatedKeys.getLong(1);
+                    generatedKey = generatedKeys.getLong(1);
                 }
             }
     	}
-		return generatedKeysList;
+		return generatedKey;
 	}
 	
+	//Update operation
 	public void update(T object) throws Exception {
-		Map<String, Object> pojoValuesMap = new PojoValueMapper<T>().getMapExcludingParent(object);
+		if(object==null) {
+			throw new Exception("Object is null.");
+		}
 		Class<?> clazz = object.getClass();
 		GetMetadata metadata = GetMetadata.fromClass(clazz);
+		// Getting the primary key value for update
 		String tableName = metadata.getTableName();
 		String key = metadata.getPrimaryKeyColumn();
 		String getterName = "get" + key.substring(0, 1).toUpperCase() + key.substring(1);
@@ -111,23 +112,26 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
                 getKeyValue = method;
             }
         }
-		QueryRequest request = new QueryRequest();
-		request.setTableName(tableName)
-				.putWhereConditions(key)
-				.putWhereOperators("=")
-				.putWhereConditionsValues(getKeyValue.invoke(object, (Object[]) null));
+
+		Map<String, Object> pojoValuesMap = new PojoValueMapper<T>().getMapExcludingParent(object);
 		List<String> updateFields = new ArrayList<String>(pojoValuesMap.keySet());
 		List<Object> updateValues = new ArrayList<Object>(pojoValuesMap.values());
 	    
-	    if(updateFields==null || updateFields.isEmpty()) {
+		QueryRequest request = new QueryRequest()
+				.setTableName(tableName)
+				.putWhereConditions(key)
+				.putWhereOperators("=")
+				.putWhereConditionsValues(getKeyValue.invoke(object, (Object[]) null))
+				.setUpdateField(updateFields);
+
+		if(updateFields==null || updateFields.isEmpty()) {
 	    	return;
 	    }
-	    convertFields(tableName, updateFields);
 	    
-	    QueryBuilder qb = new QueryBuilder();
-	    qb.update(request.getTableName())
-		    .set(updateFields)
-	    	.where(request.getWhereConditions(), request.getWhereOperators(), request.getWhereLogicalOperators());
+	    QueryBuilder qb = new QueryBuilder()
+						    .update(request.getTableName())
+							.set(request.getUpdateField())
+							.where(request.getWhereConditions(), request.getWhereOperators(), request.getWhereLogicalOperators());
         
     	try (Connection connection = DBConnectionPool.getConnection();
              PreparedStatement stmt = connection.prepareStatement(qb.finish())) {
@@ -143,13 +147,15 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
     public List<Map<String, Object>> select(QueryRequest request) throws SQLException, Exception {
     	String tableName = request.getTableName();
 		List<Join> joins = request.getJoinConditions();
-		List<String> selectList = request.getSelects();
-		
+		List<String> listOfSelectsType = request.getSelects();
+		List<String> selectColNames = request.getSelectColumns();
     	QueryBuilder qb = new QueryBuilder();
     	if(request.getCount()||request.getSelectAllColumns()) {
-        	qb.select(request.getCount());
-        } else {
-        	qb.select(selectList);
+    		qb.select(request.getCount());
+        } else if(listOfSelectsType!=null&&!listOfSelectsType.isEmpty()) {
+        	qb.select(listOfSelectsType);
+        } else if(selectColNames!=null&&!selectColNames.isEmpty()) {
+        	qb.select(selectColNames);
         }
         
     	qb.from(tableName).join(joins)
@@ -157,11 +163,11 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
         	.order(request.getOrderByColumns(), request.getOrderDirections())
             .limit(request.getLimit()).offset(request.getOffset());
         
-        Map<String, String> tableField = new HashMap<String, String>(YamlMapper.getFieldToColumnMapByTableName(tableName));
+        Map<String, String> tableFields = new HashMap<String, String>(YamlMapper.getFieldToColumnMapByTableName(tableName));
         if(joins!=null) {
         	for(Join join:joins)
         	{
-        		tableField.putAll(YamlMapper.getFieldToColumnMapByTableName(join.getTableName()));
+        		tableFields.putAll(YamlMapper.getFieldToColumnMapByTableName(join.getTableName()));
         	}
         }
         
@@ -181,18 +187,28 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
         			return list;
         		}
         	}
+        	// Traversing through rows
             while(rs.next())
             {
             	Map<String, Object> map = new HashMap<>();
-            	if(request.getSelectColumns()!=null) {
-            		for(String columnName : request.getSelectColumns())
+            	if(selectColNames!=null&&!selectColNames.isEmpty()) {
+            		for(String columnName : request.getSelectColumnsPojoVer())
             		{
-						String fieldName = tableField.get(columnName);
+            			String fieldName = tableFields.get(columnName);
             			map.put(columnName, rs.getObject(fieldName));
             		}
-            	}
+            	} 
+            	else if(listOfSelectsType!=null&&!listOfSelectsType.isEmpty()) {
+            		// Traversing through columns
+            		for(String columnName : request.getSelectsPojoVer())
+            		{
+						String fieldName = tableFields.get(columnName);
+            			map.put(columnName, rs.getObject(fieldName));
+            		}
+            	} 
             	else {
-            	    for(Map.Entry<String, String> entry:tableField.entrySet()) {
+            		// Traversing through columns
+            	    for(Map.Entry<String, String> entry:tableFields.entrySet()) {
             	    	String columnName = entry.getValue();
             	    	map.put(entry.getKey(), rs.getObject(columnName));
             	    }
@@ -203,19 +219,6 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
         }
     }
 
-    private void convertFields(String tableName, List<String> fields) throws Exception {
-		Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(tableName);
-		if(fieldToColumnMap==null) {
-			throw new Exception("Table name is invalid");
-		}
-		for(int i=0;i<fields.size();i++) {
-			String fieldName = fields.remove(i);
-	        if (fieldToColumnMap.containsKey(fieldName)) {
-	            fields.add(i, fieldToColumnMap.get(fieldName));
-	        }
-		}
-	}
-    
     public static int setValuesInPstm(PreparedStatement pstm, Collection<Object> values, int count) throws SQLException {
 		if(values==null || values.isEmpty()) {
 			return count;

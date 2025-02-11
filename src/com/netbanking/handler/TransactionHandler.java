@@ -68,7 +68,7 @@ public class TransactionHandler {
 				}
 			}
 			String accountStatus = (String) accountData.get("status");
-			if(!accountStatus.equals("ACTIVE"))
+			if(role.equals(Role.CUSTOMER) && !accountStatus.equals("ACTIVE"))
 			{
 				throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Sender Account is "+ accountStatus);
 			}
@@ -179,6 +179,10 @@ public class TransactionHandler {
 	        	{
 	        		throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Amount cannot be negative.");
 	        	}
+	        	if(amount>9999999)
+	        	{
+	        		throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Amount more than Rs. 99,99,999 cannot be sent.");
+	        	}
 	        	float decimalPart = amount - amount.intValue();
 	        	if(decimalPart!=0&&decimalPart<0.01)
 	        	{
@@ -186,6 +190,7 @@ public class TransactionHandler {
 	        	}
 	        	if(!Validator.decimalChecker(amount))
 	        	{
+	        		System.out.println(amount);
 	        		throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Can have only 2 digits after the decimal.");
 	        	}
 	        	if((transactionType.equals("same-bank")||transactionType.equals("other-bank"))&&toAccount==null)
@@ -199,12 +204,6 @@ public class TransactionHandler {
 	        	}
 	        	new TransactionFunctions().initiateTransaction(details, fromAccountMap, toAccountMap);	
 	        } catch(Exception ex){
-	        	if (firstLock.isHeldByCurrentThread()) {
-	        		firstLock.unlock();
-	        	}
-	        	if (secondLock!=null && secondLock.isHeldByCurrentThread()) {
-	        		secondLock.unlock();
-	        	}
 	        	throw ex;
 	        } finally {
 	        	if (firstLock.isHeldByCurrentThread()) {

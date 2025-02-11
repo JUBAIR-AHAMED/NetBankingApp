@@ -21,6 +21,7 @@ import com.netbanking.enumHelper.RequiredFields;
 import com.netbanking.enums.Role;
 import com.netbanking.exception.CustomException;
 import com.netbanking.functions.AccountFunctions;
+import com.netbanking.functions.CustomerFunctions;
 import com.netbanking.object.Account;
 import com.netbanking.object.Activity;
 import com.netbanking.util.ApiHelper;
@@ -78,8 +79,13 @@ public class AccountHandler {
 			Long userId = store.getUserId();
 			StringBuilder jsonBody = Parser.getJsonBody(request);
 			Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
-			RequiredFields.validate("ACCOUNT", data);
+			RequiredFields.ACCOUNT.validate(data);
 			Account account = ApiHelper.getPojoFromRequest(data, Account.class);
+			CustomerFunctions customerFunctional = new CustomerFunctions();
+			Map<String, Object> customerDetails = customerFunctional.get(account.getUserId());
+    		if(customerDetails==null||customerDetails.isEmpty()) {
+    			throw new CustomException(HttpServletResponse.SC_NOT_FOUND,"Customer id not found to create account.");
+    		}
 			Long createdAccountNumber = new AccountFunctions().createAccount(account);
 			// activity logs
 			Long accountUserId = Converter.convertToLong(data.get("userId"));
