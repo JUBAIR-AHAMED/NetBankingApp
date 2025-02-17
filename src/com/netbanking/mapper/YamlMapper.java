@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Level;
 import org.yaml.snakeyaml.Yaml;
 
 import com.netbanking.activityLogger.AsyncLoggerUtil;
+import com.netbanking.util.Validator;
 
 public class YamlMapper {
 	private static Map<String, Object> map;
@@ -16,7 +17,7 @@ public class YamlMapper {
 		Yaml yaml = new Yaml();
 		try(InputStream inputStream = getClass().getClassLoader().getResourceAsStream("mapping.yml"))
 		{
-			if(inputStream == null)
+			if(Validator.isNull(inputStream))
 			{
 				throw new Exception("Failed loading map file.");
 			}
@@ -31,7 +32,7 @@ public class YamlMapper {
 	
 	@SuppressWarnings("unchecked")
 	public static Map<String, Object> getObjectData(String objectName) {
-		if (map == null) {
+		if (Validator.isNull(map)) {
 			new YamlMapper();
 		}
 		return (Map<String, Object>) ((Map<String, Object>) map.get("pojo")).get(objectName);
@@ -49,7 +50,7 @@ public class YamlMapper {
 	// Method to get the 'tablePojoNameRelation' map for a given tablename
 	@SuppressWarnings("unchecked")
 	public static Map<String, String> getFieldToColumnMapByTableName(String tablename) {
-		if (map == null) {
+		if (Validator.isNull(map)) {
             new YamlMapper();
         }
 		Map<String, Object> pojo =(Map<String, Object>) map.get("pojo");

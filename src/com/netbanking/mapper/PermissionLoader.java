@@ -4,6 +4,8 @@ import org.apache.logging.log4j.Level;
 import org.yaml.snakeyaml.Yaml;
 import com.netbanking.activityLogger.AsyncLoggerUtil;
 import com.netbanking.enumHelper.UserAccessibleMethods;
+import com.netbanking.util.Validator;
+
 import java.io.InputStream;
 import java.util.*;
 
@@ -12,7 +14,7 @@ public class PermissionLoader {
         Yaml yaml = new Yaml();
         Map<UserAccessibleMethods, Map<String, Set<String>>> permissions = new HashMap<>();
         try (InputStream inputStream = PermissionLoader.class.getClassLoader().getResourceAsStream(yamlFilePath)) {
-            if (inputStream == null) {
+            if (Validator.isNull(inputStream)) {
                 throw new IllegalArgumentException("YAML file not found: " + yamlFilePath);
             }
 

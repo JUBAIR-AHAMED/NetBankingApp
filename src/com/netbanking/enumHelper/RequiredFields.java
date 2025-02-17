@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import com.netbanking.exception.CustomException;
 import com.netbanking.object.pattern.DataValidater;
+import com.netbanking.util.Validator;
 
 public enum RequiredFields {
 
@@ -27,7 +28,7 @@ public enum RequiredFields {
 
     public void validate(Map<String, Object> data) throws CustomException {
         for (String field : requiredFields) {
-            if (!data.containsKey(field) || data.get(field) == null) {
+            if (!data.containsKey(field) || Validator.isNull(data.get(field))) {
                 throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Missing required field: " + field + ".");
             }
 

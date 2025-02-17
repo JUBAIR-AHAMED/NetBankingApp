@@ -10,6 +10,7 @@ import com.netbanking.exception.CustomException;
 import com.netbanking.object.User;
 import com.netbanking.util.Redis;
 import com.netbanking.util.UserDetailsLocal;
+import com.netbanking.util.Validator;
 
 public class UserFunctions {
 	@SuppressWarnings("unchecked")
@@ -30,7 +31,7 @@ public class UserFunctions {
 									.putWhereOperators("=");
 		DataAccessObject<User> daoCaller = new DataAccessObject<>();
 		List<Map<String, Object>> resultList = daoCaller.select(request);
-		Map<String, Object> map = (resultList == null || resultList.isEmpty()) ? null : resultList.get(0);
+		Map<String, Object> map = (Validator.isNull(resultList) || resultList.isEmpty()) ? null : resultList.get(0);
 		Redis.setex(cacheKey, map);
 		return map;
 	}
@@ -41,7 +42,7 @@ public class UserFunctions {
 		GetMetadata employeeMetadata = GetMetadata.EMPLOYEE;
 		UserDetailsLocal store = UserDetailsLocal.get();
 		Long userId = store.getUserId();
-		if(user==null) {
+		if(Validator.isNull(user)) {
 			return;
 		}
 		String cacheKey = metadata.getCachKey()+key;

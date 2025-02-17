@@ -26,7 +26,7 @@ public class DBConnectionPool {
         try {
             Properties properties = new Properties();
             InputStream input = DBConnectionPool.class.getClassLoader().getResourceAsStream("dbconfig.properties");
-            if (input == null) {
+            if (Validator.isNull(input)) {
                 throw new RuntimeException("dbconfig.properties file not found");
             }
             properties.load(input);

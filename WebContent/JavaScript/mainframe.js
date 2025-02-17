@@ -1,5 +1,9 @@
 document.getElementById('signout').addEventListener('click', async function() {
-    try {
+    logoutUser();
+});
+
+async function logoutUser() {
+	try {
         // Retrieve the JWT token from local storage
         const token = sessionStorage.getItem("jwt");
 
@@ -25,4 +29,4 @@ document.getElementById('signout').addEventListener('click', async function() {
         console.error(error);
         alert(error.message);
     }
-});
+}

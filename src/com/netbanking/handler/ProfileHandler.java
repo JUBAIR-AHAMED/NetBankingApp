@@ -13,21 +13,16 @@ import com.netbanking.util.UserDetailsLocal;
 import com.netbanking.util.Writer;
 
 public class ProfileHandler {
-    public static void handleGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public static void handleGet(HttpServletRequest request, HttpServletResponse response) throws IOException, Exception {
     	Map<String, Object> responseMap = new HashMap<>();
-        try {
-            UserDetailsLocal store = UserDetailsLocal.get();
-            Long userId = store.getUserId();
-            Map<String, Object> profile = new UserFunctions().get(userId);
-            responseMap.put("profile", profile);
-            Writer.responseMapWriter(response, 
-            		HttpServletResponse.SC_OK, 
-            		HttpServletResponse.SC_OK, 
-            		"Profile fetched successfully.", 
-            		responseMap);
-            return;
-        } catch (Exception e) {
-        	ErrorHandler.handleException(e, response);
-        }
+        UserDetailsLocal store = UserDetailsLocal.get();
+        Long userId = store.getUserId();
+        Map<String, Object> profile = new UserFunctions().get(userId);
+        responseMap.put("profile", profile);
+        Writer.responseMapWriter(response, 
+        		HttpServletResponse.SC_OK, 
+        		HttpServletResponse.SC_OK, 
+        		"Profile fetched successfully.", 
+        		responseMap);
     }
 }

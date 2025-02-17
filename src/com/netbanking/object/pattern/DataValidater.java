@@ -9,13 +9,14 @@ import com.netbanking.enums.AccountType;
 import com.netbanking.enums.Role;
 import com.netbanking.enums.Status;
 import com.netbanking.exception.CustomException;
+import com.netbanking.util.Validator;
 
 public class DataValidater {
     public static boolean validate(String value, DataPattern pattern) throws CustomException {
-        if (value == null) {
+        if (Validator.isNull(value)) {
             return false;
         }
-        if(pattern == null) {
+        if(Validator.isNull(pattern)) {
         	return false;
         }
         Pattern regexPattern = Pattern.compile(pattern.getPattern());

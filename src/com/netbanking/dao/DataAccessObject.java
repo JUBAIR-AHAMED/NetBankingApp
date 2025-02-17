@@ -22,11 +22,12 @@ import com.netbanking.mapper.PojoValueMapper;
 import com.netbanking.mapper.YamlMapper;
 import com.netbanking.model.Model;
 import com.netbanking.util.DBConnectionPool;
+import com.netbanking.util.Validator;
 
 public class DataAccessObject<T extends Model> implements Dao<T> {
 	//Insert operation
 	public Long insert(T object) throws Exception {
-		if(object==null) {
+		if(Validator.isNull(object)) {
 			throw new Exception("Object is null.");
 		}
 		Class<?> clazz = object.getClass();
@@ -39,49 +40,56 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 			superClass = superClass.getSuperclass();
 		}
 		Map<String, Object> pojoValuesMap = new PojoValueMapper<T>().getMap(object);
-		
 		Long refrenceKey = null;
-		for(String objectName : objectNames) {
-			String tableName = YamlMapper.getTableName(objectName);
-			Map<String, Object> objectData = YamlMapper.getObjectData(objectName);
-			Map<String, String> objectFieldData = YamlMapper.getFieldToColumnMap(objectName);
-			Map<String, Object> insertValues = new HashMap<String, Object>();
-			String autoIncrementKey = null;
-			if(objectData.containsKey("autoIncrementKey"))
-			{
-				autoIncrementKey = (String) objectData.get("autoIncrementKey");
-			}
-			for(Map.Entry<String, String> tempMap : objectFieldData.entrySet())
-			{
-				String key = tempMap.getKey();
-				String keyNameInTable  = objectFieldData.get(key);
-				if(key.equals(autoIncrementKey))
-				{
-					continue;
-				} 
-				if(objectData.containsKey("refrenceingKey") && objectData.get("refrenceingKey").equals(key)) {
-					insertValues.put(keyNameInTable, refrenceKey);
-					continue;
-				} 
-				Object value = pojoValuesMap.get(key);
-				insertValues.put(keyNameInTable, value);
-			}
-			Long tempRef = insertHandler(tableName, insertValues);
-			if(refrenceKey==null)
-			{
-				refrenceKey =  tempRef;
+		try (Connection connection = DBConnectionPool.getConnection();){
+			connection.setAutoCommit(false);
+			try {
+				
+				for(String objectName : objectNames) {
+					String tableName = YamlMapper.getTableName(objectName);
+					Map<String, Object> objectData = YamlMapper.getObjectData(objectName);
+					Map<String, String> objectFieldData = YamlMapper.getFieldToColumnMap(objectName);
+					Map<String, Object> insertValues = new HashMap<String, Object>();
+					String autoIncrementKey = null;
+					if(objectData.containsKey("autoIncrementKey"))
+					{
+						autoIncrementKey = (String) objectData.get("autoIncrementKey");
+					}
+					for(Map.Entry<String, String> tempMap : objectFieldData.entrySet())
+					{
+						String key = tempMap.getKey();
+						String keyNameInTable  = objectFieldData.get(key);
+						if(key.equals(autoIncrementKey))
+						{
+							continue;
+						}
+						if(objectData.containsKey("refrenceingKey") && objectData.get("refrenceingKey").equals(key)) {
+							insertValues.put(keyNameInTable, refrenceKey);
+							continue;
+						} 
+						Object value = pojoValuesMap.get(key);
+						insertValues.put(keyNameInTable, value);
+					}
+					Long tempRef = insertHandler(tableName, insertValues, connection);
+					if(Validator.isNull(refrenceKey))
+					{
+						refrenceKey =  tempRef;
+					}
+				}
+			} catch (Exception e) {
+				connection.rollback();
+				throw e;
 			}
 		}
 		return refrenceKey;
 	}
 	
-	private Long insertHandler(String tableName, Map<String, Object> insertValues) throws SQLException {
+	private Long insertHandler(String tableName, Map<String, Object> insertValues, Connection connection) throws SQLException {
 		QueryBuilder qb = new QueryBuilder();
 	    qb.insert(tableName, insertValues.keySet());
 	    String sqlQuery = qb.finish();
 	    Long generatedKey = null;
-	    try (Connection connection = DBConnectionPool.getConnection();
-    	    PreparedStatement stmt = connection.prepareStatement(sqlQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
+	    try (PreparedStatement stmt = connection.prepareStatement(sqlQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
     	    setValuesInPstm(stmt, insertValues.values(), 1);
     	    AsyncLoggerUtil.log(DataAccessObject.class, Level.INFO, stmt);
     	    stmt.executeUpdate();
@@ -97,7 +105,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 	
 	//Update operation
 	public void update(T object) throws Exception {
-		if(object==null) {
+		if(Validator.isNull(object)) {
 			throw new Exception("Object is null.");
 		}
 		Class<?> clazz = object.getClass();
@@ -124,7 +132,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 				.putWhereConditionsValues(getKeyValue.invoke(object, (Object[]) null))
 				.setUpdateField(updateFields);
 
-		if(updateFields==null || updateFields.isEmpty()) {
+		if(Validator.isNull(updateFields) || updateFields.isEmpty()) {
 	    	return;
 	    }
 	    
@@ -220,7 +228,7 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
     }
 
     public static int setValuesInPstm(PreparedStatement pstm, Collection<Object> values, int count) throws SQLException {
-		if(values==null || values.isEmpty()) {
+		if(Validator.isNull(values) || values.isEmpty()) {
 			return count;
 		}
 		for(Object value:values) {

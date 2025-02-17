@@ -6,10 +6,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Level;
 import com.netbanking.activityLogger.AsyncLoggerUtil;
 import com.netbanking.exception.CustomException;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class ErrorHandler {
     public static void handleException(Exception ex, HttpServletResponse httpResponse) throws IOException {
-    	ex.printStackTrace();
     	AsyncLoggerUtil.log(ErrorHandler.class, Level.ERROR, ex);
         if (ex instanceof CustomException) {
         	CustomException customException = (CustomException) ex;
@@ -48,8 +49,8 @@ public class ErrorHandler {
         try {
             // Regular expression to match the value between "Duplicate entry '" and "' for key"
             String regex = "Duplicate entry '(.+?)' for key";
-            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
-            java.util.regex.Matcher matcher = pattern.matcher(message);
+            Pattern pattern = java.util.regex.Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(message);
             if (matcher.find()) {
                 duplicateValue = matcher.group(1); // Extract the value (e.g., '87')
             }

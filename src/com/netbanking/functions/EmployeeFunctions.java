@@ -17,6 +17,7 @@ import com.netbanking.object.Employee;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.PasswordUtility;
 import com.netbanking.util.Redis;
+import com.netbanking.util.Validator;
 
 public class EmployeeFunctions {
 	@SuppressWarnings("unchecked")
@@ -39,7 +40,7 @@ public class EmployeeFunctions {
 									.putWhereOperators("=");
 		DataAccessObject<Employee> daoCaller = new DataAccessObject<>();
 		List<Map<String, Object>> resultList = daoCaller.select(request);
-		Map<String, Object> map = (resultList == null || resultList.isEmpty()) ? null : resultList.get(0);
+		Map<String, Object> map = (Validator.isNull(resultList) || resultList.isEmpty()) ? null : resultList.get(0);
 		Redis.setex(cacheKey, map);
 		return map;
 	}

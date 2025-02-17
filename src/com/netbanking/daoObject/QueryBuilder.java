@@ -3,6 +3,8 @@ package com.netbanking.daoObject;
 import java.util.Collection;
 import java.util.List;
 
+import com.netbanking.util.Validator;
+
 public class QueryBuilder {
 	public StringBuilder sqlQuery = new StringBuilder();
 	
@@ -28,7 +30,7 @@ public class QueryBuilder {
 	}
 	
 	public QueryBuilder insert(String tableName, Collection<String> fields) {
-		if(fields==null || fields.isEmpty()) {
+		if(Validator.isNull(fields) || fields.isEmpty()) {
 			return this;
 		}
 		sqlQuery.append("INSERT INTO ").append(tableName);
@@ -57,7 +59,7 @@ public class QueryBuilder {
 	}
 	
 	public QueryBuilder set(List<String> fields) {
-		if(fields==null || fields.isEmpty()) {
+		if(Validator.isNull(fields) || fields.isEmpty()) {
 			return this;
 		}
 		sqlQuery.append(" SET ");
@@ -67,7 +69,7 @@ public class QueryBuilder {
 	}
 	
 	public QueryBuilder where(Collection<String> fields, List<String> operators, List<String> logicOperators) {
-		if(fields==null || fields.isEmpty()) {
+		if(Validator.isNull(fields) || fields.isEmpty()) {
 			return this;
 		}
 		sqlQuery.append(" WHERE ");
@@ -87,7 +89,7 @@ public class QueryBuilder {
 	}
 	
 	public QueryBuilder join(List<Join> joins) {
-		if(joins==null || joins.isEmpty()) {
+		if(Validator.isNull(joins) || joins.isEmpty()) {
 			return this;
 		}
 		for(Join join:joins) {
@@ -117,7 +119,7 @@ public class QueryBuilder {
 	}
 	
 	public QueryBuilder order(List<String> orderColumns, List<String> sortingOrders) {
-		if(orderColumns==null || orderColumns.isEmpty()) {
+		if(Validator.isNull(orderColumns) || orderColumns.isEmpty()) {
 			return this;
 		}
 		sqlQuery.append(" ORDER BY");
@@ -132,7 +134,7 @@ public class QueryBuilder {
 	}
 	
 	public QueryBuilder limit(Integer limit) {
-		if(limit==null) {
+		if(Validator.isNull(limit)) {
 			return this;
 		}
 		sqlQuery.append(" LIMIT ").append(limit);
@@ -140,7 +142,7 @@ public class QueryBuilder {
 	}
 	
 	public QueryBuilder offset(Integer offset) {
-		if(offset==null) {
+		if(Validator.isNull(offset)) {
 			return this;
 		}
 		sqlQuery.append(" OFFSET ").append(offset);

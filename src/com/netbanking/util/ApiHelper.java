@@ -5,9 +5,7 @@ import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletResponse;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.netbanking.exception.CustomException;
@@ -29,7 +27,7 @@ public class ApiHelper {
 	}
 	
     public static <T> T getPojoFromRequest(Map<String, Object> data, Class<T> pojoClass) throws Exception {
-        if(data==null) {
+        if(Validator.isNull(data)) {
         	return null;
         }
         T pojo;
@@ -67,11 +65,11 @@ public class ApiHelper {
     }
     
     public static Long getCount(List<Map<String, Object>> list) {
-    	if(list==null||list.isEmpty()) {
+    	if(Validator.isNull(list)||list.isEmpty()) {
     		return null;
     	}
     	Object value = list.get(0).getOrDefault("count", null);
-    	if(value==null) {
+    	if(Validator.isNull(value)) {
 			return null;
 		}
 		
@@ -95,7 +93,7 @@ public class ApiHelper {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
 	private static Object convertValue(Object value, Class<?> targetType) throws CustomException {
-        if (value == null) {
+        if (Validator.isNull(value)) {
             return null;
         }
 

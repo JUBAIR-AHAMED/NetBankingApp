@@ -17,7 +17,7 @@ public class AsyncLoggerUtil {
             } else if (level == Level.WARN) {
                 logger.warn(message);
             } else if (level == Level.ERROR) {
-                logger.error(message);
+                logger.error("Error Message", message);
             } else if (level == Level.FATAL) {
                 logger.fatal(message);
             } else {

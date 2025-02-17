@@ -17,6 +17,7 @@ import com.netbanking.object.Customer;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.PasswordUtility;
 import com.netbanking.util.Redis;
+import com.netbanking.util.Validator;
 
 public class CustomerFunctions {
 	@SuppressWarnings("unchecked")
@@ -38,7 +39,7 @@ public class CustomerFunctions {
 									.putWhereOperators("=");
 		DataAccessObject<Customer> daoCaller = new DataAccessObject<>();
 		List<Map<String, Object>> resultList = daoCaller.select(request);
-		Map<String, Object> map = (resultList == null || resultList.isEmpty()) ? null : resultList.get(0);
+		Map<String, Object> map = (Validator.isNull(resultList) || resultList.isEmpty()) ? null : resultList.get(0);
 		Redis.setex(cacheKey, map);
 		return map;
 	}
@@ -54,7 +55,7 @@ public class CustomerFunctions {
 	}
 	
 	public void updateCustomer(Customer customer, Long userId, Long key) throws Exception {
-		if(customer==null) {
+		if(Validator.isNull(customer)) {
 			return;
 		}
 		GetMetadata userMetadata = GetMetadata.USER;

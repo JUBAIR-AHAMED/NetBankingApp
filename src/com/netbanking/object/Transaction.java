@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.netbanking.enums.TransactionType;
 import com.netbanking.exception.CustomException;
 import com.netbanking.model.Model;
+import com.netbanking.util.Validator;
 
 public class Transaction implements Model {
     private Long referenceNumber;  // Use Integer if you want to allow nulls, otherwise use int
@@ -137,7 +138,7 @@ public class Transaction implements Model {
     
     // change to enum
     public void setType(String type) throws CustomException {
-    	if (TransactionType.valueOf(type) == null) {
+    	if (Validator.isNull(TransactionType.valueOf(type))) {
                 throw new CustomException(
                     HttpServletResponse.SC_BAD_REQUEST,
                     "Type must be one of the following: Deposit, Withdraw, Credit, or Debit."

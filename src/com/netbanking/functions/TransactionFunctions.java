@@ -84,7 +84,7 @@ public class TransactionFunctions {
 		
 		if(transactionType.equals("same-bank"))
 		{
-			if(toAccountMap==null||toAccountMap.isEmpty()) {
+			if(Validator.isNull(toAccountMap)||toAccountMap.isEmpty()) {
 				throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Reciever account is invalid.");
 			}
 			Validator.checkInvalidInput(toAccountNumber);

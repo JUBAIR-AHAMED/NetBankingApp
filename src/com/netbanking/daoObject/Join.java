@@ -3,6 +3,8 @@ package com.netbanking.daoObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.netbanking.util.Validator;
+
 public class Join {
 	private String joinType;
 	private String tableName;
@@ -90,7 +92,7 @@ public class Join {
     
     // Put
     public Join putLeftTable(String... leftTable) {
-        if(this.leftTable==null) {
+        if(Validator.isNull(this.leftTable)) {
         	this.leftTable = new ArrayList<>();
         }
     	for(String value:leftTable) {
@@ -100,7 +102,7 @@ public class Join {
     }
     
     public Join putLeftColumn(String... leftColumn) {
-        if(this.leftColumn==null) {
+        if(Validator.isNull(this.leftColumn)) {
         	this.leftColumn = new ArrayList<>();
         }
     	for(String value:leftColumn) {
@@ -110,7 +112,7 @@ public class Join {
     }
     
     public Join putRightTable(String... rightTable) {
-        if(this.rightTable==null) {
+        if(Validator.isNull(this.rightTable)) {
         	this.rightTable = new ArrayList<>();
         }
     	for(String value:rightTable) {
@@ -120,7 +122,7 @@ public class Join {
     }
     
     public Join putRightColumn(String... rightColumn) {
-        if(this.rightColumn==null) {
+        if(Validator.isNull(this.rightColumn)) {
         	this.rightColumn = new ArrayList<>();
         }
     	for(String value:rightColumn) {
@@ -130,7 +132,7 @@ public class Join {
     }
     
     public Join putOperator(String... operator) {
-        if(this.operator==null) {
+        if(Validator.isNull(this.operator)) {
         	this.operator = new ArrayList<>();
         }
     	for(String value:operator) {
@@ -140,7 +142,7 @@ public class Join {
     }
     
     public Join putLogicalOperator(String... logicalOperator) {
-        if(this.logicalOperator==null) {
+        if(Validator.isNull(this.logicalOperator)) {
         	this.logicalOperator = new ArrayList<>();
         }
     	for(String value:logicalOperator) {

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.netbanking.mapper.YamlMapper;
+import com.netbanking.util.Validator;
 
 public class QueryRequest {
     private String tableName;
@@ -56,7 +57,7 @@ public class QueryRequest {
     }
 
     public QueryRequest putJoinConditions(Join... condition) {
-    	if (this.joinConditions == null) {
+    	if (Validator.isNull(this.joinConditions)) {
     		this.joinConditions = new ArrayList<>();
     	}
     	for(Join joins:condition)
@@ -71,7 +72,7 @@ public class QueryRequest {
         	convertFields(getTableName(), whereConditions);
 	    }
     	if(whereConditionsType!=null) {
-    		if(whereConditions==null) {
+    		if(Validator.isNull(whereConditions)) {
     			whereConditions = new ArrayList<String>();
     			whereConditionsValues = new ArrayList<Object>();
     		}
@@ -94,7 +95,7 @@ public class QueryRequest {
     }
     
     public QueryRequest putWhereConditions(String... conditions) {
-        if(whereConditions==null)
+        if(Validator.isNull(whereConditions))
         {
         	whereConditions = new ArrayList<String>();
         }
@@ -123,7 +124,7 @@ public class QueryRequest {
     }
     
     public QueryRequest putWhereConditionsValues(Object... values) {
-    	if(whereConditionsValues==null)
+    	if(Validator.isNull(whereConditionsValues))
     	{
     		whereConditionsValues = new ArrayList<Object>();
     	}
@@ -145,7 +146,7 @@ public class QueryRequest {
     }
     
     public QueryRequest putUpdateField(String... updateFields) {
-        if(updateField==null)
+        if(Validator.isNull(updateField))
         {
         	updateField = new ArrayList<String>();
         }
@@ -165,7 +166,7 @@ public class QueryRequest {
     }
     
     public QueryRequest putUpdateValue(Object... updateValues) {
-        if(updateValue==null)
+        if(Validator.isNull(updateValue))
         {
         	updateValue = new ArrayList<Object>();
         }
@@ -185,7 +186,7 @@ public class QueryRequest {
     }
     
     public List<String> getSelectColumns() throws Exception {
-    	if(selectColumns==null) {
+    	if(Validator.isNull(selectColumns)) {
     		return null;
     	}
     	List<String> selectColsToReturn = new ArrayList<String>(selectColumns);
@@ -204,7 +205,7 @@ public class QueryRequest {
     }
     
     public QueryRequest putSelectColumns(String... selectColumns) {
-        if(this.selectColumns==null) {
+        if(Validator.isNull(this.selectColumns)) {
         	this.selectColumns = new ArrayList<String>();
         }
         for(String select:selectColumns) {
@@ -245,7 +246,7 @@ public class QueryRequest {
     }
     
     public QueryRequest putSelects(Condition... selects) {
-        if(this.selects==null) {
+        if(Validator.isNull(this.selects)) {
         	this.selects = new ArrayList<Condition>();
         }
         for(Condition select:selects) {
@@ -283,7 +284,7 @@ public class QueryRequest {
     }
     
     public QueryRequest putWhereOperators(String... operators) {
-        if(whereOperators==null)
+        if(Validator.isNull(whereOperators))
         {
         	whereOperators=new ArrayList<String>();
         }
@@ -304,7 +305,7 @@ public class QueryRequest {
     }
     
     public QueryRequest putWhereLogicalOperators(String... logicalOperators) {
-        if(whereLogicalOperators==null)
+        if(Validator.isNull(whereLogicalOperators))
         {
         	whereLogicalOperators=new ArrayList<String>();
         }
@@ -344,22 +345,22 @@ public class QueryRequest {
     
     public String convertField(String tableName, String field) throws Exception {
 		Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(tableName);
-		if(fieldToColumnMap==null) {
+		if(Validator.isNull(fieldToColumnMap)) {
 			throw new Exception("Table name is invalid");
 		}
 		String newField = fieldToColumnMap.get(field);
-		if(newField==null) {
+		if(Validator.isNull(newField)) {
 			throw new Exception("Field name is invalid: "+field);
 		}
 		return newField;
 	}
     
     public void convertFields(String tableName, List<String> fields) throws Exception {
-    	if(fields==null) {
+    	if(Validator.isNull(fields)) {
     		return;
     	}
 		Map<String, String> fieldToColumnMap = YamlMapper.getFieldToColumnMapByTableName(tableName);
-		if(fieldToColumnMap==null) {
+		if(Validator.isNull(fieldToColumnMap)) {
 			throw new Exception("Table name is invalid: "+tableName);
 		}
 		for(int i=0;i<fields.size();i++) {

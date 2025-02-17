@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import com.netbanking.model.Model;
+import com.netbanking.util.Validator;
 
 public class PojoValueMapper<T extends Model> {
     public Map<String, Object> getMap(T entity) throws Exception {
@@ -54,8 +55,8 @@ public class PojoValueMapper<T extends Model> {
     }
     
     public static String capitalizeFirstLetter(String input) {
-        if (input == null || input.isEmpty()) {
-            return input; // Return the original string if it's null or empty
+        if (Validator.isNull(input) || input.isEmpty()) {
+            return input;
         }
         return input.substring(0, 1).toUpperCase() + input.substring(1);
     }

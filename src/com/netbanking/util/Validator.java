@@ -3,11 +3,15 @@ package com.netbanking.util;
 import com.netbanking.exception.CustomException;
 
 public class Validator {
+	public static boolean isNull(Object obj) {
+		return obj == null ? true : false;
+	}
+	
 	public static void checkInvalidInput(Object... objects) throws CustomException
 	{
 		for(Object obj:objects)
 		{		  
-			if (obj == null) {
+			if (Validator.isNull(obj)) {
 				throw new CustomException(400, "Inputs cannot be null.");
 			}
 		}
