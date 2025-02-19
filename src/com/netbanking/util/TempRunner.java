@@ -1,10 +1,21 @@
 package com.netbanking.util;
 
-import com.netbanking.enums.Role;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
 public class TempRunner {
 	public static void main(String[] args) {
-		Role role = Role.CUSTOMER;
-		System.out.println(role.name());
+//		new FutureTask<String>(new TempRunner.x());
+//		Callable<String> task = () -> {
+//            System.out.println("Running in a separate thread!");
+//            return "Task Completed"; 
+//        };
+		new String("PUT").concat("asd");
+	}
+	static class x implements Callable<String>{
+		@Override
+		public String call() throws Exception {
+			return null;
+		}
 	}
 }

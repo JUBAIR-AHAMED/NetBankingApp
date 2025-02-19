@@ -584,11 +584,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const totalCount = data.count || 0; // Total accounts count
                 totalPages = Math.ceil(totalCount / limit); // Calculate total pages
             } else {
-                alert(data.message);
+                showNotification(data.message, "warning");
             }
         } catch (error) {
             console.error('Error fetching total count:', error);
-            alert('Failed to load total count. Please try again.');
+            showNotification('Failed to load total count. Please try again.', "error");
         }
     }
 
@@ -635,7 +635,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         } catch (error) {
             console.error('Error fetching accounts:', error);
-            alert("Failed to retrieve accounts.");
+            showNotification("Failed to retrieve accounts.", "error");
         }
     }
 
@@ -666,11 +666,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.status == 200) {
                 return data.users
             } else {
-                alert(data.message);
+                showNotification(data.message, "warning");
             }
         } catch (error) {
             console.error('Error fetching accounts:', error);
-            alert("Failed to retrieve accounts.");
+            showNotification("Failed to retrieve accounts.", "error");
         }
     }
 
@@ -850,7 +850,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // If no changes, notify and return
         if (Object.keys(updatedProfile).length === 0) {
-            alert("No changes detected.");
+            showNotification("No changes detected.", "warning");
             return;
         }
         const accountNumber = document.getElementById("accountNumberField").innerText;
@@ -881,7 +881,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         } catch (error) {
             console.error(error);
-            alert("An error occurred while updating the profile.");
+            showNotification("An error occurred while updating the profile.");
         }
     }
 
@@ -920,12 +920,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.status == 200) {
                 return data.branch; // Return the branch details
             } else {
-                alert(data.message);
+                showNotification(data.message, "warning");
                 return null;
             }
         } catch (error) {
             console.error('Error fetching branch details:', error);
-            alert("Failed to fetch branch details.");
+            showNotification("Failed to fetch branch details.", "error");
             return null;
         }
     }

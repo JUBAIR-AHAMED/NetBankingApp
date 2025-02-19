@@ -47,7 +47,7 @@ public class TransactionHandler {
 		Parser.storeIfPresent(jsonObject, data, "currentPage", Integer.class, "Current Page", false);
 		Parser.storeIfPresent(jsonObject, data, "count", Boolean.class, "Count", false);
 		
-		Map<String, Object> accountData = new AccountFunctions().get((Long) data.get("accountNumber"));
+		Map<String, Object> accountData = AccountFunctions.getInstance().get((Long) data.get("accountNumber"));
 		// Validation
 		if(Validator.isNull(accountData)) {
 			throw new CustomException(HttpServletResponse.SC_NOT_FOUND,"Account not found.");
@@ -75,7 +75,7 @@ public class TransactionHandler {
 			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Time frame is invalid.");
 		}
 		
-        List<Map<String, Object>> statement = new TransactionFunctions().getStatement(data, accountData);
+        List<Map<String, Object>> statement = TransactionFunctions.getInstance().getStatement(data, accountData);
         Long count = ApiHelper.getCount(statement);
         if(count!=null) {
         	responseMap.put("count", count);
@@ -132,11 +132,11 @@ public class TransactionHandler {
         	if (!locked) {
         		throw new CustomException(HttpServletResponse.SC_CONFLICT, "Transaction failed due to concurrent access.");
         	}
-        	Map<String, Object> fromAccountMap = new AccountFunctions().get(fromAccount);
+        	Map<String, Object> fromAccountMap = AccountFunctions.getInstance().get(fromAccount);
         	Map<String, Object> toAccountMap=null;
         	
         	if(toAccount!=null) {
-        		toAccountMap = new AccountFunctions().get(toAccount);
+        		toAccountMap = AccountFunctions.getInstance().get(toAccount);
         	}
         	if(Validator.isNull(fromAccountMap)) {
         		throw new CustomException(HttpServletResponse.SC_NOT_FOUND, "Sender account not found.");
@@ -193,7 +193,7 @@ public class TransactionHandler {
         	if(transactionType.equals("same-bank")) {
         		toAccountUserId = Converter.convertToLong(toAccountMap.get("userId"));
         	}
-        	new TransactionFunctions().initiateTransaction(details, fromAccountMap, toAccountMap);	
+        	TransactionFunctions.getInstance().initiateTransaction(details, fromAccountMap, toAccountMap);	
         } finally {
         	if (firstLock.isHeldByCurrentThread()) {
         		firstLock.unlock();

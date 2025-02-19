@@ -27,7 +27,7 @@ public class LoginHandler {
         JsonObject jsonObject = Parser.getJsonObject(request);
         Long userId = Parser.getValue(jsonObject, "userId", Long.class, "User Id", true);
 		String password = Parser.getValue(jsonObject, "password", String.class, "Password", true);
-		Map<String, Object> userDetails = new UserFunctions().get(userId);
+		Map<String, Object> userDetails = UserFunctions.getInstance().get(userId);
 		if(userDetails != null && !userDetails.isEmpty()) {
 			Boolean check=PasswordUtility.verifyPassword(password, (String) userDetails.get("password"));
 			if(!check) {
@@ -42,11 +42,11 @@ public class LoginHandler {
 		}
 		Role role = Role.valueOf((String) userDetails.get("role"));
 		if(role.equals(Role.EMPLOYEE)||role.equals(Role.MANAGER)) {
-			userDetails.putAll(new EmployeeFunctions().get(userId));
+			userDetails.putAll(EmployeeFunctions.getInstance().get(userId));
 		}
 		else if(role.equals(Role.CUSTOMER))
 		{
-			userDetails.putAll(new CustomerFunctions().get(userId));
+			userDetails.putAll(CustomerFunctions.getInstance().get(userId));
 		}
 		
         String jwt = TokenHelper.generateJwt(userDetails);

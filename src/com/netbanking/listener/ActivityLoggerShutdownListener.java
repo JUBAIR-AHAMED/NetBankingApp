@@ -15,7 +15,7 @@ public class ActivityLoggerShutdownListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         // Shutting down the executor service gracefully
-    	logger.info("Shutting down ActivityLogger executor...");
+    	logger.info("Shutting down executor service...");
         Executor executor = Executor.EXECUTOR;
         executor.getInstance().shutdown(); // Initiates the shutdown process
         try {

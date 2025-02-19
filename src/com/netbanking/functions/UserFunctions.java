@@ -13,6 +13,18 @@ import com.netbanking.util.UserDetailsLocal;
 import com.netbanking.util.Validator;
 
 public class UserFunctions {
+	private static UserFunctions instance;
+	
+	private UserFunctions() {
+	}
+	
+	public static UserFunctions getInstance() {
+		if(Validator.isNull(instance)) {
+			instance = new UserFunctions();
+		}
+		return instance;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> get(Long id) throws CustomException, Exception
 	{

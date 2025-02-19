@@ -18,7 +18,6 @@ import com.netbanking.object.Activity;
 import com.netbanking.object.Employee;
 import com.netbanking.object.User;
 import com.netbanking.util.ApiHelper;
-import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
 import com.netbanking.util.UserDetailsLocal;
 import com.netbanking.util.Writer;
@@ -32,7 +31,7 @@ public class EmployeeHandler {
 		RequiredFields.EMPLOYEE.validate(data);
 		Employee employee = ApiHelper.getPojoFromRequest(data, Employee.class);
 		// initiating creation
-		Long createdEmployeeId = new EmployeeFunctions().createEmployee(employee, userId);
+		Long createdEmployeeId = EmployeeFunctions.getInstance().createEmployee(employee, userId);
 		// Activity Logger
 		new Activity()
     		.setAction("CREATE")
@@ -65,13 +64,13 @@ public class EmployeeHandler {
 		// generating the pojo object 
         User user = ApiHelper.getPojoFromRequest(data, User.class);
         Employee employee = ApiHelper.getPojoFromRequest(data, Employee.class);
-        Map<String, Object>  userData = new UserFunctions().get(key);
+        Map<String, Object>  userData = UserFunctions.getInstance().get(key);
         if(userData.get("status").equals(Status.INACTIVE.toString())) {
         	throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "User is inactive.");
         }
         // updating using the object
-        new UserFunctions().updateUser(user, key);
-        new EmployeeFunctions().updateEmployee(employee, userId, key);
+        UserFunctions.getInstance().updateUser(user, key);
+        EmployeeFunctions.getInstance().updateEmployee(employee, userId, key);
         // activity logger
         new Activity()
         		.setAction("UPDATE")

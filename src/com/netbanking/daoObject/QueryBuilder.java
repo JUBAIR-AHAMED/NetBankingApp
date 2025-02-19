@@ -149,11 +149,6 @@ public class QueryBuilder {
 		return this;
 	}
 	
-	public QueryBuilder endQuery() {
-		sqlQuery.append("; ");
-		return this;
-	}
-	
 	public String finish() {
 		sqlQuery.append(";");
 		String query = sqlQuery.toString();

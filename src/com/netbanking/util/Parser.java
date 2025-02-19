@@ -122,7 +122,7 @@ public class Parser {
                     Set<String> set = new HashSet<>();
 
                     for (JsonElement jsonElement : jsonArray) {
-                        set.add(jsonElement.getAsString()); // Add String elements to the Set
+                        set.add(jsonElement.getAsString()); 
                     }
 
                     return (T) set;
@@ -135,7 +135,7 @@ public class Parser {
         } else if(required) {
         	throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, fieldName + " is required and cannot be null or empty.");
         }
-        return null; // Return null if the key is not present or jsonObject is null
+        return null; 
     }
 
 

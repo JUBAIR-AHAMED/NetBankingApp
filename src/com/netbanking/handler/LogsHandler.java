@@ -5,12 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import com.google.gson.JsonObject;
 import com.netbanking.functions.ActivityFunctions;
 import com.netbanking.util.ApiHelper;
-import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
 import com.netbanking.util.Writer;
 
@@ -31,7 +32,7 @@ public class LogsHandler {
 		Integer limit = Parser.getValue(jsonObject, "limit", Integer.class, "Limit", false);
 		Integer currentPage = Parser.getValue(jsonObject, "currentPage", Integer.class, "Current Page", false);
 
-		List<Map<String, Object>> logs = new ActivityFunctions().filteredGetActivity(filters, limit, currentPage);
+		List<Map<String, Object>> logs = ActivityFunctions.getInstance().filteredGetActivity(filters, limit, currentPage);
 		// Sending the count or account data as requested
 		if (countReq != null && countReq) {
 			Long count = ApiHelper.getCount(logs);

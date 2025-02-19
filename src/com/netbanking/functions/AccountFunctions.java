@@ -18,6 +18,18 @@ import com.netbanking.util.UserDetailsLocal;
 import com.netbanking.util.Validator;
 
 public class AccountFunctions {
+	private static AccountFunctions instance;
+	
+	private AccountFunctions() {
+	}
+	
+	public static AccountFunctions getInstance() {
+		if(Validator.isNull(instance)) {
+			instance = new AccountFunctions();
+		}
+		return instance;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> get(Long id) throws CustomException, Exception
 	{

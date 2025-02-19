@@ -14,13 +14,10 @@ import com.netbanking.enums.Role;
 import com.netbanking.exception.CustomException;
 import com.netbanking.functions.BranchFunctions;
 import com.netbanking.functions.EmployeeFunctions;
-import com.netbanking.functions.UserFunctions;
 import com.netbanking.object.Activity;
 import com.netbanking.object.Branch;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Converter;
-import com.netbanking.util.PasswordUtility;
-import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
 import com.netbanking.util.UserDetailsLocal;
 import com.netbanking.util.Writer;
@@ -33,13 +30,13 @@ public class BranchHandler {
 		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
 		RequiredFields.BRANCH.validate(data);
 		Branch branch = ApiHelper.getPojoFromRequest(data, Branch.class);
-		Map<String, Object> userDetails = new EmployeeFunctions().get(branch.getEmployeeId());
+		Map<String, Object> userDetails = EmployeeFunctions.getInstance().get(branch.getEmployeeId());
 		if(userDetails != null && !userDetails.isEmpty()) {	
 			throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "Invalid employee id.");
 		} else if(userDetails.get("role").equals(Role.MANAGER.toString())) {
 			throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "The employee is not a manager.");
 		}
-		Long createdBranchId = new BranchFunctions().createBranch(branch);	
+		Long createdBranchId = BranchFunctions.getInstance().createBranch(branch);	
 		Long subjectId = Converter.convertToLong(data.get("employeeId"));
 		// Activity logger
 		new Activity()
@@ -79,7 +76,7 @@ public class BranchHandler {
         Integer limit=Parser.getValue(jsonObject, "limit", Integer.class, "Limit", false);
         Integer currentPage=Parser.getValue(jsonObject, "currentPage", Integer.class, "Current Page", false);
         // fetching branch data
-        List<Map<String, Object>> branch =new BranchFunctions().filteredGetBranch(filters, limit, currentPage);            
+        List<Map<String, Object>> branch = BranchFunctions.getInstance().filteredGetBranch(filters, limit, currentPage);            
         // if asked to get count
         if(countReq!=null&&countReq) {
         	Long count = ApiHelper.getCount(branch);

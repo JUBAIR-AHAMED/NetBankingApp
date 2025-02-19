@@ -4,18 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import com.netbanking.dao.DataAccessObject;
 import com.netbanking.daoObject.QueryRequest;
 import com.netbanking.daoObject.Where;
 import com.netbanking.enumHelper.GetMetadata;
-import com.netbanking.enums.Role;
 import com.netbanking.object.Account;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Redis;
-import com.netbanking.util.UserDetailsLocal;
+import com.netbanking.util.Validator;
 
 public class ActivityFunctions {
+	private static ActivityFunctions instance;
+	
+	private ActivityFunctions() {
+	}
+	
+	public static ActivityFunctions getInstance() {
+		if(Validator.isNull(instance)) {
+			instance = new ActivityFunctions();
+		}
+		return instance;
+	}
+	
 	public List<Map<String, Object>> filteredGetActivity(Map<String, Object> filters, Integer limit, Integer currentPage) throws Exception
 	{
 		Integer offset = ApiHelper.getOffset(limit, currentPage);

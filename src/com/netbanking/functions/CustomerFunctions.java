@@ -20,6 +20,18 @@ import com.netbanking.util.Redis;
 import com.netbanking.util.Validator;
 
 public class CustomerFunctions {
+	private static CustomerFunctions instance;
+	
+	private CustomerFunctions() {
+	}
+	
+	public static CustomerFunctions getInstance() {
+		if(Validator.isNull(instance)) {
+			instance = new CustomerFunctions();
+		}
+		return instance;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> get(Long id) throws CustomException, Exception
 	{

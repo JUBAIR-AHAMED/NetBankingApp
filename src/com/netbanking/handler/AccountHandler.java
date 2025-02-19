@@ -24,7 +24,6 @@ import com.netbanking.object.Account;
 import com.netbanking.object.Activity;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Converter;
-import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
 import com.netbanking.util.UserDetailsLocal;
 import com.netbanking.util.Validator;
@@ -32,17 +31,18 @@ import com.netbanking.util.Writer;
 
 public class AccountHandler {
 	public static void handleGet(HttpServletRequest request, HttpServletResponse response) throws IOException, Exception {
-		Map<String, Object> responseMap = new HashMap<>();
 		UserDetailsLocal store = UserDetailsLocal.get();
 		Long userId = store.getUserId();
 		Role role = store.getRole();
 		Map<String, Object> filters = new HashMap<String, Object>();
 		JsonObject jsonObject = Parser.getJsonObject(request);
+		
 		Parser.storeIfPresent(jsonObject, filters, "accountNumber", Long.class, "Account Number", false);
 		Parser.storeIfPresent(jsonObject, filters, "userId", Long.class, "User Id", false);
 		Parser.storeIfPresent(jsonObject, filters, "branchId", Long.class, "Branch Id", false);
 		Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);
 		Parser.storeIfPresent(jsonObject, filters, "searchSimilarFields", Set.class, "Similar search fields", false);
+		
 		Boolean countReq = (Boolean) filters.get("count");
 		if (role.equals(Role.CUSTOMER)) {
 			if(!filters.isEmpty()) {
@@ -54,8 +54,9 @@ public class AccountHandler {
 		Integer limit = Parser.getValue(jsonObject, "limit", Integer.class, "Limit", false);
 		Integer currentPage = Parser.getValue(jsonObject, "currentPage", Integer.class, "Current Page", false);
 
-		List<Map<String, Object>> accounts = new AccountFunctions().filteredGetAccount(filters, limit, currentPage);
+		List<Map<String, Object>> accounts = AccountFunctions.getInstance().filteredGetAccount(filters, limit, currentPage);
 		// Sending the count or account data as requested
+		Map<String, Object> responseMap = new HashMap<>();
 		if (countReq != null && countReq) {
 			Long count = ApiHelper.getCount(accounts);
 			responseMap.put("count", count);
@@ -68,19 +69,20 @@ public class AccountHandler {
 	}
 
 	public static void handlePost(HttpServletRequest request, HttpServletResponse response) throws IOException, Exception {
-			Map<String, Object> responseMap = new HashMap<>();
 			UserDetailsLocal store = UserDetailsLocal.get();
 			Long userId = store.getUserId();
 			StringBuilder jsonBody = Parser.getJsonBody(request);
 			Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
 			RequiredFields.ACCOUNT.validate(data);
 			Account account = ApiHelper.getPojoFromRequest(data, Account.class);
-			CustomerFunctions customerFunctional = new CustomerFunctions();
+			CustomerFunctions customerFunctional = CustomerFunctions.getInstance();
 			Map<String, Object> customerDetails = customerFunctional.get(account.getUserId());
-    		if(Validator.isNull(customerDetails)||customerDetails.isEmpty()) {
+    		
+			if(Validator.isNull(customerDetails)||customerDetails.isEmpty()) {
     			throw new CustomException(HttpServletResponse.SC_NOT_FOUND,"Customer id not found to create account.");
     		}
-			Long createdAccountNumber = new AccountFunctions().createAccount(account);
+			
+			Long createdAccountNumber = AccountFunctions.getInstance().createAccount(account);
 			// activity logs
 			Long accountUserId = Converter.convertToLong(data.get("userId"));
 			new Activity()
@@ -92,6 +94,7 @@ public class AccountHandler {
 				.setDetails(jsonBody.toString())
 				.setActionTime(System.currentTimeMillis())
 				.execute();
+			Map<String, Object> responseMap = new HashMap<>();
 			responseMap.put("accountNumber", createdAccountNumber);
 			AsyncLoggerUtil.log(AccountHandler.class, Level.INFO, "Accounts created successfully.");
 			Writer.responseMapWriter(response, HttpServletResponse.SC_OK, HttpServletResponse.SC_OK,
@@ -99,7 +102,6 @@ public class AccountHandler {
 	}
 
 	public static void handlePut(HttpServletRequest request, HttpServletResponse response) throws IOException, Exception {
-		Map<String, Object> responseMap = new HashMap<>();
 		UserDetailsLocal store = UserDetailsLocal.get();
 		Long userId = store.getUserId();
 		Role role = store.getRole();
@@ -109,7 +111,7 @@ public class AccountHandler {
 		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
 		Function<String, Object> parseLong = Long::parseLong;
 		Long key = (Long) parseLong.apply((String) data.remove("accountNumber"));
-		Map<String, Object> accountData = new AccountFunctions().get(key);
+		Map<String, Object> accountData = AccountFunctions.getInstance().get(key);
 
 		// Block the employee from editing the details of the account in another branch
 		if (role.equals(Role.EMPLOYEE)) {
@@ -127,7 +129,7 @@ public class AccountHandler {
 		
 		EditableFields.validateEditableFields(Account.class, data);
 		Account account = ApiHelper.getPojoFromRequest(data, Account.class);
-		new AccountFunctions().updateAccount(account, key);
+		AccountFunctions.getInstance().updateAccount(account, key);
 		
 		Long subjectId = Converter.convertToLong(accountData.get("userId"));
 		new Activity()
@@ -140,6 +142,7 @@ public class AccountHandler {
 			.setActionTime(System.currentTimeMillis())
 			.execute();
 		AsyncLoggerUtil.log(AccountHandler.class, Level.INFO, "Account updated successfully");
+		Map<String, Object> responseMap = new HashMap<>();
 		Writer.responseMapWriter(response, HttpServletResponse.SC_OK, HttpServletResponse.SC_OK,
 				"Account updated successfully", responseMap);
 	}

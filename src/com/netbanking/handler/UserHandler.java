@@ -17,8 +17,6 @@ import com.netbanking.functions.UserFunctions;
 import com.netbanking.object.Activity;
 import com.netbanking.object.User;
 import com.netbanking.util.ApiHelper;
-import com.netbanking.util.Converter;
-import com.netbanking.util.ErrorHandler;
 import com.netbanking.util.Parser;
 import com.netbanking.util.UserDetailsLocal;
 import com.netbanking.util.Writer;
@@ -48,10 +46,10 @@ public class UserHandler {
         String userType = Parser.getValue(jsonObject, "userType", String.class, "User Type", true);
         List<Map<String, Object>> users = null;
         if(userType.equalsIgnoreCase(Role.CUSTOMER.toString())) {
-        	users = new CustomerFunctions().getCustomers(filters, limit, currentPage);
+        	users = CustomerFunctions.getInstance().getCustomers(filters, limit, currentPage);
         } else if(userType.equalsIgnoreCase(Role.EMPLOYEE.toString())) {
         	Parser.storeIfPresent(jsonObject, filters, "branchId", Long.class, "Branch Id", false);
-        	users = new EmployeeFunctions().getEmployees(filters, limit, currentPage);
+        	users = EmployeeFunctions.getInstance().getEmployees(filters, limit, currentPage);
         }
         Long count = ApiHelper.getCount(users);
 
@@ -70,7 +68,7 @@ public class UserHandler {
         Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
         EditableFields.validateEditableFields(User.class, data);
         User user = ApiHelper.getPojoFromRequest(data, User.class);            
-        new UserFunctions().updateUser(user, userId);
+        UserFunctions.getInstance().updateUser(user, userId);
         
         new Activity()
     		.setAction("UPDATE")

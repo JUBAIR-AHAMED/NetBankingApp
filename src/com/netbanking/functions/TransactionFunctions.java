@@ -20,6 +20,18 @@ import com.netbanking.util.UserDetailsLocal;
 import com.netbanking.util.Validator;
 
 public class TransactionFunctions {
+	private static TransactionFunctions instance;
+	
+	private TransactionFunctions() {
+	}
+	
+	public static TransactionFunctions getInstance() {
+		if(Validator.isNull(instance)) {
+			instance = new TransactionFunctions();
+		}
+		return instance;
+	}
+	
 	public List<Map<String, Object>> getStatement(Map<String, Object> requestData, Map<String, Object> accountData) throws CustomException, Exception {
 		Long accountNumber = (Long) requestData.get("accountNumber");
 		Long fromDate = (Long) requestData.getOrDefault("fromDate", null);

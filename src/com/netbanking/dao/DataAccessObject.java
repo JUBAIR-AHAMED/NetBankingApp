@@ -79,11 +79,13 @@ public class DataAccessObject<T extends Model> implements Dao<T> {
 			} catch (Exception e) {
 				connection.rollback();
 				throw e;
+			} finally {
+				connection.setAutoCommit(true);
 			}
 		}
 		return refrenceKey;
 	}
-	
+
 	private Long insertHandler(String tableName, Map<String, Object> insertValues, Connection connection) throws SQLException {
 		QueryBuilder qb = new QueryBuilder();
 	    qb.insert(tableName, insertValues.keySet());

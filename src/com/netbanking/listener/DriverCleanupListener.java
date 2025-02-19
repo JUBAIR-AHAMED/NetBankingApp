@@ -13,13 +13,12 @@ import org.apache.logging.log4j.Logger;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import com.netbanking.util.DBConnectionPool;
-import com.zaxxer.hikari.HikariDataSource;
 
 public class DriverCleanupListener implements ServletContextListener {
 	private static Logger logger = LogManager.getLogger(DriverCleanupListener.class);
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
-	    try {
+		try {
 	        // Unregister JDBC drivers
 	        Enumeration<Driver> drivers = DriverManager.getDrivers();
 	        while (drivers.hasMoreElements()) {
@@ -43,20 +42,11 @@ public class DriverCleanupListener implements ServletContextListener {
 	    
         try {
             if (DBConnectionPool.getDataSource() != null) {
-                DBConnectionPool.getDataSource().close();
+                DBConnectionPool.close();
                 logger.info("Database connection pool closed successfully.");
             }
         } catch (Exception e) {
         	logger.error("Error closing database connection pool: " + e.getMessage());
-        }
-
-        try {
-            if (DBConnectionPool.getDataSource() instanceof HikariDataSource) {
-                ((HikariDataSource) DBConnectionPool.getDataSource()).close();
-                logger.info("HikariCP connection pool closed.");
-            }
-        } catch (Exception e) {
-        	logger.error("Error closing HikariCP pool: " + e.getMessage());
         }
 	}
 

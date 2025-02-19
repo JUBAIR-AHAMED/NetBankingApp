@@ -13,8 +13,21 @@ import com.netbanking.object.Branch;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Redis;
 import com.netbanking.util.UserDetailsLocal;
+import com.netbanking.util.Validator;
 
 public class BranchFunctions {
+	private static BranchFunctions instance;
+	
+	private BranchFunctions() {
+	}
+	
+	public static BranchFunctions getInstance() {
+		if(Validator.isNull(instance)) {
+			instance = new BranchFunctions();
+		}
+		return instance;
+	}
+	
 	public long createBranch(Branch branch) throws CustomException, Exception{
 		UserDetailsLocal store = UserDetailsLocal.get();
 		Long userId = store.getUserId();
