@@ -14580,3 +14580,9 @@ Caused by: java.lang.ExceptionInInitializerError: Failed to initialize DBConnect
 2025-02-25 15:43:30,867 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
 2025-02-25 15:43:30,867 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
 2025-02-25 15:43:30,867 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
+2025-02-25 16:29:43,459 INFO c.n.l.RedissonClientShutdownListener contextDestroyed - RedissonClient is shutdown successfully.
+2025-02-25 16:29:43,463 INFO c.n.l.DriverCleanupListener contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-25 16:29:43,466 INFO c.n.u.DBConnectionPool lambda$log$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-25 16:29:44,106 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
+2025-02-25 16:29:44,107 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
+2025-02-25 16:29:44,107 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.

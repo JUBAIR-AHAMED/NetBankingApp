@@ -1,11 +1,20 @@
-# Use Tomcat as the base image
+# Use Maven to build the WAR
+FROM maven:3.8.6-eclipse-temurin-17 AS builder
+
+# Set the working directory (change "NetBanking" if needed)
+WORKDIR /NetBanking
+
+# Copy the project files
+COPY . .
+
+# Build the project
+RUN mvn clean package -DskipTests
+
+# Use Tomcat to run the app
 FROM tomcat:9.0
 
-# Set working directory inside Tomcat
-WORKDIR /usr/local/tomcat/webapps/
-
-# Copy the pre-built WAR file from the repository to Tomcat
-COPY NetBanking/target/NetBanking-0.0.1-SNAPSHOT.war ROOT.war
+# Copy the built WAR file to Tomcat's webapps directory
+COPY --from=builder /NetBanking/target/NetBanking-0.0.1-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
 
 # Expose port 8080
 EXPOSE 8080
