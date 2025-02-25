@@ -14544,3 +14544,15 @@ Caused by: java.lang.ExceptionInInitializerError: Failed to initialize DBConnect
 2025-02-25 14:51:57,183 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
 2025-02-25 14:52:09,021 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
 2025-02-25 14:52:09,182 INFO c.n.h.LoginHandler lambda$0 - User 3 logged out.
+2025-02-25 15:08:49,606 INFO c.n.l.RedissonClientShutdownListener contextDestroyed - RedissonClient is shutdown successfully.
+2025-02-25 15:08:49,607 INFO c.n.l.DriverCleanupListener contextDestroyed - Deregistered JDBC driver: com.mysql.cj.jdbc.Driver@4ea92780
+2025-02-25 15:08:49,607 INFO c.n.l.DriverCleanupListener contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-25 15:08:49,622 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
+2025-02-25 15:08:49,623 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
+2025-02-25 15:08:49,626 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
+2025-02-25 15:23:41,786 INFO c.n.l.RedissonClientShutdownListener contextDestroyed - RedissonClient is shutdown successfully.
+2025-02-25 15:23:41,791 INFO c.n.l.DriverCleanupListener contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-25 15:23:41,794 INFO c.n.u.DBConnectionPool lambda$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-25 15:23:43,184 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
+2025-02-25 15:23:43,185 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
+2025-02-25 15:23:43,186 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
