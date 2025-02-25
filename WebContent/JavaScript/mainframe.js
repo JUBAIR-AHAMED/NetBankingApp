@@ -8,7 +8,7 @@ async function logoutUser() {
         const token = sessionStorage.getItem("jwt");
 
         // Fetch profile data from the server
-        const response = await fetch('http://localhost:8080/NetBanking/api/logout', {
+        const response = await fetch('api/logout', {
             method: "PUT",
             headers: {
                 'Authorization': `Bearer ${token}`

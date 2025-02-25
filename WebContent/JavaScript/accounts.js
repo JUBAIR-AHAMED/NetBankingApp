@@ -177,7 +177,7 @@ async function fetchStatement(accountNumber) {
     const limit = 7
     try {
         const token = sessionStorage.getItem('jwt')
-        const response = await fetch('http://localhost:8080/NetBanking/api/transaction', {
+        const response = await fetch('api/transaction', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

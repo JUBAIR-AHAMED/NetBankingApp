@@ -286,7 +286,7 @@ function setupBranchIdDropdownInput(inputElement) {
         if (inputValue.length >= 1) { // Fetch branches when input length is at least 1
             try {
                 const criteria = { branchId: inputValue, searchSimilar: true }; // Enable similar search
-                const url = new URL('http://localhost:8080/NetBanking/api/branch');
+                const url = new URL('api/branch');
                 const token = sessionStorage.getItem('jwt'); // Retrieve JWT token
                 const response = await fetch(url, {
                     method: 'POST',
@@ -437,7 +437,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function fetchTotalCount(criteria) {
         try {
             const token = sessionStorage.getItem('jwt');
-            const url = new URL('http://localhost:8080/NetBanking/api/user');
+            const url = new URL('api/user');
             criteria.count = true;
             criteria.userId = criteria.userId;
             criteria.name = criteria.name;
@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const url = new URL('http://localhost:8080/NetBanking/api/user');
+            const url = new URL('api/user');
             const criteria  = {};
             criteria.currentPage = currentPage;
             criteria.limit = limit;
@@ -600,7 +600,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const token = sessionStorage.getItem("jwt");
 
             // Send updated profile data to the server
-            const response = await fetch('http://localhost:8080/NetBanking/api/employee', {
+            const response = await fetch('api/employee', {
                 method: "PUT",
                 headers: {
                     'Content-Type': 'application/json',

@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function fetchTotalCount(criteria) {
         try {
             const token = sessionStorage.getItem('jwt');
-            const url = new URL('http://localhost:8080/NetBanking/api/user');
+            const url = new URL('api/user');
             criteria.count = true;
             criteria.userType = 'customer';
             criteria.moreDetails = false;
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const url = new URL('http://localhost:8080/NetBanking/api/user');
+            const url = new URL('api/user');
             criteria = {}
             criteria.currentPage = currentPage;
             criteria.limit = limit;
@@ -571,7 +571,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const token = sessionStorage.getItem("jwt");
     
             // Send updated profile data to the server
-            const response = await fetch('http://localhost:8080/NetBanking/api/customer', {
+            const response = await fetch('api/customer', {
                 method: "PUT",
                 headers: {
                     'Content-Type': 'application/json',

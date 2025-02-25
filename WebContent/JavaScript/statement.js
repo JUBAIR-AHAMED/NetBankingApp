@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if(role === 'EMPLOYEE'){
                         criteria.branchId = branchId;
                     }
-                    const url = new URL('http://localhost:8080/NetBanking/api/account');
+                    const url = new URL('api/account');
                     const response = await fetch(url, {
                         method: 'POST',
                         headers: {
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Fetch and populate dropdown for customers on focus
         fromAccountInput.addEventListener('focus', async function () {
             try {
-                const response = await fetch('http://localhost:8080/NetBanking/api/account', {
+                const response = await fetch('api/account', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${jwtToken}`,
@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             const token = sessionStorage.getItem('jwt');
-            const response = await fetch('http://localhost:8080/NetBanking/api/transaction', {
+            const response = await fetch('api/transaction', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             const token = sessionStorage.getItem('jwt');
-            const response = await fetch('http://localhost:8080/NetBanking/api/transaction', {
+            const response = await fetch('api/transaction', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

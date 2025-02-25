@@ -10,6 +10,25 @@
     <artifactId>mysql-connector-java</artifactId>
     <version>8.0.33</version> <!-- Ensure the version matches the one you're using -->
 </dependency>	
+	<!-- JAXB API -->
+    <dependency>
+        <groupId>javax.xml.bind</groupId>
+        <artifactId>jaxb-api</artifactId>
+        <version>2.3.1</version>
+    </dependency>
+    <!-- JAXB Runtime (GlassFish implementation) -->
+    <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>2.3.1</version>
+    </dependency>
+    <!-- Activation Framework (if needed) -->
+    <dependency>
+        <groupId>com.sun.activation</groupId>
+        <artifactId>javax.activation</artifactId>
+        <version>1.2.0</version>
+    </dependency>
+    
 	<dependency>
 	    <groupId>io.jsonwebtoken</groupId>
 	    <artifactId>jjwt</artifactId>

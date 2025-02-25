@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function fetchTotalCount(criteria) {
         try {
             const token = sessionStorage.getItem('jwt');
-            const url = new URL('http://localhost:8080/NetBanking/api/branch');
+            const url = new URL('api/branch');
             criteria.count = true;
             criteria.searchSimilar = true;
             
@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const url = new URL('http://localhost:8080/NetBanking/api/branch');
+            const url = new URL('api/branch');
             const criteria = {}
 
             criteria.currentPage = currentPage;
@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function fetchBranchs(branchId) {
         const token = sessionStorage.getItem('jwt');
-        const url = `http://localhost:8080/NetBanking/api/branch`;
+        const url = `api/branch`;
         criteria = {}
         criteria.branchId = branchId;
 

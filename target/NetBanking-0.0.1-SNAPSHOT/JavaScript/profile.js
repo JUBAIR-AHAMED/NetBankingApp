@@ -83,7 +83,7 @@ async function fetchProfile() {
         const token = sessionStorage.getItem("jwt");
 
         // Fetch profile data from the server
-        const response = await fetch('http://localhost:8080/NetBanking/api/profile', {
+        const response = await fetch('api/profile', {
             method: "GET",
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -234,7 +234,7 @@ async function saveChanges(originalProfile) {
         const token = sessionStorage.getItem("jwt");
 
         // Send updated profile data to the server
-        const response = await fetch('http://localhost:8080/NetBanking/api/profile', {
+        const response = await fetch('api/profile', {
             method: "PUT",
             headers: {
                 'Content-Type': 'application/json',

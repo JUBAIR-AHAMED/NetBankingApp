@@ -261,7 +261,7 @@
 	        console.log("tc: ",criteria)
 	        try {
 	            const token = sessionStorage.getItem('jwt');
-	            const url = new URL('http://localhost:8080/NetBanking/api/logs ');
+	            const url = new URL('api/logs ');
 	            criteria.count = true;
 	            criteria.searchSimilarFields = ["actorId", "keyValue", "subjectId"];
 	            const response = await fetch(url, {
@@ -294,7 +294,7 @@
 	                return;
 	            }
 	
-	            const url = new URL('http://localhost:8080/NetBanking/api/logs');
+	            const url = new URL('api/logs');
 	            const criteria = {}
 	            criteria.currentPage = currentPage;
 	            criteria.limit = limit;

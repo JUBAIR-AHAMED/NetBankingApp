@@ -36,6 +36,8 @@ public class GenericServlet extends HttpServlet {
             if (cause instanceof Exception) {
                 ErrorHandler.handleException((Exception) cause, response);
             } else {
+            	Throwable ca = ex.getCause();
+                ca.printStackTrace();
                 ErrorHandler.handleException(ex, response);
             }
         }

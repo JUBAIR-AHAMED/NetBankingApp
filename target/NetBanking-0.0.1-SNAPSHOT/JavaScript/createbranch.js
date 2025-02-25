@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const token = sessionStorage.getItem('jwt');
-            const response = await fetch('http://localhost:8080/NetBanking/api/branch', {
+            const response = await fetch('api/branch', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

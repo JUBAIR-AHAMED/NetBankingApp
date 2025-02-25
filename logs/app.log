@@ -14586,3 +14586,65 @@ Caused by: java.lang.ExceptionInInitializerError: Failed to initialize DBConnect
 2025-02-25 16:29:44,106 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
 2025-02-25 16:29:44,107 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
 2025-02-25 16:29:44,107 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
+2025-02-25 18:12:37,308 INFO c.n.l.RedissonClientShutdownListener contextDestroyed - RedissonClient is shutdown successfully.
+2025-02-25 18:12:37,314 INFO c.n.l.DriverCleanupListener contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-25 18:12:37,318 INFO c.n.u.DBConnectionPool lambda$log$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-25 18:12:38,404 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
+2025-02-25 18:12:38,405 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
+2025-02-25 18:12:38,405 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
+2025-02-25 19:19:36,469 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:19:37,379 INFO c.n.u.DBConnectionPool lambda$log$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-25 19:19:38,576 INFO c.n.d.DataAccessObject lambda$log$0 - HikariProxyPreparedStatement@1990450081 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM user WHERE user_id = 3;
+2025-02-25 19:19:39,015 INFO c.n.d.DataAccessObject lambda$log$0 - HikariProxyPreparedStatement@1106506018 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM employee WHERE employee_id = 3;
+2025-02-25 19:19:39,422 INFO c.n.d.DataAccessObject lambda$log$0 - HikariProxyPreparedStatement@1868727973 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: INSERT INTO activity_logs(subject_id, action_time, action, details, actor_id, tablename, key_value) VALUES (3, 1740491379374, 'LOGIN', 'Logged in', 3, 'EMPLOYEE', 3);
+2025-02-25 19:19:40,057 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:19:40,089 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:19:40,299 INFO c.n.d.DataAccessObject lambda$log$0 - HikariProxyPreparedStatement@1371311956 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-25 19:19:40,394 INFO c.n.h.AccountHandler lambda$log$0 - Accounts fetched successfully.
+2025-02-25 19:19:40,404 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:19:40,464 INFO c.n.d.DataAccessObject lambda$log$0 - HikariProxyPreparedStatement@752685718 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT branch_id, balance, date_of_opening, account_type, account_number, user_id, status FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-25 19:19:40,684 INFO c.n.h.AccountHandler lambda$log$0 - Accounts fetched successfully.
+2025-02-25 19:19:42,954 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:19:43,061 INFO c.n.d.DataAccessObject lambda$log$0 - HikariProxyPreparedStatement@1638233401 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM user WHERE user.user_id = '6' AND user.role = 'CUSTOMER';
+2025-02-25 19:19:48,587 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:19:48,591 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:19:48,696 INFO c.n.d.DataAccessObject lambda$log$0 - HikariProxyPreparedStatement@205669800 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM activity_logs;
+2025-02-25 19:19:48,823 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:19:48,889 INFO c.n.d.DataAccessObject lambda$log$0 - HikariProxyPreparedStatement@578332936 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM activity_logs LIMIT 8 OFFSET 0;
+2025-02-25 19:19:51,051 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:19:51,133 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:19:55,593 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:19:55,594 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:19:55,692 INFO c.n.d.DataAccessObject lambda$log$0 - HikariProxyPreparedStatement@1704652245 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-25 19:19:55,789 INFO c.n.h.AccountHandler lambda$log$0 - Accounts fetched successfully.
+2025-02-25 19:19:55,804 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:19:55,864 INFO c.n.d.DataAccessObject lambda$log$0 - HikariProxyPreparedStatement@42318416 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT branch_id, balance, date_of_opening, account_type, account_number, user_id, status FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-25 19:19:56,079 INFO c.n.h.AccountHandler lambda$log$0 - Accounts fetched successfully.
+2025-02-25 19:20:28,352 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:20:28,517 INFO c.n.h.LoginHandler lambda$log$0 - User 3 logged out.
+2025-02-25 19:22:39,541 INFO c.n.l.RedissonClientShutdownListener contextDestroyed - RedissonClient is shutdown successfully.
+2025-02-25 19:22:39,542 INFO c.n.l.DriverCleanupListener contextDestroyed - Deregistered JDBC driver: com.mysql.cj.jdbc.Driver@205e6d13
+2025-02-25 19:22:39,542 INFO c.n.l.DriverCleanupListener contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-25 19:22:39,550 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
+2025-02-25 19:22:39,551 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
+2025-02-25 19:22:39,552 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
+2025-02-25 19:52:49,246 INFO c.n.l.DriverCleanupListener contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-25 19:52:49,259 INFO c.n.u.DBConnectionPool lambda$log$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-25 19:52:49,872 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
+2025-02-25 19:52:49,873 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
+2025-02-25 19:52:49,874 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
+2025-02-25 19:54:07,556 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:54:08,799 INFO c.n.u.DBConnectionPool lambda$log$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-25 19:54:09,466 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:54:09,483 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:54:09,644 INFO c.n.d.DataAccessObject lambda$log$0 - HikariProxyPreparedStatement@987182120 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: INSERT INTO activity_logs(subject_id, action_time, action, details, actor_id, tablename, key_value) VALUES (3, 1740493448786, 'LOGIN', 'Logged in', 3, 'EMPLOYEE', 3);
+2025-02-25 19:54:09,770 INFO c.n.d.DataAccessObject lambda$log$0 - HikariProxyPreparedStatement@1703188216 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-25 19:54:09,881 INFO c.n.h.AccountHandler lambda$log$0 - Accounts fetched successfully.
+2025-02-25 19:54:09,891 INFO c.n.f.AuthFilter lambda$log$0 - Auth filter is being applied.
+2025-02-25 19:54:09,960 INFO c.n.d.DataAccessObject lambda$log$0 - HikariProxyPreparedStatement@162539255 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT branch_id, balance, date_of_opening, account_type, account_number, user_id, status FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-25 19:54:10,199 INFO c.n.h.AccountHandler lambda$log$0 - Accounts fetched successfully.
+2025-02-25 19:54:52,568 INFO c.n.l.DriverCleanupListener contextDestroyed - Deregistered JDBC driver: com.mysql.cj.jdbc.Driver@21127705
+2025-02-25 19:54:52,568 INFO c.n.l.DriverCleanupListener contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-25 19:54:52,578 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
+2025-02-25 19:54:52,578 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
+2025-02-25 19:54:52,581 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
