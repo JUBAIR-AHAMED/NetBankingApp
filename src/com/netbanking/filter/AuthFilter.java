@@ -86,8 +86,15 @@ public class AuthFilter implements Filter {
     	store.setUserId(userId);
     	store.setRole(role);
     	store.setBranchId(branchId);
-        chain.doFilter(request, response);
-        UserDetailsLocal.clear();
+    	try {
+    		chain.doFilter(request, response);
+    	}
+    	catch (Exception e) {
+    		AsyncLoggerUtil.log(this.getClass(), Level.ERROR, e);
+		}
+    	finally {
+    		UserDetailsLocal.clear();
+    	}
     }
 
     private void setHeader(HttpServletResponse httpResponse) {
