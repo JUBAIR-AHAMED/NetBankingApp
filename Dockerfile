@@ -5,7 +5,7 @@ FROM tomcat:9.0
 WORKDIR /usr/local/tomcat/webapps/
 
 # Copy the pre-built WAR file from the repository to Tomcat
-COPY NetBanking/NetBanking-0.0.1-SNAPSHOT.war ROOT.war
+COPY /NetBanking-0.0.1-SNAPSHOT.war ROOT.war
 
 # Expose port 8080
 EXPOSE 8080
