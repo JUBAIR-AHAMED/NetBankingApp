@@ -3,18 +3,17 @@ FROM maven:3.8.6-eclipse-temurin-17 AS builder
 
 WORKDIR /app
 
-# Copy pom.xml and download dependencies
+# Copy the Maven project files
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
-
-# Copy the source code and build the WAR
 COPY src ./src
-RUN mvn package -DskipTests
+
+# Build the WAR file
+RUN mvn clean package -DskipTests
 
 # Use Tomcat to run the app
 FROM tomcat:9.0
 
-# Copy the WAR file from the builder stage
+# Copy the built WAR file and rename it to ROOT.war for direct access
 COPY --from=builder /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
 
 # Expose port 8080

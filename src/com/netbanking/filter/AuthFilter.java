@@ -91,7 +91,7 @@ public class AuthFilter implements Filter {
     }
 
     private void setHeader(HttpServletResponse httpResponse) {
-    	httpResponse.setHeader("Access-Control-Allow-Origin", "http://localhost:8080/");
+    	httpResponse.setHeader("Access-Control-Allow-Origin", "*");
         httpResponse.setHeader("Access-Control-Allow-Methods", "GET, PUT, POST");
         httpResponse.setHeader("Access-Control-Allow-Headers", "Authorization, Action");
         httpResponse.setHeader("Access-Control-Allow-Credentials", "false");
