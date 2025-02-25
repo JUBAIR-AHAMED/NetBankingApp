@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOU | Create Account</title>
+    <link rel="icon" href="icons/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="Css/mainframe.css">
+    <link rel="stylesheet" href="Css/createaccount.css">
+</head>
+<body>
+<div id="notification-container"></div>
+    <div class="maincont">
+        <div class="page">
+            <div class="header">
+                <div class="pageName">
+	                	<img alt="logo" src="images/logo.png" style="width: 40px; height: 40px; padding-right: 8px">
+	                    Bank Of Utopia
+                    </div>
+                <div class="bar"></div>
+                <div class="profileimg" onclick="toggleDropdown()">
+                    <img src="icons/10-profile-picture-ideas-to-make-you-stand-out (1).jpg" alt="Profile">
+                    <div id="profileDropdown" class="dropdown-content">
+                        <a href="profile.html">View Profile</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pagebody">
+                <div class="create-account-container">
+                    <h2>Create New Account</h2>
+                    <form id="createAccountForm">
+                        <div class="form-group">
+                            <input type="text" id="userId" name="userId" required placeholder>
+                            <label for="userId" class="floating-label">User ID</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="branchId" name="branchId" required placeholder>
+                            <label for="branchId" class="floating-label">Branch ID</label>
+                        </div>
+                        <div class="form-group">
+                            <select id="accountType" name="accountType" required>
+                                <option value="" disabled selected></option>
+                                <option value="SAVINGS">Savings</option>
+                                <option value="CURRENT">Current</option>
+                            </select>
+                            <label for="accountType" class="floating-label">Account Type</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" id="balance" name="balance" required placeholder>
+                            <label for="balance" class="floating-label">Initial Balance</label>
+                        </div>
+                        <div class="form-group">
+                            <select id="status" name="status" required>
+                                <option value="" disabled selected></option>
+                                <option value="ACTIVE">Active</option>
+                                <option value="Block">Blocked</option>
+                            </select>
+                            <label for="status" class="floating-label">Status</label>
+                        </div>
+                        <button type="submit" class="submit-btn">Create Account</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="JavaScript/tokenvalidate.js"></script>
+    <script src="JavaScript/bar.js"></script>
+    <script src="JavaScript/createaccount.js"></script>
+</body>
+</html>

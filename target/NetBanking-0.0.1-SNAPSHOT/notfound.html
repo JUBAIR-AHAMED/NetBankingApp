@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>404 - Page Not Found</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Global Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Container for the main message */
+    .container {
+      text-align: center;
+      z-index: 2;
+      animation: fadeIn 1s ease-out;
+    }
+
+    h1 {
+      font-size: 10rem;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 1.5rem;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      background: #fff;
+      color: #764ba2;
+      text-decoration: none;
+      padding: 15px 30px;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      transition: background 0.3s, color 0.3s;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:hover {
+      background: #764ba2;
+      color: #fff;
+    }
+
+    /* Fade-in animation */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Clouds background for added style */
+    .clouds {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('https://www.transparenttextures.com/patterns/cloudy.png');
+      opacity: 0.3;
+      z-index: 1;
+      animation: moveClouds 60s linear infinite;
+    }
+
+    @keyframes moveClouds {
+      0% { background-position: 0 0; }
+      100% { background-position: 1000px 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background clouds for added depth -->
+  <div class="clouds"></div>
+  <!-- Main content container -->
+  <div class="container">
+    <h1>404</h1>
+    <p>Oops! The page you are looking for doesn't exist.</p>
+    <a href="accounts.html" class="btn">Go Home</a>
+  </div>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOU | Logs</title>
+<!-- <link rel="stylesheet" href="Css/accounts.css"> -->
+<link rel="icon" href="icons/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="Css/mainframe.css">
+<link rel="stylesheet" href="Css/logs.css">
+</head>
+<body>
+<div id="notification-container"></div>
+    <div class="maincont">
+        <div class="page">
+            <div>
+                <div class="header">
+                    <div class="pageName">
+	                	<img alt="logo" src="images/logo.png" style="width: 40px; height: 40px; padding-right: 8px">
+	                    Bank Of Utopia
+                    </div>
+                    <div class="bar"></div>
+                    <div class="profileimg" onclick="toggleDropdown()">
+                        <img src="icons/10-profile-picture-ideas-to-make-you-stand-out (1).jpg" alt="Profile">
+                        <div id="profileDropdown" class="dropdown-content">
+                            <a href="profile.html">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="pagebody">
+                    <div class="bank-logo">
+                        <h2>Search Logs</h2>
+                    </div>
+                    <form class="search-container" id="searchForm">
+                        <div class="form-group">
+                            <select id="recordname" style="background-color: white;width: 160px;border: 2px solid #1a73e8;margin-right: 20px;">
+                            <option value selected></option>
+                            <option value="account">Account</option>
+                            <option value="branch">Branch</option>
+                            <option value="user">User</option>
+                            <option value="customer">Customer</option>
+                            <option value="employee">Employee</option>
+                            <option value="transaction">Transaction</option>
+                            </select>
+                            <label for="recordname" class="floating-label">Record Name</label>
+                        </div>
+                        <div class="form-group">
+                            <select id="action" style="background-color: white;width: 160px;border: 2px solid #1a73e8;margin-right: 20px;">
+	                            <option value selected></option>
+	                            <option value="UPDATE">Update</option>
+	                            <option value="LOGIN">Login</option>
+	                            <option value="CREATE">Create</option>
+	                            <option value="TRANSACTION">Transaction</option>
+                            </select>
+                            <label for="action" class="floating-label">Action Type</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="branchId" placeholder="">
+                            <label for="branchId" class="floating-label">Record Id</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="actorId" placeholder="" inputmode="numeric" pattern="^\d{1,16}$" maxlength="16">
+                            <label for="accountNumber" class="floating-label">Actor Id</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="userId" placeholder="">
+                            <label for="userId" class="floating-label">Subject Id</label>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="accounts" id="accountsid">
+                    <div id="accountsHead">Accounts</div>
+                    <div class="headerColumn">
+                        <div class="columnName">Actor Id</div>
+                        <div class="columnName">Subject Id</div>
+                        <div class="columnName">Record Name</div>
+                        <div class="columnName">Record Id</div>
+                        <div class="columnName">Action</div>
+                        <div class="columnName">Date</div>
+                    </div>
+                    <div class="accountInsert">
+                    </div>
+                </div>
+            </div>
+            <div id="paginationControls"></div> 
+        </div>
+    </div>
+    <script src="JavaScript/tokenvalidate.js"></script>
+    <script src="JavaScript/logs.js"></script>
+    <script src="JavaScript/bar.js"></script>
+</body>
+</html>

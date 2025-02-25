@@ -1,0 +1,89 @@
+pojo:
+  User:
+    autoIncrementKey: "userId"
+    primaryKey: "userId"
+    tablename: "user"
+    tablePojoNameRelation:
+      userId: "user_id"
+      password: "password"
+      role: "role"
+      name: "name"
+      mobile: "mobile"
+      email: "email"
+      status: "status"
+      dateOfBirth: "date_of_birth"
+      creationTime: "creation_time"
+      modifiedTime: "modified_time"
+      modifiedBy: "modified_by"
+
+  Customer:
+    primaryKey: "customerId"
+    refrenceingKey: "customerId"
+    tablename: "customer"
+    tablePojoNameRelation:
+      customerId: "customer_id"
+      aadharNumber: "aadhar_number"
+      panNumber: "pan_number"
+
+  Employee:
+    primaryKey: "employeeId"
+    refrenceingKey: "employeeId"
+    tablename: "employee"
+    tablePojoNameRelation:
+      employeeId: "employee_id"
+      branchId: "branch_id"
+
+  Branch:
+    primaryKey: "branchId"
+    autoIncrementKey: "branchId"
+    tablename: "branch"
+    tablePojoNameRelation:
+      branchId: "branch_id"
+      ifsc: "ifsc"
+      name: "name"
+      employeeId: "employee_id"
+      address: "address"
+      creationTime: "creation_time"
+      modifiedTime: "modified_time"
+      modifiedBy: "modified_by"
+
+  Account:
+    primaryKey: "accountNumber"
+    autoIncrementKey: "accountNumber"
+    tablename: "account"
+    tablePojoNameRelation:
+      accountNumber: "account_number"
+      userId: "user_id"
+      branchId: "branch_id"
+      accountType: "account_type"
+      dateOfOpening: "date_of_opening"
+      balance: "balance"
+      status: "status"
+      creationTime: "creation_time"
+      modifiedTime: "modified_time"
+      modifiedBy: "modified_by"
+
+  Transaction:
+    tablename: "transaction"
+    tablePojoNameRelation:
+      referenceNumber: "reference_number"
+      transactionAmount: "transaction_amount"
+      timestamp: "timestamp"
+      balance: "balance"
+      accountNumber: "account_number"
+      creationTime: "creation_time"
+      userId: "user_id"
+      transactionAccount: "transaction_account"
+      modifiedBy: "modified_by"
+      type: "type"
+
+  Activity:
+    tablename: "activity_logs"
+    tablePojoNameRelation:
+      actorId: "actor_id"
+      subjectId: "subject_id"
+      keyValue: "key_value"
+      recordname: "tablename"
+      action: "action"
+      details: "details"
+      actionTime: "action_time"

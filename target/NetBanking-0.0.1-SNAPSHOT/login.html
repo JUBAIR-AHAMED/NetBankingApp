@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOU | Login</title>
+    <link rel="icon" href="icons/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="Css/mainframe.css">
+    <link rel="stylesheet" href="Css/login.css">
+</head>
+<body>
+<div id="notification-container"></div>
+    <div class="maincontainer">
+        <div class="firsthalf">
+            <img src="images/Group.png" alt="Bank Logo">
+        </div>
+        <div class="secondhalf">
+            <div class="login-form">
+                <div class="bank-logo">
+                    <h2>Welcome To</h2>
+                    <h1>Bank of Utopia</h1>
+                </div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <input type="text" id="username" name="username" required placeholder=" ">
+                        <label for="username" class="floating-label">User ID / Customer ID</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" name="password" required placeholder=" ">
+                        <label for="password" class="floating-label">Password</label>
+                    </div>
+                    <button type="submit" class="submit-btn">Sign In</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+    (async function () {
+        const token = sessionStorage.getItem("jwt");
+
+        if (token) {
+            try {
+                const response = await fetch('api/validate-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.status === 200) {
+                    // Token is valid, redirect user based on role
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    const role = payload.role;
+
+                    if (role === 'CUSTOMER') {
+                        window.location.href = 'accounts.html';
+                    } else {
+                        window.location.href = 'accountsmanager.html';
+                    }
+                } else {
+                    // Invalid token, remove it from storage
+                    sessionStorage.removeItem("jwt");
+                }
+            } catch (error) {
+                console.error('Token validation error:', error);
+                sessionStorage.removeItem("jwt");
+            }
+        }
+    })();
+    
+    document.getElementById('loginForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const userId = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userId, password })
+            });
+
+            const result = await response.json();
+
+            if (result.status === 200) {
+                const token = result.token;
+                sessionStorage.setItem('jwt', token);
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const role = payload.role;
+
+                if (role === 'CUSTOMER') {
+                    window.location.href = 'accounts.html';
+                } else {
+                    window.location.href = 'accountsmanager.html';
+                }
+            } else {
+                showNotification(result.message, 'warning');
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+            showNotification('An error occurred during login. Please try again.', "error");
+        }
+    });
+
+    function showNotification(message, type = "success", duration = 5000) {
+        const icons = {
+            success: "✅",
+            error: "❌",
+            warning: "⚠️",
+            info: "ℹ️",
+        };
+
+        const notification = document.createElement("div");
+        notification.classList.add("notification", type);
+        notification.innerHTML = `<span class="icon">${icons[type] || ""}</span>
+                                  <span class="message">${message}</span>`;
+
+        const container = document.getElementById("notification-container");
+        if (!container) {
+            console.error("Notification container not found.");
+            return;
+        }
+
+        container.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.opacity = "0";
+            notification.style.transform = "translateX(100%)";
+            setTimeout(() => notification.remove(), 400);
+        }, duration);
+    }
+    </script>
+</body>
+</html>

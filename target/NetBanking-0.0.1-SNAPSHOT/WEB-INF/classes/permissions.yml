@@ -1,0 +1,68 @@
+CUSTOMER:
+  /account:
+    - GET
+  /transaction:
+    - POST
+    - GET
+  /statement:
+    - POST
+  /profile:
+    - GET
+    - PUT
+  /logout:
+    - PUT
+
+EMPLOYEE:
+  /account:
+    - GET
+    - POST
+    - PUT
+  /transaction:
+    - POST
+    - GET
+  /statement:
+    - POST
+  /profile:
+    - GET
+    - PUT
+  /user:
+    - GET
+  /customer:
+    - PUT
+    - POST
+  /branch:
+    - GET
+  /logout:
+    - PUT
+
+MANAGER:
+  /account:
+    - GET
+    - PUT
+    - POST
+  /transaction:
+    - GET
+    - POST
+    - DELETE
+  /statement:
+    - POST
+  /profile:
+    - GET
+    - PUT
+  /action:
+    - POST
+  /branch:
+    - POST
+    - GET
+  /employee:
+    - POST
+    - PUT
+  /customer:
+    - POST
+    - PUT
+  /user:
+    - GET
+  /logout:
+    - PUT
+  /logs:
+    - GET
