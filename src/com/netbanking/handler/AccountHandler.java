@@ -37,11 +37,7 @@ public class AccountHandler {
 		Map<String, Object> filters = new HashMap<String, Object>();
 		JsonObject jsonObject = Parser.getJsonObject(request);
 		
-		Parser.storeIfPresent(jsonObject, filters, "accountNumber", Long.class, "Account Number", false);
-		Parser.storeIfPresent(jsonObject, filters, "userId", Long.class, "User Id", false);
-		Parser.storeIfPresent(jsonObject, filters, "branchId", Long.class, "Branch Id", false);
-		Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);
-		Parser.storeIfPresent(jsonObject, filters, "searchSimilarFields", Set.class, "Similar search fields", false);
+		getDetailsFromBody(jsonObject, filters);
 		
 		Boolean countReq = (Boolean) filters.get("count");
 		if (role.equals(Role.CUSTOMER)) {
@@ -66,6 +62,14 @@ public class AccountHandler {
 		AsyncLoggerUtil.log(AccountHandler.class, Level.INFO, "Accounts fetched successfully.");
 		Writer.responseMapWriter(response, HttpServletResponse.SC_OK, HttpServletResponse.SC_OK,
 				"Accounts fetched successfully", responseMap);
+	}
+	
+	private static void getDetailsFromBody(JsonObject jsonObject, Map<String, Object> filters) throws CustomException {
+		Parser.storeIfPresent(jsonObject, filters, "accountNumber", Long.class, "Account Number", false);
+		Parser.storeIfPresent(jsonObject, filters, "userId", Long.class, "User Id", false);
+		Parser.storeIfPresent(jsonObject, filters, "branchId", Long.class, "Branch Id", false);
+		Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);
+		Parser.storeIfPresent(jsonObject, filters, "searchSimilarFields", Set.class, "Similar search fields", false);
 	}
 
 	public static void handlePost(HttpServletRequest request, HttpServletResponse response) throws IOException, Exception {

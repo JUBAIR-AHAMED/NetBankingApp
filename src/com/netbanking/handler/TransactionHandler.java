@@ -38,16 +38,10 @@ public class TransactionHandler {
 		Role role = store.getRole();
 		
 		Map<String, Object> responseMap = new HashMap<>();
-		Map<String, Object> data = new HashMap<String, Object>();
+		Map<String, Object> filters = new HashMap<String, Object>();
 		JsonObject jsonObject = Parser.getJsonObject(request);
-		Parser.storeIfPresent(jsonObject, data, "accountNumber", Long.class, "Account Number", true);
-		Parser.storeIfPresent(jsonObject, data, "fromDate", Long.class, "From Date", false);
-		Parser.storeIfPresent(jsonObject, data, "toDate", Long.class, "To Date", false);
-		Parser.storeIfPresent(jsonObject, data, "limit", Integer.class, "Limit", false);
-		Parser.storeIfPresent(jsonObject, data, "currentPage", Integer.class, "Current Page", false);
-		Parser.storeIfPresent(jsonObject, data, "count", Boolean.class, "Count", false);
-		
-		Map<String, Object> accountData = AccountFunctions.getInstance().get((Long) data.get("accountNumber"));
+		getDetailsFromBody(jsonObject, filters);
+		Map<String, Object> accountData = AccountFunctions.getInstance().get((Long) filters.get("accountNumber"));
 		// Validation
 		if(Validator.isNull(accountData)) {
 			throw new CustomException(HttpServletResponse.SC_NOT_FOUND,"Account not found.");
@@ -68,14 +62,14 @@ public class TransactionHandler {
 		{
 			throw new CustomException(HttpServletResponse.SC_FORBIDDEN, "Sender Account is "+ accountStatus);
 		}
-		Long fromDate = (Long) data.getOrDefault("fromDate", null);
-		Long toDate = (Long) data.getOrDefault("toDate", null);
+		Long fromDate = (Long) filters.getOrDefault("fromDate", null);
+		Long toDate = (Long) filters.getOrDefault("toDate", null);
 		if(fromDate!=null && toDate!=null && fromDate>toDate)
 		{
 			throw new CustomException(HttpServletResponse.SC_BAD_REQUEST, "Time frame is invalid.");
 		}
 		
-        List<Map<String, Object>> statement = TransactionFunctions.getInstance().getStatement(data, accountData);
+        List<Map<String, Object>> statement = TransactionFunctions.getInstance().getStatement(filters, accountData);
         Long count = ApiHelper.getCount(statement);
         if(count!=null) {
         	responseMap.put("count", count);
@@ -88,6 +82,15 @@ public class TransactionHandler {
         		HttpServletResponse.SC_OK, 
         		"Statement fetched successfully.", 
         		responseMap);
+	}
+	
+	private static void getDetailsFromBody(JsonObject jsonObject, Map<String, Object> filters) throws CustomException {
+		Parser.storeIfPresent(jsonObject, filters, "accountNumber", Long.class, "Account Number", true);
+		Parser.storeIfPresent(jsonObject, filters, "fromDate", Long.class, "From Date", false);
+		Parser.storeIfPresent(jsonObject, filters, "toDate", Long.class, "To Date", false);
+		Parser.storeIfPresent(jsonObject, filters, "limit", Integer.class, "Limit", false);
+		Parser.storeIfPresent(jsonObject, filters, "currentPage", Integer.class, "Current Page", false);
+		Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);
 	}
 	
 	public static void handlePost(HttpServletRequest request, HttpServletResponse response) throws IOException, Exception {

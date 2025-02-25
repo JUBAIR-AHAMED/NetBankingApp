@@ -10,7 +10,9 @@ public class TempRunner {
 //            System.out.println("Running in a separate thread!");
 //            return "Task Completed"; 
 //        };
-		new String("PUT").concat("asd");
+//		new String("PUT").concat("asd");
+		System.out.println(
+		PasswordUtility.hashPassword("234567"));
 	}
 	static class x implements Callable<String>{
 		@Override

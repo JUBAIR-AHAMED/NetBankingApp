@@ -9,13 +9,16 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 public class Redis {
-    private static final JedisPool jedisPool = new JedisPool(new JedisPoolConfig(), "127.0.0.1", 6379);
+    private static final JedisPool jedisPool = new JedisPool(new JedisPoolConfig(), "redis-15838.crce179.ap-south-1-1.ec2.redns.redis-cloud.com", 15838);
     private static final ObjectMapper objectMapper = new ObjectMapper();
-
+    private static final String REDIS_PASSWORD = "mgr8R5X0mKULMtR1pH4qDI3RMQYioVaO"; 
+    
     private Redis() {}
 
     private static Jedis getJedis() {
-        return jedisPool.getResource();
+        Jedis jedis = jedisPool.getResource();
+        jedis.auth(REDIS_PASSWORD);  // Authenticate
+        return jedis;
     }
 
     public static String get(String cacheKey) {

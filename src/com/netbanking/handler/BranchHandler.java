@@ -13,7 +13,7 @@ import com.netbanking.enumHelper.RequiredFields;
 import com.netbanking.enums.Role;
 import com.netbanking.exception.CustomException;
 import com.netbanking.functions.BranchFunctions;
-import com.netbanking.functions.EmployeeFunctions;
+import com.netbanking.functions.UserFunctions;
 import com.netbanking.object.Activity;
 import com.netbanking.object.Branch;
 import com.netbanking.util.ApiHelper;
@@ -30,10 +30,10 @@ public class BranchHandler {
 		Map<String, Object> data = ApiHelper.getMapFromRequest(jsonBody);
 		RequiredFields.BRANCH.validate(data);
 		Branch branch = ApiHelper.getPojoFromRequest(data, Branch.class);
-		Map<String, Object> userDetails = EmployeeFunctions.getInstance().get(branch.getEmployeeId());
-		if(userDetails != null && !userDetails.isEmpty()) {	
+		Map<String, Object> userDetails = UserFunctions.getInstance().get(branch.getEmployeeId());
+		if(userDetails == null || userDetails.isEmpty()) {	
 			throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "Invalid employee id.");
-		} else if(userDetails.get("role").equals(Role.MANAGER.toString())) {
+		} else if(!userDetails.get("role").equals(Role.MANAGER.toString())) {
 			throw new CustomException(HttpServletResponse.SC_UNAUTHORIZED, "The employee is not a manager.");
 		}
 		Long createdBranchId = BranchFunctions.getInstance().createBranch(branch);	
@@ -67,10 +67,7 @@ public class BranchHandler {
         JsonObject jsonObject = Parser.getJsonObject(request);
         Parser.storeIfPresent(jsonObject, filters, "branchId", Long.class, "Branch Id", false);
         if(role.equals(Role.MANAGER)) {
-        	Parser.storeIfPresent(jsonObject, filters, "employeeId", Long.class, "Employee Id", false);
-        	Parser.storeIfPresent(jsonObject, filters, "ifsc", String.class, "IFSC", false);
-        	Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);
-        	Parser.storeIfPresent(jsonObject, filters, "searchSimilar", Boolean.class, "Type of search", false);
+        	getDetailsFromBody(jsonObject, filters);
         }
         Boolean countReq = (Boolean) filters.get("count");
         Integer limit=Parser.getValue(jsonObject, "limit", Integer.class, "Limit", false);
@@ -92,5 +89,12 @@ public class BranchHandler {
         		HttpServletResponse.SC_OK, 
         		"Branch fetched successfully.", 
         		responseMap);
+	}
+	
+	private static void getDetailsFromBody(JsonObject jsonObject, Map<String, Object> filters) throws CustomException {
+		Parser.storeIfPresent(jsonObject, filters, "employeeId", Long.class, "Employee Id", false);
+    	Parser.storeIfPresent(jsonObject, filters, "ifsc", String.class, "IFSC", false);
+    	Parser.storeIfPresent(jsonObject, filters, "count", Boolean.class, "Count", false);
+    	Parser.storeIfPresent(jsonObject, filters, "searchSimilar", Boolean.class, "Type of search", false);
 	}
 }
