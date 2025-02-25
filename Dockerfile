@@ -20,4 +20,4 @@ COPY --from=builder /NetBanking/target/NetBanking-0.0.1-SNAPSHOT.war /usr/local/
 EXPOSE 8080
 
 # Start Tomcat
-CMD ["catalina.sh", "run"]
+CMD ["sh", "-c", "catalina.sh run -Dserver.port=${PORT:-8080}"]
