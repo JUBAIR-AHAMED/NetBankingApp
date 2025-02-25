@@ -267,13 +267,12 @@ document.addEventListener('DOMContentLoaded', function () {
     async function fetchTotalCount(criteria) {
         try {
             const token = sessionStorage.getItem('jwt');
-            const url = new URL('api/user');
             criteria.count = true;
             criteria.userType = 'customer';
             criteria.moreDetails = false;
             criteria.searchSimilar=true
 
-            const response = await fetch(url, {
+            const response = await fetch('api/user', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -340,7 +339,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const url = new URL('api/user');
             criteria = {}
             criteria.currentPage = currentPage;
             criteria.limit = limit;
@@ -351,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function () {
             criteria.moreDetails = 'true';
             criteria.searchSimilar=true
 
-            const response = await fetch(url, {
+            const response = await fetch('api/user', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

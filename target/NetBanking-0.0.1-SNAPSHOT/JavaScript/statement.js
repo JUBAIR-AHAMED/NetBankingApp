@@ -99,8 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if(role === 'EMPLOYEE'){
                         criteria.branchId = branchId;
                     }
-                    const url = new URL('api/account');
-                    const response = await fetch(url, {
+                    const response = await fetch('api/account', {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${jwtToken}`,

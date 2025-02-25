@@ -446,9 +446,8 @@ function setupBranchIdDropdownInput(inputElement) {
         if (inputValue.length >= 1) { // Fetch branches when input length is at least 1
             try {
                 const criteria = { branchId: inputValue, searchSimilar: true }; // Enable similar search
-                const url = new URL('api/branch');
                 const token = sessionStorage.getItem('jwt'); // Retrieve JWT token
-                const response = await fetch(url, {
+                const response = await fetch(`api/branch`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -567,11 +566,10 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log(criteria)
         try {
             const token = sessionStorage.getItem('jwt');
-            const url = new URL('api/account');
             criteria.count = true;
             criteria.searchSimilar = true;
             criteria.searchSimilarFields = ["userId", "accountNumber", "branchId"];
-            const response = await fetch(url, {
+            const response = await fetch('api/account', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -601,7 +599,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const url = new URL('api/account');
             const criteria = {}
             criteria.currentPage = currentPage;
             criteria.limit = limit;
@@ -614,7 +611,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 criteria.searchSimilarFields = ["userId", "accountNumber", "branchId"];
             }
 
-            const response = await fetch(url, {
+            const response = await fetch('api/account', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -647,13 +644,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const url = new URL('api/user');
             const criteria = {}
             criteria.userId = userId;
             criteria.userType = 'customer';
             criteria.moreDetails = false;
 
-            const response = await fetch(url, {
+            const response = await fetch('api/user', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -903,11 +899,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function fetchBranchs(branchId) {
         const token = sessionStorage.getItem('jwt');
-        const url = `api/branch`;
         criteria = {}
         criteria.branchId = branchId;
         try {
-            const response = await fetch(url, {
+            const response = await fetch(`api/branch`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

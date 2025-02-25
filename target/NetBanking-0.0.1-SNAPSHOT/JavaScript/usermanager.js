@@ -98,7 +98,6 @@ document.addEventListener('DOMContentLoaded', function () {
     async function fetchTotalCount(criteria) {
         try {
             const token = sessionStorage.getItem('jwt');
-            const url = new URL('api/user');
             url.searchParams.append('count', 'true');
             if (criteria.userId) url.searchParams.append('userId', criteria.userId);
             if (criteria.name) url.searchParams.append('name', criteria.name);
@@ -106,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
             url.searchParams.append('userType', 'customer');
             url.searchParams.append('moreDetails', 'false');
 
-            const response = await fetch(url, {
+            const response = await fetch('api/user', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -134,7 +133,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const url = new URL('api/user');
             url.searchParams.append('currentPage', currentPage);
             url.searchParams.append('limit', limit);
             if (searchCriteria.userId) url.searchParams.append('userId', searchCriteria.userId);
@@ -143,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
             url.searchParams.append('userType', 'customer');
             url.searchParams.append('moreDetails', 'false');
 
-            const response = await fetch(url, {
+            const response = await fetch('api/user', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`

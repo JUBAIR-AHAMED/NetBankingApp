@@ -14648,3 +14648,214 @@ Caused by: java.lang.ExceptionInInitializerError: Failed to initialize DBConnect
 2025-02-25 19:54:52,578 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
 2025-02-25 19:54:52,578 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
 2025-02-25 19:54:52,581 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
+2025-02-25 20:22:31,806 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 20:22:33,758 INFO c.n.u.DBConnectionPool lambda$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-25 20:22:33,972 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 20:22:33,980 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 20:22:34,874 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@281425864 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: INSERT INTO activity_logs(subject_id, action_time, action, details, actor_id, tablename, key_value) VALUES (3, 1740495153741, 'LOGIN', 'Logged in', 3, 'EMPLOYEE', 3);
+2025-02-25 20:22:34,989 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1877480751 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-25 20:22:35,095 INFO c.n.h.AccountHandler lambda$0 - Accounts fetched successfully.
+2025-02-25 20:22:35,102 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 20:22:35,166 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@263306705 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT branch_id, balance, date_of_opening, account_type, account_number, user_id, status FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-25 20:22:35,408 INFO c.n.h.AccountHandler lambda$0 - Accounts fetched successfully.
+2025-02-25 20:22:42,265 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 20:22:48,056 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 20:25:05,168 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 20:25:05,248 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 20:25:06,057 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 20:25:06,258 INFO c.n.h.LoginHandler lambda$0 - User 3 logged out.
+2025-02-25 20:25:36,901 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 20:25:37,305 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@24531543 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: INSERT INTO activity_logs(subject_id, action_time, action, details, actor_id, tablename, key_value) VALUES (3, 1740495337218, 'LOGIN', 'Logged in', 3, 'EMPLOYEE', 3);
+2025-02-25 20:25:37,871 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 20:25:44,355 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 20:25:44,558 INFO c.n.h.LoginHandler lambda$0 - User 3 logged out.
+2025-02-25 20:26:13,052 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 20:26:13,637 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@110999115 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: INSERT INTO activity_logs(subject_id, action_time, action, details, actor_id, tablename, key_value) VALUES (3, 1740495373489, 'LOGIN', 'Logged in', 3, 'EMPLOYEE', 3);
+2025-02-25 20:26:14,157 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:09:39,721 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:09:47,682 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:09:49,580 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:09:57,946 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:10:14,364 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@614507078 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: INSERT INTO activity_logs(subject_id, action_time, action, details, actor_id, tablename, key_value) VALUES (3, 1740497988979, 'LOGIN', 'Logged in', 3, 'EMPLOYEE', 3);
+2025-02-25 21:10:22,812 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:11:05,070 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:11:30,560 INFO c.n.l.DriverCleanupListener contextDestroyed - Deregistered JDBC driver: com.mysql.cj.jdbc.Driver@30302944
+2025-02-25 21:11:30,560 INFO c.n.l.DriverCleanupListener contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-25 21:11:30,563 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
+2025-02-25 21:11:30,563 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
+2025-02-25 21:11:30,565 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
+2025-02-25 21:13:23,998 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:13:30,734 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:13:35,124 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:13:36,231 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:14:31,838 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:14:34,090 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:14:40,950 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:15:06,121 INFO c.n.l.DriverCleanupListener contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-25 21:15:06,123 INFO c.n.u.DBConnectionPool lambda$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-25 21:15:06,877 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
+2025-02-25 21:15:06,877 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
+2025-02-25 21:15:06,878 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
+2025-02-25 21:15:16,063 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:15:54,693 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:15:54,916 INFO c.n.h.LoginHandler lambda$0 - User 3 logged out.
+2025-02-25 21:16:00,826 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:16:01,204 INFO c.n.u.DBConnectionPool lambda$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-25 21:16:01,407 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:16:01,921 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1867826010 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: INSERT INTO activity_logs(subject_id, action_time, action, details, actor_id, tablename, key_value) VALUES (3, 1740498361187, 'LOGIN', 'Logged in', 3, 'EMPLOYEE', 3);
+2025-02-25 21:16:10,528 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:16:23,138 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:16:23,582 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:16:23,661 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@2049555031 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: INSERT INTO activity_logs(subject_id, action_time, action, details, actor_id, tablename, key_value) VALUES (3, 1740498383537, 'LOGIN', 'Logged in', 3, 'EMPLOYEE', 3);
+2025-02-25 21:17:13,698 INFO c.n.l.DriverCleanupListener contextDestroyed - Deregistered JDBC driver: com.mysql.cj.jdbc.Driver@27def165
+2025-02-25 21:17:13,698 INFO c.n.l.DriverCleanupListener contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-25 21:17:13,707 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
+2025-02-25 21:17:13,708 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
+2025-02-25 21:17:13,710 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
+2025-02-25 21:17:46,674 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:17:48,648 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:17:49,225 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:17:49,444 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:18:22,821 INFO c.n.l.DriverCleanupListener contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-25 21:18:22,827 INFO c.n.u.DBConnectionPool lambda$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-25 21:18:23,449 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
+2025-02-25 21:18:23,450 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
+2025-02-25 21:18:23,452 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
+2025-02-25 21:18:27,211 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:18:50,444 INFO c.n.l.DriverCleanupListener contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-25 21:18:50,447 INFO c.n.u.DBConnectionPool lambda$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-25 21:18:50,957 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
+2025-02-25 21:18:50,958 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
+2025-02-25 21:18:50,959 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
+2025-02-25 21:21:43,258 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:21:44,354 INFO c.n.u.DBConnectionPool lambda$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-25 21:21:45,362 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1237528112 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM user WHERE user_id = 3;
+2025-02-25 21:21:45,709 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1046876111 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM employee WHERE employee_id = 3;
+2025-02-25 21:21:46,053 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@695678705 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: INSERT INTO activity_logs(subject_id, action_time, action, details, actor_id, tablename, key_value) VALUES (3, 1740498706004, 'LOGIN', 'Logged in', 3, 'EMPLOYEE', 3);
+2025-02-25 21:21:46,125 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:19,497 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:19,509 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:19,751 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@17237496 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-25 21:25:19,841 INFO c.n.h.AccountHandler lambda$0 - Accounts fetched successfully.
+2025-02-25 21:25:19,850 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:19,902 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1191496056 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT branch_id, balance, date_of_opening, account_type, account_number, user_id, status FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-25 21:25:20,095 INFO c.n.h.AccountHandler lambda$0 - Accounts fetched successfully.
+2025-02-25 21:25:23,955 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:24,055 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@566818152 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM user WHERE user.user_id = '6' AND user.role = 'CUSTOMER';
+2025-02-25 21:25:26,777 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:28,471 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:28,472 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:28,567 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@264305576 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-25 21:25:28,656 INFO c.n.h.AccountHandler lambda$0 - Accounts fetched successfully.
+2025-02-25 21:25:28,662 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:28,713 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1127957824 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT branch_id, balance, date_of_opening, account_type, account_number, user_id, status FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-25 21:25:28,906 INFO c.n.h.AccountHandler lambda$0 - Accounts fetched successfully.
+2025-02-25 21:25:30,776 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:30,873 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@789520161 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM user WHERE user.user_id = '6' AND user.role = 'CUSTOMER';
+2025-02-25 21:25:33,579 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:33,627 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:35,149 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:35,152 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:35,244 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@209020050 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-25 21:25:35,337 INFO c.n.h.AccountHandler lambda$0 - Accounts fetched successfully.
+2025-02-25 21:25:35,342 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:25:35,395 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@815916659 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT branch_id, balance, date_of_opening, account_type, account_number, user_id, status FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-25 21:25:35,589 INFO c.n.h.AccountHandler lambda$0 - Accounts fetched successfully.
+2025-02-25 21:35:30,844 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:30,846 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:32,084 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1397324785 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-25 21:35:32,179 INFO c.n.h.AccountHandler lambda$0 - Accounts fetched successfully.
+2025-02-25 21:35:32,185 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:32,241 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1544781883 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT branch_id, balance, date_of_opening, account_type, account_number, user_id, status FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-25 21:35:32,443 INFO c.n.h.AccountHandler lambda$0 - Accounts fetched successfully.
+2025-02-25 21:35:33,415 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:34,349 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:36,600 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:36,700 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@724606488 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT branch_id, balance, date_of_opening, account_type, account_number, user_id, status FROM account WHERE account.account_number LIKE '%809%' LIMIT 3;
+2025-02-25 21:35:36,905 INFO c.n.h.AccountHandler lambda$0 - Accounts fetched successfully.
+2025-02-25 21:35:39,152 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:39,653 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@2050941786 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM transaction WHERE account_number = 8096098723451803 ORDER BY timestamp DESC;
+2025-02-25 21:35:39,715 INFO c.n.h.TransactionHandler lambda$0 - Statement fetched successfully.
+2025-02-25 21:35:39,721 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:39,832 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1740615423 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM transaction WHERE account_number = 8096098723451803 ORDER BY timestamp DESC LIMIT 6 OFFSET 0;
+2025-02-25 21:35:39,876 INFO c.n.h.TransactionHandler lambda$0 - Statement fetched successfully.
+2025-02-25 21:35:41,425 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:41,576 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@665898415 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM transaction WHERE account_number = 8096098723451803 ORDER BY timestamp DESC LIMIT 6 OFFSET 6;
+2025-02-25 21:35:41,632 INFO c.n.h.TransactionHandler lambda$0 - Statement fetched successfully.
+2025-02-25 21:35:44,561 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:44,562 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:44,655 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1962480237 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM user WHERE user.role = 'CUSTOMER';
+2025-02-25 21:35:44,756 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:44,813 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@16955398 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM user JOIN customer ON user.user_id = customer.customer_id WHERE user.role = 'CUSTOMER' LIMIT 8 OFFSET 0;
+2025-02-25 21:35:49,792 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:49,794 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:49,893 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@882795711 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM user JOIN employee ON user.user_id = employee.employee_id WHERE user.role != 'CUSTOMER';
+2025-02-25 21:35:50,003 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:50,060 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1848775962 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM user JOIN employee ON user.user_id = employee.employee_id WHERE user.role != 'CUSTOMER' LIMIT 8 OFFSET 0;
+2025-02-25 21:35:57,689 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:57,690 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:35:57,787 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1892059178 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM branch;
+2025-02-25 21:38:04,578 INFO c.n.l.DriverCleanupListener contextDestroyed - Deregistered JDBC driver: com.mysql.cj.jdbc.Driver@130dafbd
+2025-02-25 21:38:04,578 INFO c.n.l.DriverCleanupListener contextDestroyed - MySQL AbandonedConnectionCleanupThread shut down successfully.
+2025-02-25 21:38:04,587 INFO c.n.l.DriverCleanupListener contextDestroyed - Database connection pool closed successfully.
+2025-02-25 21:38:04,588 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Shutting down executor service...
+2025-02-25 21:38:04,590 INFO c.n.l.ActivityLoggerShutdownListener contextDestroyed - Executor service shut down successfully.
+2025-02-25 21:40:40,455 WARN i.n.u.HashedWheelTimer run - An exception was thrown by TimerTask.
+java.lang.NoClassDefFoundError: io/netty/util/concurrent/DefaultPromise$1
+	at io.netty.util.concurrent.DefaultPromise.notifyListeners(DefaultPromise.java:500)
+	at io.netty.util.concurrent.DefaultPromise.addListener(DefaultPromise.java:185)
+	at io.netty.channel.DefaultChannelPromise.addListener(DefaultChannelPromise.java:95)
+	at io.netty.channel.DefaultChannelPromise.addListener(DefaultChannelPromise.java:30)
+	at org.redisson.client.RedisConnection.async(RedisConnection.java:265)
+	at org.redisson.client.RedisConnection.async(RedisConnection.java:240)
+	at org.redisson.client.handler.PingConnectionHandler.sendPing(PingConnectionHandler.java:65)
+	at org.redisson.client.handler.PingConnectionHandler.lambda$sendPing$1(PingConnectionHandler.java:104)
+	at io.netty.util.HashedWheelTimer$HashedWheelTimeout.run(HashedWheelTimer.java:715)
+	at io.netty.util.concurrent.ImmediateExecutor.execute(ImmediateExecutor.java:34)
+	at io.netty.util.HashedWheelTimer$HashedWheelTimeout.expire(HashedWheelTimer.java:703)
+	at io.netty.util.HashedWheelTimer$HashedWheelBucket.expireTimeouts(HashedWheelTimer.java:790)
+	at io.netty.util.HashedWheelTimer$Worker.run(HashedWheelTimer.java:503)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: java.lang.ClassNotFoundException: Illegal access: this web application instance has been stopped already. Could not load [io.netty.util.concurrent.DefaultPromise$1]. The following stack trace is thrown for debugging purposes as well as to attempt to terminate the thread which caused the illegal access.
+	at org.apache.catalina.loader.WebappClassLoaderBase.checkStateForClassLoading(WebappClassLoaderBase.java:1318)
+	at org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1153)
+	at org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1120)
+	... 15 more
+Caused by: java.lang.IllegalStateException: Illegal access: this web application instance has been stopped already. Could not load [io.netty.util.concurrent.DefaultPromise$1]. The following stack trace is thrown for debugging purposes as well as to attempt to terminate the thread which caused the illegal access.
+	at org.apache.catalina.loader.WebappClassLoaderBase.checkStateForResourceLoading(WebappClassLoaderBase.java:1328)
+	at org.apache.catalina.loader.WebappClassLoaderBase.checkStateForClassLoading(WebappClassLoaderBase.java:1316)
+	... 17 more
+2025-02-25 21:41:56,145 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:41:56,145 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:41:56,693 INFO c.n.u.DBConnectionPool lambda$0 - MySQL JDBC Driver Loaded Successfully
+2025-02-25 21:41:57,884 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@706706209 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM branch;
+2025-02-25 21:41:58,011 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:41:58,067 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@343509909 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM branch LIMIT 8 OFFSET 0;
+2025-02-25 21:42:04,071 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:42:05,976 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:42:06,084 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@704086616 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT branch_id, balance, date_of_opening, account_type, account_number, user_id, status FROM account WHERE account.account_number LIKE '%809%' LIMIT 3;
+2025-02-25 21:42:06,322 INFO c.n.h.AccountHandler lambda$0 - Accounts fetched successfully.
+2025-02-25 21:42:11,535 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:42:12,033 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1367960126 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: UPDATE account SET balance = 10415.5,account_number = 8096098723451803  WHERE account_number = 8096098723451803;
+2025-02-25 21:42:12,077 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@770960474 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: UPDATE account SET balance = 11056.5,account_number = 8096098723451804  WHERE account_number = 8096098723451804;
+2025-02-25 21:42:12,163 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@618172434 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: INSERT INTO transaction(creation_time, account_number, balance, user_id, transaction_account, transaction_amount, modified_by, type, reference_number, timestamp) VALUES (1740499932120, 8096098723451803, 10415.5, 6, 8096098723451804, 1.0, 3, 'DEBIT', NULL, 1740499932120);
+2025-02-25 21:42:12,290 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@670326183 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: INSERT INTO transaction(creation_time, account_number, balance, user_id, transaction_account, transaction_amount, modified_by, type, reference_number, timestamp) VALUES (1740499932250, 8096098723451804, 11056.5, 4, 8096098723451803, 1.0, 3, 'CREDIT', 2760, 1740499932250);
+2025-02-25 21:42:12,559 INFO c.n.h.TransactionHandler lambda$0 - Transaction success.
+2025-02-25 21:42:12,599 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@657488150 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: INSERT INTO activity_logs(subject_id, action_time, action, details, actor_id, tablename, key_value) VALUES (6, 1740499932558, 'TRANSACTION', '{"fromAccount":"8096098723451803","toAccount":"8096098723451804","amount":"1","bankName":"BOU","transactionType":"same-bank"}', 3, 'transaction', 8096098723451803);
+2025-02-25 21:42:12,642 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@814730322 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: INSERT INTO activity_logs(subject_id, action_time, action, details, actor_id, tablename, key_value) VALUES (4, 1740499932559, 'TRANSACTION', '{"fromAccount":"8096098723451803","toAccount":"8096098723451804","amount":"1","bankName":"BOU","transactionType":"same-bank"}', 3, 'transaction', 8096098723451804);
+2025-02-25 21:42:26,248 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:42:26,250 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:42:26,342 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@590612372 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT COUNT(*) AS count  FROM account WHERE account.branch_id LIKE '%6%';
+2025-02-25 21:42:26,433 INFO c.n.h.AccountHandler lambda$0 - Accounts fetched successfully.
+2025-02-25 21:42:26,438 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:42:26,491 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@124160441 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT branch_id, balance, date_of_opening, account_type, account_number, user_id, status FROM account WHERE account.branch_id = '6' LIMIT 8 OFFSET 0;
+2025-02-25 21:42:26,685 INFO c.n.h.AccountHandler lambda$0 - Accounts fetched successfully.
+2025-02-25 21:42:28,269 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:42:28,499 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1535343953 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM user WHERE user.user_id = '6' AND user.role = 'CUSTOMER';
+2025-02-25 21:42:50,682 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:42:50,775 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@1217072478 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM user WHERE user.user_id = '6' AND user.role = 'CUSTOMER';
+2025-02-25 21:42:55,022 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:42:55,120 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@655066922 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM user WHERE user.user_id = '6' AND user.role = 'CUSTOMER';
+2025-02-25 21:42:55,742 INFO c.n.f.AuthFilter lambda$0 - Auth filter is being applied.
+2025-02-25 21:42:55,837 INFO c.n.d.DataAccessObject lambda$0 - HikariProxyPreparedStatement@691255081 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT *  FROM user WHERE user.user_id = '6' AND user.role = 'CUSTOMER';

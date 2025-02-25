@@ -261,10 +261,9 @@
 	        console.log("tc: ",criteria)
 	        try {
 	            const token = sessionStorage.getItem('jwt');
-	            const url = new URL('api/logs ');
 	            criteria.count = true;
 	            criteria.searchSimilarFields = ["actorId", "keyValue", "subjectId"];
-	            const response = await fetch(url, {
+	            const response = await fetch('api/logs', {
 	                method: 'POST',
 	                headers: {
 	                    'Authorization': `Bearer ${token}`,
@@ -294,7 +293,6 @@
 	                return;
 	            }
 	
-	            const url = new URL('api/logs');
 	            const criteria = {}
 	            criteria.currentPage = currentPage;
 	            criteria.limit = limit;
@@ -307,7 +305,7 @@
 	                criteria.searchSimilarFields = ["actorId", "keyValue", "subjectId"];
 	            }
 	
-	            const response = await fetch(url, {
+	            const response = await fetch('api/logs', {
 	                method: 'POST',
 	                headers: {
 	                    'Authorization': `Bearer ${token}`,

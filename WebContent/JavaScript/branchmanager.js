@@ -200,11 +200,10 @@ document.addEventListener('DOMContentLoaded', function () {
     async function fetchTotalCount(criteria) {
         try {
             const token = sessionStorage.getItem('jwt');
-            const url = new URL('api/branch');
             criteria.count = true;
             criteria.searchSimilar = true;
             
-            const response = await fetch(url, {
+            const response = await fetch('api/branch', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -234,7 +233,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const url = new URL('api/branch');
             const criteria = {}
 
             criteria.currentPage = currentPage;
@@ -244,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function () {
             criteria.ifsc = searchCriteria.ifsc;
             criteria.searchSimilar = true;
 
-            const response = await fetch(url, {
+            const response = await fetch('api/branch', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -438,12 +436,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function fetchBranchs(branchId) {
         const token = sessionStorage.getItem('jwt');
-        const url = `api/branch`;
         criteria = {}
         criteria.branchId = branchId;
 
         try {
-            const response = await fetch(url, {
+            const response = await fetch('api/branch', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
