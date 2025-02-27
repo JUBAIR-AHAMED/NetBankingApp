@@ -1,37 +1,57 @@
 package com.netbanking.util;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
+import com.netbanking.activityLogger.AsyncLoggerUtil;
+
+import org.apache.logging.log4j.Level;
+import org.redisson.Redisson;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 
 public class Redis {
-    private static final JedisPool jedisPool = new JedisPool(new JedisPoolConfig(), "redis-15838.crce179.ap-south-1-1.ec2.redns.redis-cloud.com", 15838);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String REDIS_PASSWORD = "mgr8R5X0mKULMtR1pH4qDI3RMQYioVaO"; 
-    
-    private Redis() {}
 
-    private static Jedis getJedis() {
-        Jedis jedis = jedisPool.getResource();
-        jedis.auth(REDIS_PASSWORD);  // Authenticate
-        return jedis;
+    private static RedissonClient redissonClient;
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String REDIS_HOST = "redis-17771.c330.asia-south1-1.gce.redns.redis-cloud.com";
+    private static final int REDIS_PORT = 17771;
+    private static final String REDIS_PASSWORD = "jhCT45E2lvchvuw0MDQ9UMeEX7IOkGSm";
+
+    static {
+        Config config = new Config();
+        config.useSingleServer()
+                .setAddress("redis://" + REDIS_HOST + ":" + REDIS_PORT)
+                .setPassword(REDIS_PASSWORD);
+        try {
+        	redissonClient = Redisson.create(config);
+        	AsyncLoggerUtil.log(Redis.class, Level.ERROR, "Redis connection established successfully.");
+        } catch (Exception e) {
+        	AsyncLoggerUtil.log(Redis.class, Level.ERROR, e);
+        	e.printStackTrace();
+		}
     }
 
+    private Redis() {}
+    
+    public static RedissonClient getInstance() {
+        return redissonClient;
+    }
+    
     public static String get(String cacheKey) {
-        try (Jedis jedis = getJedis()) {
-            return jedis.get(cacheKey);
-        }
+        RBucket<String> bucket = redissonClient.getBucket(cacheKey);
+        return bucket.get();
     }
 
     public static void setex(String key, String value) {
-        long expiryTime = 3600; //seconds
-    	try (Jedis jedis = getJedis()) {
-            jedis.setex(key, expiryTime, value);
-        }
+        long expiryTime = 3600; // seconds
+        RBucket<String> bucket = redissonClient.getBucket(key);
+        Duration duration = Duration.ofSeconds(expiryTime);
+        bucket.set(value, duration);
     }
 
     public static <T> void setex(String key, T value) throws JsonProcessingException {
@@ -45,22 +65,23 @@ public class Redis {
     public static void setList(String cacheKey, String valueKey, List<Map<String, Object>> list) throws JsonProcessingException {
         for (Map<String, Object> map : list) {
             Long value = (Long) map.get(valueKey);
-            String cacheGetter = cacheKey + value;
-            String json = objectMapper.writeValueAsString(map);
-            Redis.setex(cacheGetter, json);
+            if (value != null) {
+                String cacheGetter = cacheKey + value;
+                String json = objectMapper.writeValueAsString(map);
+                setex(cacheGetter, json);
+            }
         }
     }
 
-    public static boolean exists(Object keyObj) {
-        try (Jedis jedis = getJedis()) {
-            return jedis.exists(keyObj.toString());
-        }
+    public static boolean exists(String key) {
+        return redissonClient.getBucket(key).isExists();
     }
 
-    public static int delete(Object keyObj) {
-        String key = keyObj.toString();
-        try (Jedis jedis = getJedis()) {
-            return jedis.exists(key) ? (int) jedis.del(key) : -1;
-        }
+    public static int delete(String key) {
+        return redissonClient.getBucket(key).delete() ? 1 : -1;
+    }
+
+    public static void shutdown() {
+        redissonClient.shutdown();
     }
 }

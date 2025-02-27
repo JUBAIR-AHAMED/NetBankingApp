@@ -436,12 +436,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function fetchBranchs(branchId) {
         const token = sessionStorage.getItem('jwt');
-        const url = `api/branch`;
         criteria = {}
         criteria.branchId = branchId;
 
         try {
-            const response = await fetch(url, {
+            const response = await fetch('api/branch', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

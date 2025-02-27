@@ -23,14 +23,12 @@ import com.netbanking.object.Activity;
 import com.netbanking.util.ApiHelper;
 import com.netbanking.util.Converter;
 import com.netbanking.util.Parser;
-import com.netbanking.util.RedissonHelper;
+import com.netbanking.util.Redis;
 import com.netbanking.util.UserDetailsLocal;
 import com.netbanking.util.Validator;
 import com.netbanking.util.Writer;
 
 public class TransactionHandler {
-	private static RedissonClient redisson = RedissonHelper.getInstance();
-
 	public static void handleGet(HttpServletRequest request, HttpServletResponse response) throws IOException, Exception {
 		UserDetailsLocal store = UserDetailsLocal.get();
 		Long userId = store.getUserId();
@@ -94,6 +92,7 @@ public class TransactionHandler {
 	}
 	
 	public static void handlePost(HttpServletRequest request, HttpServletResponse response) throws IOException, Exception {
+		RedissonClient redisson = Redis.getInstance();
 		Map<String, Object> responseMap = new HashMap<>();
 		UserDetailsLocal store = UserDetailsLocal.get();
 		Long userId = store.getUserId();

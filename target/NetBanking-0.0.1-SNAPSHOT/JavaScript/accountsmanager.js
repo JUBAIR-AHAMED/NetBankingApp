@@ -447,7 +447,7 @@ function setupBranchIdDropdownInput(inputElement) {
             try {
                 const criteria = { branchId: inputValue, searchSimilar: true }; // Enable similar search
                 const token = sessionStorage.getItem('jwt'); // Retrieve JWT token
-                const response = await fetch('api/branch', {
+                const response = await fetch(`api/branch`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -569,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function () {
             criteria.count = true;
             criteria.searchSimilar = true;
             criteria.searchSimilarFields = ["userId", "accountNumber", "branchId"];
-            const response = await fetch('api/branch', {
+            const response = await fetch('api/account', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -611,7 +611,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 criteria.searchSimilarFields = ["userId", "accountNumber", "branchId"];
             }
 
-            const response = await fetch('api/branch', {
+            const response = await fetch('api/account', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -649,7 +649,7 @@ document.addEventListener('DOMContentLoaded', function () {
             criteria.userType = 'customer';
             criteria.moreDetails = false;
 
-            const response = await fetch('api/branch', {
+            const response = await fetch('api/user', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -902,7 +902,7 @@ document.addEventListener('DOMContentLoaded', function () {
         criteria = {}
         criteria.branchId = branchId;
         try {
-            const response = await fetch('api/branch', {
+            const response = await fetch(`api/branch`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

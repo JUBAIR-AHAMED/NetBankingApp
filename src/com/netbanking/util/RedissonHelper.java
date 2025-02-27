@@ -29,8 +29,12 @@ public class RedissonHelper {
         String redisAddress = "redis://" + redisHost + ":" + redisPort;
         config.useSingleServer().setAddress(redisAddress)
               .setPassword(redisPassword);
+
+        // temp conf 
+//        String redisAddress = "redis://127.0.0.1:6379";
+//        config.useSingleServer().setAddress(redisAddress);
+        
         redisson = Redisson.create(config);
-        System.out.println("conf "+config);
     }
 
     public static RedissonClient getInstance() {
