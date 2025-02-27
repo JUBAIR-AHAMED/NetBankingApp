@@ -26,7 +26,10 @@ public class Redis {
         Config config = new Config();
         config.useSingleServer()
                 .setAddress("redis://" + REDIS_HOST + ":" + REDIS_PORT)
-                .setPassword(REDIS_PASSWORD);
+                .setPassword(REDIS_PASSWORD)
+                .setConnectionPoolSize(10)
+                .setConnectionMinimumIdleSize(1)
+                .setIdleConnectionTimeout(2000);
         try {
         	redissonClient = Redisson.create(config);
         	AsyncLoggerUtil.log(Redis.class, Level.ERROR, "Redis connection established successfully.");
