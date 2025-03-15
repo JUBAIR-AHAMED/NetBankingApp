@@ -32,7 +32,6 @@
 /home/jubair-tt0487/netbanking-app/NetBanking/src/com/netbanking/util/TokenHelper.java
 /home/jubair-tt0487/netbanking-app/NetBanking/src/com/netbanking/dao/DataAccessObject.java
 /home/jubair-tt0487/netbanking-app/NetBanking/src/com/netbanking/handler/CustomerHandler.java
-/home/jubair-tt0487/netbanking-app/NetBanking/src/com/netbanking/util/RedissonHelper.java
 /home/jubair-tt0487/netbanking-app/NetBanking/src/com/netbanking/object/Customer.java
 /home/jubair-tt0487/netbanking-app/NetBanking/src/com/netbanking/util/PasswordUtility.java
 /home/jubair-tt0487/netbanking-app/NetBanking/src/com/netbanking/handler/BranchHandler.java

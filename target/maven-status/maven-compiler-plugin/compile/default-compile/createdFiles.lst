@@ -64,6 +64,5 @@ com/netbanking/handler/BranchHandler.class
 com/netbanking/listener/RedissonClientShutdownListener.class
 com/netbanking/handler/LogsHandler.class
 com/netbanking/util/Parser.class
-com/netbanking/util/RedissonHelper.class
 com/netbanking/handler/CustomerHandler.class
 com/netbanking/mapper/PojoValueMapper.class

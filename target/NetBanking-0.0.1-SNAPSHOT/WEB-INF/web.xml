@@ -42,5 +42,7 @@
 	    <listener-class>com.netbanking.listener.DriverCleanupListener</listener-class>
 	</listener>
 		
-
+	<listener>
+ 	   <listener-class>com.netbanking.listener.RedissonClientShutdownListener</listener-class>
+	</listener>
 </web-app>
